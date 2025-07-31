@@ -42,21 +42,10 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scroll behavior for better smooth scrolling */
-html {
-  scroll-padding-top: 80px; /* Account for sticky header */
-}
-
-/* Smooth scroll animation */
-.smooth-scroll {
-  scroll-behavior: smooth;
-  transition: all 0.3s ease-in-out;
-}
-
 /* Focus styles for accessibility */
 *:focus {
-  outline: 1px solid #3b82f6;
-  outline-offset: 6px;
+  outline: 1px solid none;
+  outline-offset: 1px;
 }
 
 /* Custom animations for TrustedBy component */

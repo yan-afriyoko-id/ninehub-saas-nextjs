@@ -44,57 +44,57 @@ export default function FAQ() {
             Frequently Asked Questions
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Everything you need to know about our platform. Can't find the answer you're looking for? Contact our support team.
+            Everything you need to know about our platform. Can&apos;t find the answer you&apos;re looking for? Contact our support team.
           </p>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, index) => (
-            <div 
-              key={index}
-              className="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-700/50 overflow-hidden transition-all duration-300"
-            >
-              <button
-                onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gray-700/50 transition-all duration-300 group focus:"
-              >
-                <h3 className="text-lg font-semibold text-white pr-4 group-hover:text-blue-300 transition-colors duration-300">
-                  {faq.question}
-                </h3>
-                <div className="flex-shrink-0">
-                  <svg 
-                    className={`w-5 h-5 text-gray-400 transition-all duration-300 ${
-                      openIndex === index ? 'rotate-180 text-blue-400' : 'group-hover:text-blue-300'
-                    }`}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+                         <div 
+               key={index}
+               className="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-600/30 overflow-hidden transition-all duration-800"
+             >
+                             <button
+                 onClick={() => toggleFAQ(index)}
+                 className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gray-700/20 transition-all duration-800 ease-in-out group focus:outline-none"
+               >
+                 <h3 className="text-lg font-semibold text-white pr-4 group-hover:text-gray-200 transition-colors duration-800">
+                   {faq.question}
+                 </h3>
+                                 <div className="flex-shrink-0">
+                   <svg 
+                     className={`w-5 h-5 text-gray-500 transition-all duration-800 ease-in-out ${
+                       openIndex === index ? 'rotate-180 text-gray-400' : 'group-hover:text-gray-400'
+                     }`}
+                     fill="none" 
+                     stroke="currentColor" 
+                     viewBox="0 0 24 24"
+                   >
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </div>
               </button>
               
-              <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-                <div className="px-6 pb-5">
-                  <div className="border-t border-gray-700/50 pt-4">
-                    <p className="text-gray-300 leading-relaxed text-sm">
-                      {faq.answer}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                             <div 
+                 className={`overflow-hidden transition-all duration-1000 ease-in-out ${
+                   openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                 }`}
+               >
+                 <div className="px-6 pb-5">
+                   <div className="border-t border-gray-500/20 pt-4">
+                     <p className="text-gray-300 leading-relaxed text-sm">
+                       {faq.answer}
+                     </p>
+                   </div>
+                 </div>
+               </div>
             </div>
           ))}
         </div>
 
         <div className="text-center mt-12">
           <p className="text-gray-300 mb-6">
-            Still have questions? We're here to help.
+            Still have questions? We&apos;re here to help.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">

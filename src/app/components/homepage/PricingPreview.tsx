@@ -118,9 +118,12 @@ export default function PricingPreview() {
           <p className="text-gray-400 mb-4">
             Need a custom plan? Contact our sales team
           </p>
-          <button className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300">
+          <a 
+            href="/pricing"
+            className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300"
+          >
             Contact Sales →
-          </button>
+          </a>
         </div>
       </div>
     </section>

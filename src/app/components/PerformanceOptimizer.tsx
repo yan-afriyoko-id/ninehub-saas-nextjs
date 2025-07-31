@@ -55,10 +55,15 @@ export default function PerformanceOptimizer() {
                 console.log('LCP:', entry.startTime);
               }
               if (entry.entryType === 'first-input') {
-                console.log('FID:', entry.processingStart - entry.startTime);
+                // FID calculation: processingEnd - startTime
+                const firstInputEntry = entry as PerformanceEventTiming;
+                if (firstInputEntry.processingEnd && firstInputEntry.startTime) {
+                  console.log('FID:', firstInputEntry.processingEnd - firstInputEntry.startTime);
+                }
               }
               if (entry.entryType === 'layout-shift') {
-                console.log('CLS:', entry.value);
+                const layoutShiftEntry = entry as LayoutShift;
+                console.log('CLS:', layoutShiftEntry.value);
               }
             }
           });
@@ -78,6 +83,24 @@ export default function PerformanceOptimizer() {
   }, []);
 
   return null; // This component doesn't render anything
+}
+
+// Type definitions for performance entries
+interface PerformanceEventTiming extends PerformanceEntry {
+  processingStart: number;
+  processingEnd: number;
+  target?: EventTarget;
+}
+
+interface LayoutShift extends PerformanceEntry {
+  value: number;
+  sources?: LayoutShiftAttribution[];
+}
+
+interface LayoutShiftAttribution {
+  node?: Node;
+  currentRect?: DOMRectReadOnly;
+  previousRect?: DOMRectReadOnly;
 }
 
 // Utility functions for performance optimization

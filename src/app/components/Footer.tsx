@@ -39,11 +39,11 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-400">&copy; 2025 Analytics Pro. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</a>
-            <a href="/cookies" className="text-sm text-gray-400 hover:text-white transition-colors">Cookies</a>
-          </div>
+                            <div className="flex space-x-6 mt-4 md:mt-0">
+                    <a href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+                    <a href="/testimonials" className="text-sm text-gray-400 hover:text-white transition-colors">Testimonials</a>
+                  </div>
         </div>
       </div>
     </footer>

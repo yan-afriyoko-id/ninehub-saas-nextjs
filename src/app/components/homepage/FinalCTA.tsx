@@ -19,12 +19,18 @@ export default function FinalCTA() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+          <a 
+            href="/register"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 inline-block text-center"
+          >
             Start Free Trial
-          </button>
-          <button className="border-2 border-blue-400/30 hover:border-blue-400/50 text-white px-6 sm:px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 backdrop-blur-sm">
+          </a>
+          <a 
+            href="/pricing"
+            className="border-2 border-blue-400/30 hover:border-blue-400/50 text-white px-6 sm:px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 backdrop-blur-sm inline-block text-center"
+          >
             Schedule Demo
-          </button>
+          </a>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 text-center">
