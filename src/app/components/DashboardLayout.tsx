@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from './AuthContext';
 import { 
   BarChart3, 
   PieChart, 
@@ -12,11 +13,29 @@ import {
   Bell,
   Search,
   LogOut,
-  Home
+  Home,
+  MessageSquare,
+  Database,
+  Shield,
+  UserCheck,
+  CreditCard
 } from 'lucide-react';
 
+// Icon mapping
+const iconMap: { [key: string]: any } = {
+  BarChart3,
+  Users,
+  MessageSquare,
+  Database,
+  Shield,
+  UserCheck,
+  CreditCard,
+  Settings
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('dashboard');
   
   return (
     <div className="min-h-screen bg-gray-900 flex">
@@ -30,65 +49,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
           
           <nav className="space-y-2">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'overview' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <BarChart3 size={20} />
-              <span>Overview</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'analytics' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <TrendingUp size={20} />
-              <span>Analytics</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'users' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <Users size={20} />
-              <span>Users</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('reports')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'reports' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <PieChart size={20} />
-              <span>Reports</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'settings' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <Settings size={20} />
-              <span>Settings</span>
-            </button>
+            {user?.menuItems?.map((item) => {
+              const IconComponent = iconMap[item.icon];
+              return (
+                <Link
+                  key={item.id}
+                  href={item.path}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === item.id
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-700'
+                  }`}
+                  onClick={() => setActiveTab(item.id)}
+                >
+                  {IconComponent && <IconComponent size={20} />}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Bottom section */}
@@ -101,7 +79,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>Back to Home</span>
             </Link>
             
-            <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors mt-2">
+            <button 
+              onClick={logout}
+              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors mt-2"
+            >
               <LogOut size={20} />
               <span>Logout</span>
             </button>
@@ -115,7 +96,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h2 className="text-2xl font-bold text-white">Dashboard</h2>
+              <h2 className="text-2xl font-bold text-white">
+                {user?.role === 'admin' ? 'Admin Dashboard' : 'Tenant Dashboard'}
+              </h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
@@ -133,7 +116,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
               <Link href="/dashboard/profile" className="flex items-center space-x-2 text-gray-300 hover:text-white">
                 <User size={20} />
-                <span>John Doe</span>
+                <span>{user?.name || 'User'}</span>
               </Link>
             </div>
           </div>

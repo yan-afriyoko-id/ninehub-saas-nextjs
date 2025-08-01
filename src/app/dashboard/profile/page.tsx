@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../../components/AuthContext';
 import { 
   ArrowLeft,
   User,
@@ -21,11 +22,12 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePage() {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   
-  // Dummy user data
-  const user = {
+  // Use logged in user data or fallback to dummy data
+  const userData = user || {
     name: 'John Doe',
     email: 'john.doe@example.com',
     phone: '+1 (555) 123-4567',
@@ -43,11 +45,11 @@ export default function ProfilePage() {
   };
 
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    location: user.location,
-    company: user.company
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    location: userData.location,
+    company: userData.company
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -64,11 +66,11 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setFormData({
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      location: user.location,
-      company: user.company
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      location: userData.location,
+      company: userData.company
     });
     setIsEditing(false);
   };
@@ -308,23 +310,23 @@ export default function ProfilePage() {
                 <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <User size={32} className="text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">{user.name}</h3>
-                <p className="text-gray-400">{user.role}</p>
-                <p className="text-gray-400 text-sm">{user.company}</p>
+                <h3 className="text-xl font-semibold text-white">{userData.name}</h3>
+                <p className="text-gray-400">{userData.role}</p>
+                <p className="text-gray-400 text-sm">{userData.company}</p>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 text-gray-300">
                   <Calendar size={16} />
-                  <span className="text-sm">Joined {new Date(user.joinDate).toLocaleDateString()}</span>
+                  <span className="text-sm">Joined {new Date(userData.joinDate).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
                   <Mail size={16} />
-                  <span className="text-sm">{user.email}</span>
+                  <span className="text-sm">{userData.email}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
                   <MapPin size={16} />
-                  <span className="text-sm">{user.location}</span>
+                  <span className="text-sm">{userData.location}</span>
                 </div>
               </div>
             </div>
@@ -336,27 +338,27 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Plan</span>
-                  <span className="text-white font-medium">{user.subscription.plan}</span>
+                  <span className="text-white font-medium">{userData.subscription.plan}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Status</span>
-                  <span className="text-green-400 font-medium">{user.subscription.status}</span>
+                  <span className="text-green-400 font-medium">{userData.subscription.status}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Price</span>
-                  <span className="text-white font-medium">{user.subscription.price}</span>
+                  <span className="text-white font-medium">{userData.subscription.price}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Start Date</span>
-                  <span className="text-white">{new Date(user.subscription.startDate).toLocaleDateString()}</span>
+                  <span className="text-white">{new Date(userData.subscription.startDate).toLocaleDateString()}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">End Date</span>
-                  <span className="text-white">{new Date(user.subscription.endDate).toLocaleDateString()}</span>
+                  <span className="text-white">{new Date(userData.subscription.endDate).toLocaleDateString()}</span>
                 </div>
               </div>
 

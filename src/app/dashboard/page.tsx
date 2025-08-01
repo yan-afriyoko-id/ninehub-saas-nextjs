@@ -1,22 +1,33 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '../components/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
+import OverviewCard from '../components/dashboard/OverviewCard';
+import SubscriptionCard from '../components/dashboard/SubscriptionCard';
+import ChartCard from '../components/dashboard/ChartCard';
+import BarChart from '../components/dashboard/BarChart';
+import PieChart from '../components/dashboard/PieChart';
+import DataTable from '../components/dashboard/DataTable';
+import FormCard from '../components/dashboard/FormCard';
+import FormField from '../components/dashboard/FormField';
+import ImageCard from '../components/dashboard/ImageCard';
+import RoleBasedContent from '../components/dashboard/RoleBasedContent';
 import { 
   BarChart3, 
-  PieChart, 
+  PieChart as PieChartIcon, 
   TrendingUp, 
-  Users, 
-  Calendar,
-  Download,
-  Filter
+  Users
 } from 'lucide-react';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   
-  // Dummy data
-  const subscriptionEndDate = new Date('2025-03-15');
+  // Use user data if available, otherwise use dummy data
+  const subscriptionEndDate = user?.subscription?.endDate 
+    ? new Date(user.subscription.endDate) 
+    : new Date('2025-03-15');
   const daysUntilExpiry = Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   
   const chartData = [
@@ -34,199 +45,431 @@ export default function DashboardPage() {
     { label: 'Tablet', value: 20, color: '#F59E0B' }
   ];
 
+  const userTableData = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
+    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive' },
+    { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'Moderator', status: 'Active' },
+  ];
+
+  const userColumns = [
+    { key: 'id', label: 'ID', sortable: true },
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'email', label: 'Email', sortable: true },
+    { key: 'role', label: 'Role', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+  ];
+
+  const handleRenewSubscription = () => {
+    alert('Redirecting to payment page...');
+  };
+
+  const handleDownloadChart = () => {
+    alert('Downloading chart data...');
+  };
+
+  const handleFilterChart = () => {
+    alert('Opening filter options...');
+  };
+
+  const handleUserRowClick = (user: any) => {
+    alert(`Viewing details for ${user.name}`);
+  };
+
   return (
     <DashboardLayout>
-          {activeTab === 'overview' && (
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          {/* Subscription Status */}
+          <SubscriptionCard
+            plan={user?.subscription?.plan || "Premium"}
+            endDate={subscriptionEndDate}
+            daysLeft={daysUntilExpiry}
+            onRenew={handleRenewSubscription}
+          />
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <OverviewCard
+              title="Total Users"
+              value="12,847"
+              change="+12% from last month"
+              changeType="positive"
+              icon={Users}
+              iconColor="#3B82F6"
+            />
+            
+            <OverviewCard
+              title="Revenue"
+              value="$45,231"
+              change="+8% from last month"
+              changeType="positive"
+              icon={TrendingUp}
+              iconColor="#10B981"
+            />
+            
+            <OverviewCard
+              title="Sessions"
+              value="89,234"
+              change="-3% from last month"
+              changeType="negative"
+              icon={BarChart3}
+              iconColor="#8B5CF6"
+            />
+            
+            <OverviewCard
+              title="Conversion"
+              value="2.4%"
+              change="+0.5% from last month"
+              changeType="positive"
+              icon={PieChartIcon}
+              iconColor="#F59E0B"
+            />
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard 
+              title="Monthly Growth"
+              onDownload={handleDownloadChart}
+              onFilter={handleFilterChart}
+            >
+              <BarChart data={chartData} />
+            </ChartCard>
+
+            <ChartCard 
+              title="Traffic Sources"
+              onDownload={handleDownloadChart}
+              onFilter={handleFilterChart}
+            >
+              <PieChart data={pieData} />
+            </ChartCard>
+          </div>
+
+          {/* Recent Users Table */}
+          <DataTable
+            columns={userColumns}
+            data={userTableData}
+            title="Recent Users"
+            onRowClick={handleUserRowClick}
+          />
+        </div>
+      )}
+
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4">Analytics Dashboard</h3>
+            <p className="text-gray-300 mb-4">Detailed analytics and insights will be displayed here.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">Page Views</h4>
+                <p className="text-2xl font-bold text-blue-400">1,234</p>
+                <p className="text-green-400 text-sm">+15% vs last week</p>
+              </div>
+              
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">Bounce Rate</h4>
+                <p className="text-2xl font-bold text-orange-400">23.4%</p>
+                <p className="text-red-400 text-sm">+2% vs last week</p>
+              </div>
+              
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">Avg. Session</h4>
+                <p className="text-2xl font-bold text-green-400">4m 32s</p>
+                <p className="text-green-400 text-sm">+8% vs last week</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'users' && (
+        <div className="space-y-6">
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4">User Management</h3>
+            <p className="text-gray-300 mb-4">Manage your users and their permissions.</p>
+            
+            <DataTable
+              columns={userColumns}
+              data={userTableData}
+              title="All Users"
+              onRowClick={handleUserRowClick}
+            />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'reports' && (
+        <div className="space-y-6">
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4">Reports & Analytics</h3>
+            <p className="text-gray-300 mb-4">Generate and view detailed reports.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">Monthly Report</h4>
+                <p className="text-gray-300 text-sm mb-3">Comprehensive monthly analytics</p>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  Generate Report
+                </button>
+              </div>
+              
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h4 className="text-white font-medium mb-2">Custom Report</h4>
+                <p className="text-gray-300 text-sm mb-3">Create custom analytics report</p>
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  Create Custom
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <RoleBasedContent
+          userRole={user?.role || 'user'}
+          adminContent={
             <div className="space-y-6">
-              {/* Subscription Status */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Subscription Status</h3>
-                    <p className="text-blue-100">Premium Plan</p>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Calendar size={16} />
-                      <span>Expires: {subscriptionEndDate.toLocaleDateString()}</span>
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Admin Settings</h3>
+                <p className="text-gray-300 mb-4">Full system administration and user management.</p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-medium">User Management</h4>
+                      <p className="text-gray-400 text-sm">Manage all users and permissions</p>
                     </div>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Manage Users
+                    </button>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-2xl font-bold ${daysUntilExpiry <= 30 ? 'text-yellow-300' : 'text-green-300'}`}>
-                      {daysUntilExpiry} days left
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-medium">System Configuration</h4>
+                      <p className="text-gray-400 text-sm">Configure system-wide settings</p>
                     </div>
-                    <button className="mt-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
-                      Renew Now
+                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Configure
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-medium">Data Management</h4>
+                      <p className="text-gray-400 text-sm">Export and manage all data</p>
+                    </div>
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Manage Data
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-400 text-sm">Total Users</p>
-                      <p className="text-2xl font-bold text-white">12,847</p>
-                      <p className="text-green-400 text-sm">+12% from last month</p>
-                    </div>
-                    <div className="bg-blue-600 p-3 rounded-lg">
-                      <Users className="text-white" size={24} />
-                    </div>
-                  </div>
+              {/* Admin Form */}
+              <FormCard 
+                title="Add New User" 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert('User added successfully!');
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Full Name"
+                    name="fullName"
+                    type="text"
+                    placeholder="Enter full name"
+                    required
+                  />
+                  <FormField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter email address"
+                    required
+                  />
+                  <FormField
+                    label="Role"
+                    name="role"
+                    type="select"
+                    options={[
+                      { value: 'admin', label: 'Administrator' },
+                      { value: 'user', label: 'User' },
+                      { value: 'tenant', label: 'Tenant' }
+                    ]}
+                    required
+                  />
+                  <FormField
+                    label="Department"
+                    name="department"
+                    type="text"
+                    placeholder="Enter department"
+                  />
                 </div>
-
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between">
+                <FormField
+                  label="Notes"
+                  name="notes"
+                  type="textarea"
+                  placeholder="Enter additional notes"
+                  rows={3}
+                />
+              </FormCard>
+            </div>
+          }
+          userContent={
+            <div className="space-y-6">
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">User Settings</h3>
+                <p className="text-gray-300 mb-4">Configure your account and preferences.</p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
                     <div>
-                      <p className="text-gray-400 text-sm">Revenue</p>
-                      <p className="text-2xl font-bold text-white">$45,231</p>
-                      <p className="text-green-400 text-sm">+8% from last month</p>
+                      <h4 className="text-white font-medium">Email Notifications</h4>
+                      <p className="text-gray-400 text-sm">Receive email updates</p>
                     </div>
-                    <div className="bg-green-600 p-3 rounded-lg">
-                      <TrendingUp className="text-white" size={24} />
-                    </div>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Configure
+                    </button>
                   </div>
-                </div>
-
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between">
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
                     <div>
-                      <p className="text-gray-400 text-sm">Sessions</p>
-                      <p className="text-2xl font-bold text-white">89,234</p>
-                      <p className="text-red-400 text-sm">-3% from last month</p>
+                      <h4 className="text-white font-medium">API Access</h4>
+                      <p className="text-gray-400 text-sm">Manage API keys and access</p>
                     </div>
-                    <div className="bg-purple-600 p-3 rounded-lg">
-                      <BarChart3 className="text-white" size={24} />
-                    </div>
+                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Manage
+                    </button>
                   </div>
-                </div>
-
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between">
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
                     <div>
-                      <p className="text-gray-400 text-sm">Conversion</p>
-                      <p className="text-2xl font-bold text-white">2.4%</p>
-                      <p className="text-green-400 text-sm">+0.5% from last month</p>
+                      <h4 className="text-white font-medium">Data Export</h4>
+                      <p className="text-gray-400 text-sm">Export your data</p>
                     </div>
-                    <div className="bg-orange-600 p-3 rounded-lg">
-                      <PieChart className="text-white" size={24} />
-                    </div>
+                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Export
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Line Chart */}
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-white">Monthly Growth</h3>
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-gray-400 hover:text-white">
-                        <Filter size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-white">
-                        <Download size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="h-64 flex items-end space-x-2">
-                    {chartData.map((data, index) => (
-                      <div key={index} className="flex-1 flex flex-col items-center">
-                        <div 
-                          className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
-                          style={{ height: `${(data.value / 100) * 200}px` }}
-                        ></div>
-                        <span className="text-gray-400 text-sm mt-2">{data.month}</span>
-                      </div>
-                    ))}
-                  </div>
+              {/* User Form */}
+              <FormCard 
+                title="Update Profile" 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert('Profile updated successfully!');
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Full Name"
+                    name="fullName"
+                    type="text"
+                    placeholder="Enter full name"
+                    required
+                  />
+                  <FormField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter email address"
+                    required
+                  />
+                  <FormField
+                    label="Department"
+                    name="department"
+                    type="text"
+                    placeholder="Enter department"
+                  />
+                  <FormField
+                    label="Phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Enter phone number"
+                  />
                 </div>
-
-                {/* Pie Chart */}
-                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-white">Traffic Sources</h3>
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-gray-400 hover:text-white">
-                        <Filter size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-white">
-                        <Download size={16} />
-                      </button>
+                <FormField
+                  label="Bio"
+                  name="bio"
+                  type="textarea"
+                  placeholder="Tell us about yourself"
+                  rows={3}
+                />
+              </FormCard>
+            </div>
+          }
+          tenantContent={
+            <div className="space-y-6">
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Basic Settings</h3>
+                <p className="text-gray-300 mb-4">Manage your basic account settings.</p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-medium">Profile Settings</h4>
+                      <p className="text-gray-400 text-sm">Update your profile information</p>
                     </div>
+                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Update
+                    </button>
                   </div>
-                  <div className="flex items-center justify-center h-64">
-                    <div className="relative w-32 h-32">
-                      <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 32 32">
-                        <circle
-                          cx="16"
-                          cy="16"
-                          r="14"
-                          fill="none"
-                          stroke="#374151"
-                          strokeWidth="4"
-                        />
-                        <circle
-                          cx="16"
-                          cy="16"
-                          r="14"
-                          fill="none"
-                          stroke="#3B82F6"
-                          strokeWidth="4"
-                          strokeDasharray={`${2 * Math.PI * 14}`}
-                          strokeDashoffset={`${2 * Math.PI * 14 * 0.55}`}
-                          className="transition-all duration-1000"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-white font-semibold">45%</span>
-                      </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                    <div>
+                      <h4 className="text-white font-medium">Subscription</h4>
+                      <p className="text-gray-400 text-sm">Manage your subscription</p>
                     </div>
-                  </div>
-                  <div className="flex justify-center space-x-4 mt-4">
-                    {pieData.map((item, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <span className="text-gray-300 text-sm">{item.label}</span>
-                      </div>
-                    ))}
+                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                      Manage
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {activeTab === 'analytics' && (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Analytics</h3>
-              <p className="text-gray-300">Analytics content will be displayed here.</p>
+              {/* Tenant Form */}
+              <FormCard 
+                title="Basic Profile" 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert('Profile updated successfully!');
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Full Name"
+                    name="fullName"
+                    type="text"
+                    placeholder="Enter full name"
+                    required
+                  />
+                  <FormField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter email address"
+                    required
+                  />
+                </div>
+                <FormField
+                  label="Company"
+                  name="company"
+                  type="text"
+                  placeholder="Enter company name"
+                />
+              </FormCard>
             </div>
-          )}
-
-          {activeTab === 'users' && (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Users</h3>
-              <p className="text-gray-300">User management content will be displayed here.</p>
-            </div>
-          )}
-
-          {activeTab === 'reports' && (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Reports</h3>
-              <p className="text-gray-300">Reports content will be displayed here.</p>
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Settings</h3>
-              <p className="text-gray-300">Settings content will be displayed here.</p>
-            </div>
-                     )}
-     </DashboardLayout>
-   );
- } 
+          }
+        />
+      )}
+    </DashboardLayout>
+  );
+} 
