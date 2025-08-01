@@ -11,7 +11,7 @@ import PieChart from '../components/dashboard/PieChart';
 import DataTable from '../components/dashboard/DataTable';
 import FormCard from '../components/dashboard/FormCard';
 import FormField from '../components/dashboard/FormField';
-import ImageCard from '../components/dashboard/ImageCard';
+
 import RoleBasedContent from '../components/dashboard/RoleBasedContent';
 import { 
   BarChart3, 
@@ -22,7 +22,7 @@ import {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab] = useState('overview');
   
   // Use user data if available, otherwise use dummy data
   const subscriptionEndDate = user?.subscription?.endDate 
@@ -72,7 +72,7 @@ export default function DashboardPage() {
     alert('Opening filter options...');
   };
 
-  const handleUserRowClick = (user: any) => {
+  const handleUserRowClick = (user: Record<string, unknown>) => {
     alert(`Viewing details for ${user.name}`);
   };
 

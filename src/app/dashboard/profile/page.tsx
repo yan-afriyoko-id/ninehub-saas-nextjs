@@ -24,7 +24,7 @@ import {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+
   
   // Use logged in user data or fallback to dummy data
   const userData = user || {
@@ -121,7 +121,7 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center space-x-3 text-white">
                         <User size={16} />
-                        <span>{user.name}</span>
+                        <span>{userData.name}</span>
                       </div>
                     )}
                   </div>
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center space-x-3 text-white">
                         <Mail size={16} />
-                        <span>{user.email}</span>
+                        <span>{userData.email}</span>
                       </div>
                     )}
                   </div>
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center space-x-3 text-white">
                         <Phone size={16} />
-                        <span>{user.phone}</span>
+                        <span>{userData.phone}</span>
                       </div>
                     )}
                   </div>
@@ -172,7 +172,7 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center space-x-3 text-white">
                         <MapPin size={16} />
-                        <span>{user.location}</span>
+                        <span>{userData.location}</span>
                       </div>
                     )}
                   </div>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
                       />
                     ) : (
                       <div className="flex items-center space-x-3 text-white">
-                        <span>{user.company}</span>
+                        <span>{userData.company}</span>
                       </div>
                     )}
                   </div>
@@ -196,7 +196,7 @@ export default function ProfilePage() {
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Role</label>
                     <div className="flex items-center space-x-3 text-white">
-                      <span>{user.role}</span>
+                      <span>{userData.role}</span>
                     </div>
                   </div>
                 </div>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 text-gray-300">
                   <Calendar size={16} />
-                  <span className="text-sm">Joined {new Date(userData.joinDate).toLocaleDateString()}</span>
+                  <span className="text-sm">Joined {new Date(userData.joinDate || '2023-01-01').toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
                   <Mail size={16} />
@@ -353,12 +353,12 @@ export default function ProfilePage() {
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Start Date</span>
-                  <span className="text-white">{new Date(userData.subscription.startDate).toLocaleDateString()}</span>
+                  <span className="text-white">{new Date(userData.subscription.startDate || '2024-01-01').toLocaleDateString()}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">End Date</span>
-                  <span className="text-white">{new Date(userData.subscription.endDate).toLocaleDateString()}</span>
+                  <span className="text-white">{new Date(userData.subscription.endDate || '2025-12-31').toLocaleDateString()}</span>
                 </div>
               </div>
 

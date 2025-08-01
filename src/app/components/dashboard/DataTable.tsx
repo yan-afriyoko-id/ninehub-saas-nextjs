@@ -5,7 +5,7 @@ interface TableColumn {
 }
 
 interface TableData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface DataTableProps {
@@ -60,7 +60,7 @@ export default function DataTable({
               >
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {row[column.key]}
+                    {String(row[column.key])}
                   </td>
                 ))}
               </tr>

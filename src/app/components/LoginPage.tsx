@@ -24,7 +24,7 @@ export default function LoginPage() {
       if (!success) {
         setError('Invalid credentials. Use admin@example.com or tenant@example.com with password "password"');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);

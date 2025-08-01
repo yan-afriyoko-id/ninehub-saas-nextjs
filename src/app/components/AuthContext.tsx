@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export type UserRole = 'admin' | 'tenant';
+
 // Dummy user data with detailed permissions
 const dummyUsers = [
   {
@@ -11,6 +13,9 @@ const dummyUsers = [
     name: 'Admin User',
     role: 'admin',
     company: 'Analytics Pro',
+    phone: '+1 (555) 123-4567',
+    location: 'New York, NY',
+    joinDate: '2023-01-15',
     subscription: {
       plan: 'Enterprise',
       status: 'Active',
@@ -37,6 +42,9 @@ const dummyUsers = [
     name: 'Tenant User',
     role: 'tenant',
     company: 'Startup Ventures',
+    phone: '+1 (555) 987-6543',
+    location: 'San Francisco, CA',
+    joinDate: '2024-08-01',
     subscription: {
       plan: 'Basic',
       status: 'Active',
@@ -64,8 +72,11 @@ interface User {
   id: number;
   email: string;
   name: string;
-  role: 'admin' | 'tenant';
+  role: UserRole;
   company: string;
+  phone?: string;
+  location?: string;
+  joinDate?: string;
   subscription: {
     plan: string;
     status: string;
@@ -110,8 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _password, ...userWithoutPassword } = foundUser;
+      setUser(userWithoutPassword as User);
       localStorage.setItem('user', JSON.stringify(userWithoutPassword));
       setIsLoading(false);
       return { success: true, message: 'Login successful!' };

@@ -3,25 +3,20 @@
 import { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { 
-  BarChart3, 
   PieChart, 
-  TrendingUp, 
   Users, 
   Calendar,
-  Download,
-  Filter,
   MessageSquare,
-  Bot,
-  Settings,
-  CreditCard,
-  Building,
+  Target,
   Activity,
-  Target
+  Filter,
+  Download,
+  Bot
 } from 'lucide-react';
 
 export default function TenantDashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab] = useState('overview');
   
   // Dummy data for tenant
   const subscriptionEndDate = new Date('2025-03-15');
@@ -297,7 +292,7 @@ export default function TenantDashboard() {
               </div>
             </div>
             <p className="text-gray-300 text-sm">
-              Hi! I'm your AI assistant. I can help you with project management, 
+              Hi! I&apos;m your AI assistant. I can help you with project management, 
               customer inquiries, and general questions about your dashboard.
             </p>
           </div>

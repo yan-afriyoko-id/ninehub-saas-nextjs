@@ -14,24 +14,14 @@ import {
   Edit,
   Trash2,
   Eye,
-  Shield,
-  Key,
-  Crown,
-  MessageSquare,
-  Bot,
-  Settings,
-  Database,
-  Search,
-  MoreVertical
+  Search
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab] = useState('overview');
   
   // Dummy data
-  const subscriptionEndDate = new Date('2025-03-15');
-  const daysUntilExpiry = Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   
   const chartData = [
     { month: 'Jan', value: 65 },
@@ -73,7 +63,7 @@ export default function AdminDashboard() {
     { id: 3, name: 'Enterprise', price: '$99.99', features: 50, users: 200, status: 'Active' },
   ];
 
-  const renderCRUDTable = (data: any[], columns: string[], title: string) => (
+  const renderCRUDTable = (data: Record<string, unknown>[], columns: string[], title: string) => (
     <div className="bg-gray-800 rounded-xl border border-gray-700">
       <div className="p-6 border-b border-gray-700">
         <div className="flex items-center justify-between">
@@ -129,7 +119,7 @@ export default function AdminDashboard() {
                       ) : typeof value === 'string' && value === 'Inactive' ? (
                         <span className="bg-red-500/20 text-red-400 px-2 py-1 rounded-full text-xs">Inactive</span>
                       ) : (
-                        value
+                        String(value)
                       )}
                     </td>
                   ))}

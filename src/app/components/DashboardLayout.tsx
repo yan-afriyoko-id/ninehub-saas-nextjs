@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useAuth } from './AuthContext';
 import { 
   BarChart3, 
-  PieChart, 
-  TrendingUp, 
   Users, 
   Settings, 
   User, 
@@ -22,7 +20,7 @@ import {
 } from 'lucide-react';
 
 // Icon mapping
-const iconMap: { [key: string]: any } = {
+const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
   BarChart3,
   Users,
   MessageSquare,

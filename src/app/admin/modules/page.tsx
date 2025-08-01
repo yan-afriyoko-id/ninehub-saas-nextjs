@@ -61,7 +61,7 @@ export default function CRUDModulesPage() {
   );
 
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this module?')) {
+    if (confirm(`Are you sure you want to delete this module?`)) {
       setModules(modules.filter(module => module.id !== id));
     }
   };
@@ -105,7 +105,7 @@ export default function CRUDModulesPage() {
       <DashboardLayout>
         <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
           <h3 className="text-lg font-semibold text-white mb-4">Access Denied</h3>
-          <p className="text-gray-300">You don't have permission to access this page.</p>
+          <p className="text-gray-300">You don&apos;t have permission to access this page.</p>
         </div>
       </DashboardLayout>
     );

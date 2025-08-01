@@ -28,7 +28,7 @@ export default function LoginPage() {
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred during login');
     } finally {
       setIsSubmitting(false);
@@ -129,7 +129,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <a href="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Sign up
               </a>

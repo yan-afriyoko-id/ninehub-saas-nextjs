@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useAuth, UserRole } from './AuthContext';
 import { 
   BarChart3, 
-  PieChart, 
   TrendingUp, 
   Users, 
   Settings, 
@@ -14,18 +13,12 @@ import {
   LogOut,
   Home,
   Shield,
-  Building,
   Database,
   Key,
   Crown,
-  CreditCard,
   MessageSquare,
   Bot,
-  FileText,
-  Plus,
-  Trash2,
-  Edit,
-  Eye
+  Building
 } from 'lucide-react';
 import Link from 'next/link';
 

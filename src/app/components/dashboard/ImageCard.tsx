@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface ImageCardProps {
   title: string;
   imageUrl: string;
@@ -21,9 +23,11 @@ export default function ImageCard({
       onClick={onClick}
     >
       <div className="relative">
-        <img 
+        <Image 
           src={imageUrl} 
           alt={alt}
+          width={400}
+          height={192}
           className="w-full h-48 object-cover"
         />
         {showOverlay && (
