@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '../components/AuthContext';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -106,33 +107,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Accounts Info */}
-          <div className="mt-8 pt-6 border-t border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Demo Accounts</h3>
-            
-            <div className="space-y-3">
-              <div className="p-3 bg-gray-700/50 rounded-lg">
-                <h4 className="text-green-400 font-medium">Admin Account</h4>
-                <p className="text-gray-300 text-sm">Email: admin@analyticspro.com</p>
-                <p className="text-gray-300 text-sm">Password: admin123</p>
-                <p className="text-gray-400 text-xs mt-1">Full access to all features</p>
-              </div>
-              
-              <div className="p-3 bg-gray-700/50 rounded-lg">
-                <h4 className="text-blue-400 font-medium">Tenant Account</h4>
-                <p className="text-gray-300 text-sm">Email: tenant@startup.com</p>
-                <p className="text-gray-300 text-sm">Password: tenant123</p>
-                <p className="text-gray-400 text-xs mt-1">Limited access features</p>
-              </div>
-            </div>
-          </div>
+
 
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
               Don&apos;t have an account?{' '}
-              <a href="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <Link href="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Sign up
-              </a>
+              </Link>
             </p>
           </div>
         </div>

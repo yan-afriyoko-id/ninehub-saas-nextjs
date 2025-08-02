@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../components/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import OverviewCard from '../components/dashboard/OverviewCard';
@@ -11,46 +11,92 @@ import PieChart from '../components/dashboard/PieChart';
 import DataTable from '../components/dashboard/DataTable';
 import FormCard from '../components/dashboard/FormCard';
 import FormField from '../components/dashboard/FormField';
-
 import RoleBasedContent from '../components/dashboard/RoleBasedContent';
+import { apiClient } from '../services/api';
 import { 
   BarChart3, 
   PieChart as PieChartIcon, 
   TrendingUp, 
-  Users
+  Users,
+  Loader2
 } from 'lucide-react';
+
+interface DashboardStats {
+  totalUsers: number;
+  revenue: number;
+  sessions: number;
+  conversion: number;
+  userGrowth: number;
+  revenueGrowth: number;
+  sessionGrowth: number;
+  conversionGrowth: number;
+}
+
+interface DashboardData {
+  stats: DashboardStats;
+  chartData: Array<{ month: string; value: number }>;
+  pieData: Array<{ label: string; value: number; color: string }>;
+  recentUsers: Array<{
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
+  }>;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [activeTab] = useState('overview');
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   
   // Use user data if available, otherwise use dummy data
   const subscriptionEndDate = user?.subscription?.endDate 
     ? new Date(user.subscription.endDate) 
     : new Date('2025-03-15');
   const daysUntilExpiry = Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  
-  const chartData = [
-    { month: 'Jan', value: 65 },
-    { month: 'Feb', value: 78 },
-    { month: 'Mar', value: 90 },
-    { month: 'Apr', value: 85 },
-    { month: 'May', value: 95 },
-    { month: 'Jun', value: 88 }
-  ];
 
-  const pieData = [
-    { label: 'Desktop', value: 45, color: '#3B82F6' },
-    { label: 'Mobile', value: 35, color: '#10B981' },
-    { label: 'Tablet', value: 20, color: '#F59E0B' }
-  ];
+  // Load dashboard data from API
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        
+        // Fetch dashboard data from Laravel API
+        const response = await fetch('http://localhost:8000/api/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${apiClient.getToken()}`,
+            'Accept': 'application/json',
+          },
+        });
 
-  const userTableData = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive' },
-    { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'Moderator', status: 'Active' },
-  ];
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setDashboardData(data.data);
+          } else {
+            setError(data.message || 'Failed to load dashboard data');
+          }
+        } else {
+          setError('Failed to load dashboard data');
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        setError('Failed to load dashboard data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
+
+
 
   const userColumns = [
     { key: 'id', label: 'ID', sortable: true },
@@ -76,10 +122,46 @@ export default function DashboardPage() {
     alert(`Viewing details for ${user.name}`);
   };
 
+  // Use API data only
+  const stats = dashboardData?.stats || {
+    totalUsers: 0,
+    revenue: 0,
+    sessions: 0,
+    conversion: 0,
+    userGrowth: 0,
+    revenueGrowth: 0,
+    sessionGrowth: 0,
+    conversionGrowth: 0
+  };
+
+  const chartData = dashboardData?.chartData || [];
+  const pieData = dashboardData?.pieData || [];
+  const userTableData = dashboardData?.recentUsers || [];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading dashboard data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       {activeTab === 'overview' && (
         <div className="space-y-6">
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-800">{error}</p>
+            </div>
+          )}
+
           {/* Subscription Status */}
           <SubscriptionCard
             plan={user?.subscription?.plan || "Premium"}
@@ -92,67 +174,79 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <OverviewCard
               title="Total Users"
-              value="12,847"
-              change="+12% from last month"
-              changeType="positive"
+              value={stats.totalUsers.toLocaleString()}
+              change={`${stats.userGrowth > 0 ? '+' : ''}${stats.userGrowth}% from last month`}
+              changeType={stats.userGrowth >= 0 ? "positive" : "negative"}
               icon={Users}
               iconColor="#3B82F6"
             />
             
             <OverviewCard
               title="Revenue"
-              value="$45,231"
-              change="+8% from last month"
-              changeType="positive"
+              value={`$${stats.revenue.toLocaleString()}`}
+              change={`${stats.revenueGrowth > 0 ? '+' : ''}${stats.revenueGrowth}% from last month`}
+              changeType={stats.revenueGrowth >= 0 ? "positive" : "negative"}
               icon={TrendingUp}
               iconColor="#10B981"
             />
             
             <OverviewCard
               title="Sessions"
-              value="89,234"
-              change="-3% from last month"
-              changeType="negative"
+              value={stats.sessions.toLocaleString()}
+              change={`${stats.sessionGrowth > 0 ? '+' : ''}${stats.sessionGrowth}% from last month`}
+              changeType={stats.sessionGrowth >= 0 ? "positive" : "negative"}
               icon={BarChart3}
               iconColor="#8B5CF6"
             />
             
             <OverviewCard
               title="Conversion"
-              value="2.4%"
-              change="+0.5% from last month"
-              changeType="positive"
+              value={`${stats.conversion}%`}
+              change={`${stats.conversionGrowth > 0 ? '+' : ''}${stats.conversionGrowth}% from last month`}
+              changeType={stats.conversionGrowth >= 0 ? "positive" : "negative"}
               icon={PieChartIcon}
               iconColor="#F59E0B"
             />
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartCard 
-              title="Monthly Growth"
-              onDownload={handleDownloadChart}
-              onFilter={handleFilterChart}
-            >
-              <BarChart data={chartData} />
-            </ChartCard>
+          {chartData.length > 0 && pieData.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartCard 
+                title="Monthly Growth"
+                onDownload={handleDownloadChart}
+                onFilter={handleFilterChart}
+              >
+                <BarChart data={chartData} />
+              </ChartCard>
 
-            <ChartCard 
-              title="Traffic Sources"
-              onDownload={handleDownloadChart}
-              onFilter={handleFilterChart}
-            >
-              <PieChart data={pieData} />
-            </ChartCard>
-          </div>
+              <ChartCard 
+                title="Traffic Sources"
+                onDownload={handleDownloadChart}
+                onFilter={handleFilterChart}
+              >
+                <PieChart data={pieData} />
+              </ChartCard>
+            </div>
+          ) : (
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <p className="text-gray-300 text-center">No chart data available</p>
+            </div>
+          )}
 
           {/* Recent Users Table */}
-          <DataTable
-            columns={userColumns}
-            data={userTableData}
-            title="Recent Users"
-            onRowClick={handleUserRowClick}
-          />
+          {userTableData.length > 0 ? (
+            <DataTable
+              columns={userColumns}
+              data={userTableData}
+              title="Recent Users"
+              onRowClick={handleUserRowClick}
+            />
+          ) : (
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <p className="text-gray-300 text-center">No user data available</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -1,306 +1,366 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../components/AuthContext';
-import DashboardLayout from '../../components/DashboardLayout';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { apiClient, type Module } from '../../services/api';
+import { Plus, Edit, Trash2, Eye, Search, Filter, MoreHorizontal } from 'lucide-react';
 
-interface Module {
-  id: number;
+interface ModuleFormData {
   name: string;
   description: string;
   status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
 }
 
-export default function CRUDModulesPage() {
+export default function ModulesPage() {
   const { user } = useAuth();
-  const [modules, setModules] = useState<Module[]>([
-    {
-      id: 1,
-      name: 'User Management',
-      description: 'Module for managing user accounts and permissions',
-      status: 'active',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-20'
-    },
-    {
-      id: 2,
-      name: 'CRM System',
-      description: 'Customer relationship management module',
-      status: 'active',
-      createdAt: '2024-01-10',
-      updatedAt: '2024-01-18'
-    },
-    {
-      id: 3,
-      name: 'Analytics Dashboard',
-      description: 'Data analytics and reporting module',
-      status: 'active',
-      createdAt: '2024-01-05',
-      updatedAt: '2024-01-15'
-    },
-    {
-      id: 4,
-      name: 'Payment Gateway',
-      description: 'Payment processing and billing module',
-      status: 'inactive',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-12'
-    }
-  ]);
-
+  const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [showModal, setShowModal] = useState(false);
   const [editingModule, setEditingModule] = useState<Module | null>(null);
+  const [formData, setFormData] = useState<ModuleFormData>({
+    name: '',
+    description: '',
+    status: 'active'
+  });
 
-  const filteredModules = modules.filter(module =>
-    module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    module.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Load modules on component mount
+  useEffect(() => {
+    loadModules();
+  }, []);
 
-  const handleDelete = (id: number) => {
-    if (confirm(`Are you sure you want to delete this module?`)) {
-      setModules(modules.filter(module => module.id !== id));
+  const loadModules = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await apiClient.getModules();
+      
+      if (response.success && response.data) {
+        setModules(response.data);
+      } else {
+        setError(response.message || 'Failed to load modules');
+      }
+    } catch (error) {
+      console.error('Error loading modules:', error);
+      setError('Failed to load modules. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAddModule = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const newModule: Module = {
-      id: Date.now(),
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      status: formData.get('status') as 'active' | 'inactive',
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0]
-    };
-    setModules([...modules, newModule]);
-    setIsAddModalOpen(false);
+    
+    try {
+      setLoading(true);
+      setError('');
+      
+      let response;
+      
+      if (editingModule) {
+        // Update existing module
+        response = await apiClient.updateModule(editingModule.id, formData);
+      } else {
+        // Create new module
+        response = await apiClient.createModule(formData);
+      }
+      
+      if (response.success) {
+        setShowModal(false);
+        setEditingModule(null);
+        resetForm();
+        await loadModules(); // Reload modules
+      } else {
+        setError(response.message || 'Failed to save module');
+      }
+    } catch (error) {
+      console.error('Error saving module:', error);
+      setError('Failed to save module. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditModule = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingModule) return;
+  const handleDelete = async (moduleId: number) => {
+    if (!confirm('Are you sure you want to delete this module?')) {
+      return;
+    }
     
-    const formData = new FormData(e.target as HTMLFormElement);
-    const updatedModule: Module = {
-      ...editingModule,
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      status: formData.get('status') as 'active' | 'inactive',
-      updatedAt: new Date().toISOString().split('T')[0]
-    };
-    
-    setModules(modules.map(module => 
-      module.id === editingModule.id ? updatedModule : module
-    ));
+    try {
+      setLoading(true);
+      const response = await apiClient.deleteModule(moduleId);
+      
+      if (response.success) {
+        await loadModules(); // Reload modules
+      } else {
+        setError(response.message || 'Failed to delete module');
+      }
+    } catch (error) {
+      console.error('Error deleting module:', error);
+      setError('Failed to delete module. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (module: Module) => {
+    setEditingModule(module);
+    setFormData({
+      name: module.name,
+      description: module.description,
+      status: module.status
+    });
+    setShowModal(true);
+  };
+
+  const handleCreate = () => {
     setEditingModule(null);
+    resetForm();
+    setShowModal(true);
   };
 
-  if (user?.role !== 'admin') {
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      status: 'active'
+    });
+  };
+
+  // Filter modules based on search and status
+  const filteredModules = modules.filter(module => {
+    const matchesSearch = module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         module.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || module.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (!user || user.role !== 'admin') {
     return (
-      <DashboardLayout>
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <h3 className="text-lg font-semibold text-white mb-4">Access Denied</h3>
-          <p className="text-gray-300">You don&apos;t have permission to access this page.</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-white">CRUD Modules</h3>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">CRUD Modules</h1>
+          <p className="text-gray-600">Manage system modules and their configurations</p>
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+
+        {/* Controls */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              {/* Search */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search modules..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Create Button */}
             <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              onClick={handleCreate}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
-              <Plus size={16} />
-              <span>Add Module</span>
+              <Plus className="h-4 w-4" />
+              Create Module
             </button>
-          </div>
-
-          {/* Search */}
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search modules..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Modules Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-700">
-                {filteredModules.map((module) => (
-                  <tr key={module.id} className="hover:bg-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{module.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-300">{module.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        module.status === 'active' 
-                          ? 'bg-green-500/20 text-green-400' 
-                          : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {module.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{module.createdAt}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => setEditingModule(module)}
-                          className="text-blue-400 hover:text-blue-300"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(module.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
 
-        {/* Add Module Modal */}
-        {isAddModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold text-white mb-4">Add New Module</h3>
-              <form onSubmit={handleAddModule} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                  <textarea
-                    name="description"
-                    required
-                    rows={3}
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Status</label>
-                  <select
-                    name="status"
-                    required
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
-                  >
-                    Add Module
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+        {/* Modules Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading modules...</p>
             </div>
-          </div>
-        )}
-
-        {/* Edit Module Modal */}
-        {editingModule && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold text-white mb-4">Edit Module</h3>
-              <form onSubmit={handleEditModule} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={editingModule.name}
-                    required
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                  <textarea
-                    name="description"
-                    defaultValue={editingModule.description}
-                    required
-                    rows={3}
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Status</label>
-                  <select
-                    name="status"
-                    defaultValue={editingModule.status}
-                    required
-                    className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
-                  >
-                    Update Module
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingModule(null)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+          ) : filteredModules.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-600">No modules found. Create your first module to get started.</p>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Module
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredModules.map((module) => (
+                    <tr key={module.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{module.name}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 max-w-xs truncate">
+                          {module.description}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          module.status === 'active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {module.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(module.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(module)}
+                            className="text-blue-600 hover:text-blue-900 p-1"
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(module.id)}
+                            className="text-red-600 hover:text-red-900 p-1"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-    </DashboardLayout>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h2 className="text-xl font-bold mb-4">
+              {editingModule ? 'Edit Module' : 'Create Module'}
+            </h2>
+            
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Module Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors"
+                >
+                  {loading ? 'Saving...' : (editingModule ? 'Update' : 'Create')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingModule(null);
+                    resetForm();
+                  }}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   );
 } 

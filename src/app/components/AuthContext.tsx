@@ -1,65 +1,9 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiClient, type LoginResponse } from '../services/api';
 
 export type UserRole = 'admin' | 'tenant';
-
-// Dummy user data with detailed permissions
-const dummyUsers = [
-  {
-    id: 1,
-    email: 'admin@analyticspro.com',
-    password: 'admin123',
-    name: 'Admin User',
-    role: 'admin',
-    company: 'Analytics Pro',
-    phone: '+1 (555) 123-4567',
-    location: 'New York, NY',
-    joinDate: '2023-01-15',
-    subscription: {
-      plan: 'Enterprise',
-      status: 'Active',
-      startDate: '2024-01-01',
-      endDate: '2025-12-31',
-      price: '$299/month'
-    },
-    permissions: ['all'],
-    menuItems: [
-      { id: 'dashboard', label: 'Dashboard Admin', icon: 'BarChart3', path: '/dashboard' },
-      { id: 'crm', label: 'Menu ke CRM', icon: 'Users', path: '/crm' },
-      { id: 'ai-chat', label: 'Menu ke AI Chat', icon: 'MessageSquare', path: '/ai-chat' },
-      { id: 'crud-modules', label: 'CRUD Modules', icon: 'Database', path: '/admin/modules' },
-      { id: 'crud-permissions', label: 'CRUD Permission', icon: 'Shield', path: '/admin/permissions' },
-      { id: 'crud-roles', label: 'CRUD Roles', icon: 'UserCheck', path: '/admin/roles' },
-      { id: 'crud-plans', label: 'CRUD Plans', icon: 'CreditCard', path: '/admin/plans' },
-      { id: 'settings', label: 'Menu Settings', icon: 'Settings', path: '/admin/settings' }
-    ]
-  },
-  {
-    id: 2,
-    email: 'tenant@startup.com',
-    password: 'tenant123',
-    name: 'Tenant User',
-    role: 'tenant',
-    company: 'Startup Ventures',
-    phone: '+1 (555) 987-6543',
-    location: 'San Francisco, CA',
-    joinDate: '2024-08-01',
-    subscription: {
-      plan: 'Basic',
-      status: 'Active',
-      startDate: '2024-08-01',
-      endDate: '2025-02-28',
-      price: '$49/month'
-    },
-    permissions: ['dashboard', 'crm', 'ai-chat'],
-    menuItems: [
-      { id: 'dashboard', label: 'Dashboard Tenant', icon: 'BarChart3', path: '/dashboard' },
-      { id: 'crm', label: 'Menu ke CRM', icon: 'Users', path: '/crm' },
-      { id: 'ai-chat', label: 'Menu ke AI Chat', icon: 'MessageSquare', path: '/ai-chat' }
-    ]
-  }
-];
 
 interface MenuItem {
   id: string;
@@ -97,45 +41,94 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to transform Laravel user data to frontend format
+const transformUserData = (laravelUser: LoginResponse['user']): User => {
+  return {
+    id: laravelUser.id,
+    email: laravelUser.email,
+    name: laravelUser.name,
+    role: laravelUser.role,
+    company: laravelUser.company,
+    phone: laravelUser.phone,
+    location: laravelUser.location,
+    joinDate: laravelUser.join_date,
+    subscription: {
+      plan: laravelUser.subscription.plan,
+      status: laravelUser.subscription.status,
+      startDate: laravelUser.subscription.start_date,
+      endDate: laravelUser.subscription.end_date,
+      price: laravelUser.subscription.price,
+    },
+    permissions: laravelUser.permissions,
+    menuItems: laravelUser.menu_items,
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    // Check if user is logged in and token exists
+    const checkAuthStatus = async () => {
+      try {
+        if (apiClient.isAuthenticated()) {
+          const response = await apiClient.getProfile();
+          if (response.success && response.data) {
+            setUser(transformUserData(response.data));
+          } else {
+            // Token is invalid, clear it
+            apiClient.logout();
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // Clear invalid token
+        apiClient.logout();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = dummyUsers.find(
-      user => user.email === email && user.password === password
-    );
-
-    if (foundUser) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _password, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword as User);
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+    try {
+      const response = await apiClient.login({ email, password });
+      
+      if (response.success && response.data) {
+        const transformedUser = transformUserData(response.data.user);
+        setUser(transformedUser);
+        setIsLoading(false);
+        return { success: true, message: response.message || 'Login successful!' };
+      } else {
+        setIsLoading(false);
+        return { 
+          success: false, 
+          message: response.message || 'Invalid email or password' 
+        };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
       setIsLoading(false);
-      return { success: true, message: 'Login successful!' };
-    } else {
-      setIsLoading(false);
-      return { success: false, message: 'Invalid email or password' };
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'An error occurred during login' 
+      };
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await apiClient.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
