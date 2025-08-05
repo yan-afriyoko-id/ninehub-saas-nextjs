@@ -1,7 +1,7 @@
 // API Configuration
 // Ganti BASE_URL sesuai dengan backend Laravel Anda
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.137.130:8000/api',
+  BASE_URL: 'http://192.168.137.130:8000/api/',
   
   // Endpoints
   ENDPOINTS: {
