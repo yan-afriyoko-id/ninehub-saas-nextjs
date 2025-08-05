@@ -1,5 +1,5 @@
 // API Service Layer for Laravel Backend Integration
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://192.168.137.130:8000/api';
 
 // Types
 export interface ApiResponse<T = any> {
