@@ -22,20 +22,6 @@ interface MenuItem {
   path: string;
 }
 
-interface User {
-  id: number;
-  email: string;
-  name: string;
-  roles: string[];
-  permissions: string[];
-  tenant: {
-    id: string;
-    name: string;
-    domains: string[];
-  };
-  profile?: any;
-}
-
 interface AuthContextType {
   user: User | null;
   login: (
@@ -48,21 +34,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to transform Laravel user data to frontend format
-const transformUserData = (laravelUser: LoginResponse): User => {
+// Helper function to transform API user data to frontend format
+const transformUserData = (apiUser: any): User => {
   // Add null check to prevent errors
+
   if (!laravelUser) {
     throw new Error("User data is undefined or null");
   }
 
+  if (!apiUser) {
+    throw new Error('User data is undefined or null');
+  }
+
+  // Handle different possible response structures
+  const userData = apiUser.user || apiUser;
+  
   return {
-    id: laravelUser.id,
-    email: laravelUser.email,
-    name: laravelUser.name,
-    roles: laravelUser.roles || [],
-    permissions: laravelUser.permissions || [],
-    tenant: laravelUser.tenant,
-    profile: laravelUser.profile,
+    id: userData.id?.toString() || '1',
+    email: userData.email || '',
+    name: userData.name || '',
+    roles: userData.roles || ['user'],
+    permissions: userData.permissions || [],
+    avatar: userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=0D9488&color=fff`,
+    company_id: userData.company_id?.toString() || '1',
   };
 };
 
@@ -129,10 +123,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await apiClient.login({ email, password });
-
       if (response.success && response.data) {
         try {
-          const transformedUser = transformUserData(response.data);
+          // Handle different possible response structures
+          const userData = response.data.user || response.data;
+          const transformedUser = transformUserData(userData);
           setUser(transformedUser);
           setIsLoading(false);
           return {
@@ -179,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Logout error:", error);
     }
-
+          
     // Clear user state
     setUser(null);
 

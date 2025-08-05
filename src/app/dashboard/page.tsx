@@ -1,582 +1,360 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '../components/AuthContext';
-import DashboardLayout from '../components/DashboardLayout';
-import OverviewCard from '../components/dashboard/OverviewCard';
-import SubscriptionCard from '../components/dashboard/SubscriptionCard';
-import ChartCard from '../components/dashboard/ChartCard';
-import BarChart from '../components/dashboard/BarChart';
-import PieChart from '../components/dashboard/PieChart';
-import DataTable from '../components/dashboard/DataTable';
-import FormCard from '../components/dashboard/FormCard';
-import FormField from '../components/dashboard/FormField';
-import RoleBasedContent from '../components/dashboard/RoleBasedContent';
+import SecureRoute from '../components/SecureRoute';
+import SecureDashboard from '../components/SecureDashboard';
 import { 
-  BarChart3, 
-  PieChart as PieChartIcon, 
+  Users, 
+  Building, 
+  MessageCircle, 
   TrendingUp, 
-  Users,
-  Loader2
+  TrendingDown,
+  Activity,
+  Target,
+  Briefcase,
+  CheckCircle,
+  AlertTriangle,
+  DollarSign,
+  BarChart3,
+  PieChart,
+  Clock,
+  Calendar,
+  FileText,
+  Settings
 } from 'lucide-react';
 
-interface DashboardStats {
-  totalUsers: number;
-  revenue: number;
-  sessions: number;
-  conversion: number;
-  userGrowth: number;
-  revenueGrowth: number;
-  sessionGrowth: number;
-  conversionGrowth: number;
-}
-
-interface DashboardData {
-  stats: DashboardStats;
-  chartData: Array<{ month: string; value: number }>;
-  pieData: Array<{ label: string; value: number; color: string }>;
-  recentUsers: Array<{
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    status: string;
+interface UserDashboardStats {
+  totalContacts: number;
+  totalLeads: number;
+  totalCompanies: number;
+  activeChats: number;
+  recentActivities: Array<{
+    id: string;
+    type: 'contact' | 'lead' | 'company' | 'chat';
+    message: string;
+    timestamp: string;
+    status: 'success' | 'warning' | 'error';
+  }>;
+  upcomingTasks: Array<{
+    id: string;
+    title: string;
+    dueDate: string;
+    priority: 'high' | 'medium' | 'low';
+    type: 'follow-up' | 'meeting' | 'deadline';
   }>;
 }
 
-export default function DashboardPage() {
-  const { user } = useAuth();
-  const [activeTab] = useState('overview');
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
-  // Use dummy subscription data since user doesn't have subscription field
-  const subscriptionEndDate = new Date('2025-03-15');
-  const daysUntilExpiry = Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+export default function UserDashboard() {
+  const [stats, setStats] = useState<UserDashboardStats>({
+    totalContacts: 0,
+    totalLeads: 0,
+    totalCompanies: 0,
+    activeChats: 0,
+    recentActivities: [],
+    upcomingTasks: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load dashboard data with dummy data
   useEffect(() => {
-    const loadDashboardData = () => {
-      try {
-        setLoading(true);
-        setError('');
-        
-        // Dummy dashboard data
-        const dummyData: DashboardData = {
-          stats: {
-            totalUsers: 1247,
-            revenue: 45678,
-            sessions: 8923,
-            conversion: 3.2,
-            userGrowth: 12.5,
-            revenueGrowth: 8.3,
-            sessionGrowth: 15.7,
-            conversionGrowth: -0.5
+    // Simulate API call
+    setTimeout(() => {
+      setStats({
+        totalContacts: 156,
+        totalLeads: 23,
+        totalCompanies: 12,
+        activeChats: 5,
+        recentActivities: [
+          {
+            id: '1',
+            type: 'contact',
+            message: 'New contact added: John Doe from TechCorp',
+            timestamp: '2 minutes ago',
+            status: 'success'
           },
-          chartData: [
-            { month: 'Jan', value: 1200 },
-            { month: 'Feb', value: 1350 },
-            { month: 'Mar', value: 1420 },
-            { month: 'Apr', value: 1580 },
-            { month: 'May', value: 1650 },
-            { month: 'Jun', value: 1800 }
-          ],
-          pieData: [
-            { label: 'Direct', value: 45, color: '#3B82F6' },
-            { label: 'Organic', value: 30, color: '#10B981' },
-            { label: 'Referral', value: 15, color: '#F59E0B' },
-            { label: 'Social', value: 10, color: '#EF4444' }
-          ],
-          recentUsers: [
-            { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
-            { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Tenant', status: 'Inactive' },
-            { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'User', status: 'Active' }
-          ]
-        };
-
-        setDashboardData(dummyData);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-        setError('Failed to load dashboard data. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Load data immediately, don't wait for user
-    loadDashboardData();
+          {
+            id: '2',
+            type: 'lead',
+            message: 'Lead "Acme Project" status updated to Qualified',
+            timestamp: '15 minutes ago',
+            status: 'success'
+          },
+          {
+            id: '3',
+            type: 'company',
+            message: 'Company profile updated: ABC Corporation',
+            timestamp: '1 hour ago',
+            status: 'success'
+          },
+          {
+            id: '4',
+            type: 'chat',
+            message: 'AI Chat session started with customer support',
+            timestamp: '2 hours ago',
+            status: 'success'
+          },
+          {
+            id: '5',
+            type: 'lead',
+            message: 'Follow-up reminder: Contact Sarah Johnson',
+            timestamp: '3 hours ago',
+            status: 'warning'
+          }
+        ],
+        upcomingTasks: [
+          {
+            id: '1',
+            title: 'Follow up with TechCorp proposal',
+            dueDate: 'Today',
+            priority: 'high',
+            type: 'follow-up'
+          },
+          {
+            id: '2',
+            title: 'Meeting with ABC Corp team',
+            dueDate: 'Tomorrow',
+            priority: 'medium',
+            type: 'meeting'
+          },
+          {
+            id: '3',
+            title: 'Submit monthly report',
+            dueDate: 'Dec 15',
+            priority: 'high',
+            type: 'deadline'
+          },
+          {
+            id: '4',
+            title: 'Review lead pipeline',
+            dueDate: 'Dec 20',
+            priority: 'low',
+            type: 'follow-up'
+          }
+        ]
+      });
+      setIsLoading(false);
+    }, 1000);
   }, []);
 
-
-
-  const userColumns = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'email', label: 'Email', sortable: true },
-    { key: 'role', label: 'Role', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-  ];
-
-  const handleRenewSubscription = () => {
-    alert('Redirecting to payment page...');
+  const getStatusIcon = (status: 'success' | 'warning' | 'error') => {
+    switch (status) {
+      case 'success':
+        return <CheckCircle className="text-green-500" size={16} />;
+      case 'warning':
+        return <AlertTriangle className="text-yellow-500" size={16} />;
+      case 'error':
+        return <AlertTriangle className="text-red-500" size={16} />;
+    }
   };
 
-  const handleDownloadChart = () => {
-    alert('Downloading chart data...');
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'contact':
+        return <Users size={16} />;
+      case 'lead':
+        return <Target size={16} />;
+      case 'company':
+        return <Building size={16} />;
+      case 'chat':
+        return <MessageCircle size={16} />;
+      default:
+        return <Activity size={16} />;
+    }
   };
 
-  const handleFilterChart = () => {
-    alert('Opening filter options...');
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-500';
+      case 'medium':
+        return 'text-yellow-500';
+      case 'low':
+        return 'text-green-500';
+      default:
+        return 'text-gray-500';
+    }
   };
 
-  const handleUserRowClick = (user: Record<string, unknown>) => {
-    alert(`Viewing details for ${user.name}`);
+  const getTaskIcon = (type: string) => {
+    switch (type) {
+      case 'follow-up':
+        return <MessageCircle size={16} />;
+      case 'meeting':
+        return <Calendar size={16} />;
+      case 'deadline':
+        return <Clock size={16} />;
+      default:
+        return <FileText size={16} />;
+    }
   };
 
-  // Use API data only
-  const stats = dashboardData?.stats || {
-    totalUsers: 0,
-    revenue: 0,
-    sessions: 0,
-    conversion: 0,
-    userGrowth: 0,
-    revenueGrowth: 0,
-    sessionGrowth: 0,
-    conversionGrowth: 0
-  };
-
-  const chartData = dashboardData?.chartData || [];
-  const pieData = dashboardData?.pieData || [];
-  const userTableData = dashboardData?.recentUsers || [];
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <Loader2 className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading dashboard data...</p>
+      <SecureRoute>
+        <SecureDashboard>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        </div>
-      </DashboardLayout>
+        </SecureDashboard>
+      </SecureRoute>
     );
   }
 
   return (
-    <DashboardLayout>
-      {activeTab === 'overview' && (
+    <SecureRoute>
+      <SecureDashboard>
         <div className="space-y-6">
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800">{error}</p>
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+              <p className="text-gray-400">Welcome back! Here's what's happening today.</p>
             </div>
-          )}
-
-          {/* Subscription Status */}
-          <SubscriptionCard
-            plan="Premium"
-            endDate={subscriptionEndDate}
-            daysLeft={daysUntilExpiry}
-            onRenew={handleRenewSubscription}
-          />
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 bg-blue-900/20 border border-blue-500/20 rounded-lg px-4 py-2">
+                <Calendar className="text-blue-500" size={20} />
+                <span className="text-blue-400 text-sm">Today</span>
+              </div>
+            </div>
+          </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <OverviewCard
-              title="Total Users"
-              value={stats.totalUsers.toLocaleString()}
-              change={`${stats.userGrowth > 0 ? '+' : ''}${stats.userGrowth}% from last month`}
-              changeType={stats.userGrowth >= 0 ? "positive" : "negative"}
-              icon={Users}
-              iconColor="#3B82F6"
-            />
-            
-            <OverviewCard
-              title="Revenue"
-              value={`$${stats.revenue.toLocaleString()}`}
-              change={`${stats.revenueGrowth > 0 ? '+' : ''}${stats.revenueGrowth}% from last month`}
-              changeType={stats.revenueGrowth >= 0 ? "positive" : "negative"}
-              icon={TrendingUp}
-              iconColor="#10B981"
-            />
-            
-            <OverviewCard
-              title="Sessions"
-              value={stats.sessions.toLocaleString()}
-              change={`${stats.sessionGrowth > 0 ? '+' : ''}${stats.sessionGrowth}% from last month`}
-              changeType={stats.sessionGrowth >= 0 ? "positive" : "negative"}
-              icon={BarChart3}
-              iconColor="#8B5CF6"
-            />
-            
-            <OverviewCard
-              title="Conversion"
-              value={`${stats.conversion}%`}
-              change={`${stats.conversionGrowth > 0 ? '+' : ''}${stats.conversionGrowth}% from last month`}
-              changeType={stats.conversionGrowth >= 0 ? "positive" : "negative"}
-              icon={PieChartIcon}
-              iconColor="#F59E0B"
-            />
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Contacts</p>
+                  <p className="text-2xl font-bold text-white">{stats.totalContacts}</p>
+                </div>
+                <div className="bg-blue-600 p-3 rounded-lg">
+                  <Users className="text-white" size={24} />
+                </div>
           </div>
-
-          {/* Charts */}
-          {chartData.length > 0 && pieData.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartCard 
-                title="Monthly Growth"
-                onDownload={handleDownloadChart}
-                onFilter={handleFilterChart}
-              >
-                <BarChart data={chartData} />
-              </ChartCard>
-
-              <ChartCard 
-                title="Traffic Sources"
-                onDownload={handleDownloadChart}
-                onFilter={handleFilterChart}
-              >
-                <PieChart data={pieData} />
-              </ChartCard>
+              <div className="flex items-center mt-4">
+                <TrendingUp className="text-green-500" size={16} />
+                <span className="text-green-500 text-sm ml-2">+5 this week</span>
             </div>
-          ) : (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <p className="text-gray-300 text-center">No chart data available</p>
             </div>
-          )}
 
-          {/* Recent Users Table */}
-          {userTableData.length > 0 ? (
-            <DataTable
-              columns={userColumns}
-              data={userTableData}
-              title="Recent Users"
-              onRowClick={handleUserRowClick}
-            />
-          ) : (
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <p className="text-gray-300 text-center">No user data available</p>
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Leads</p>
+                  <p className="text-2xl font-bold text-white">{stats.totalLeads}</p>
             </div>
-          )}
+                <div className="bg-green-600 p-3 rounded-lg">
+                  <Target className="text-white" size={24} />
         </div>
-      )}
-
-      {activeTab === 'analytics' && (
-        <div className="space-y-6">
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Analytics Dashboard</h3>
-            <p className="text-gray-300 mb-4">Detailed analytics and insights will be displayed here.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Page Views</h4>
-                <p className="text-2xl font-bold text-blue-400">1,234</p>
-                <p className="text-green-400 text-sm">+15% vs last week</p>
+              </div>
+              <div className="flex items-center mt-4">
+                <TrendingUp className="text-green-500" size={16} />
+                <span className="text-green-500 text-sm ml-2">+2 new leads</span>
+              </div>
               </div>
               
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Bounce Rate</h4>
-                <p className="text-2xl font-bold text-orange-400">23.4%</p>
-                <p className="text-red-400 text-sm">+2% vs last week</p>
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Companies</p>
+                  <p className="text-2xl font-bold text-white">{stats.totalCompanies}</p>
+                </div>
+                <div className="bg-purple-600 p-3 rounded-lg">
+                  <Building className="text-white" size={24} />
+                </div>
               </div>
-              
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Avg. Session</h4>
-                <p className="text-2xl font-bold text-green-400">4m 32s</p>
-                <p className="text-green-400 text-sm">+8% vs last week</p>
+              <div className="flex items-center mt-4">
+                <TrendingUp className="text-green-500" size={16} />
+                <span className="text-green-500 text-sm ml-2">+1 new company</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Chats</p>
+                  <p className="text-2xl font-bold text-white">{stats.activeChats}</p>
+          </div>
+                <div className="bg-yellow-600 p-3 rounded-lg">
+                  <MessageCircle className="text-white" size={24} />
+        </div>
+              </div>
+              <div className="flex items-center mt-4">
+                <TrendingDown className="text-red-500" size={16} />
+                <span className="text-red-500 text-sm ml-2">-1 from yesterday</span>
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {activeTab === 'users' && (
-        <div className="space-y-6">
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">User Management</h3>
-            <p className="text-gray-300 mb-4">Manage your users and their permissions.</p>
-            
-            <DataTable
-              columns={userColumns}
-              data={userTableData}
-              title="All Users"
-              onRowClick={handleUserRowClick}
-            />
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Quick Actions */}
+            <div className="lg:col-span-1">
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                <div className="space-y-3">
+                  <button className="w-full flex items-center space-x-3 p-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    <Users size={20} className="text-white" />
+                    <span className="text-white">Add Contact</span>
+                  </button>
+                  <button className="w-full flex items-center space-x-3 p-3 bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
+                    <Target size={20} className="text-white" />
+                    <span className="text-white">Create Lead</span>
+                    </button>
+                  <button className="w-full flex items-center space-x-3 p-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">
+                    <Building size={20} className="text-white" />
+                    <span className="text-white">Add Company</span>
+                    </button>
+                  <button className="w-full flex items-center space-x-3 p-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg transition-colors">
+                    <MessageCircle size={20} className="text-white" />
+                    <span className="text-white">Start AI Chat</span>
+                    </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activities */}
+            <div className="lg:col-span-2">
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4">Recent Activities</h3>
+                <div className="space-y-4">
+                  {stats.recentActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        {getStatusIcon(activity.status)}
+                        {getActivityIcon(activity.type)}
+                    </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm">{activity.message}</p>
+                        <p className="text-gray-400 text-xs">{activity.timestamp}</p>
+                  </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Upcoming Tasks */}
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4">Upcoming Tasks</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {stats.upcomingTasks.map((task) => (
+                <div key={task.id} className="flex items-center space-x-3 p-4 bg-gray-700 rounded-lg">
+                  <div className={`p-2 rounded-lg ${getPriorityColor(task.priority).replace('text-', 'bg-').replace('-500', '-600')}`}>
+                    {getTaskIcon(task.type)}
+                    </div>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-medium">{task.title}</p>
+                    <p className="text-gray-400 text-xs">Due: {task.dueDate}</p>
+                  </div>
+                  <div className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(task.priority)} bg-opacity-20`}>
+                    {task.priority}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      )}
-
-      {activeTab === 'reports' && (
-        <div className="space-y-6">
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Reports & Analytics</h3>
-            <p className="text-gray-300 mb-4">Generate and view detailed reports.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Monthly Report</h4>
-                <p className="text-gray-300 text-sm mb-3">Comprehensive monthly analytics</p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                  Generate Report
-                </button>
-              </div>
-              
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Custom Report</h4>
-                <p className="text-gray-300 text-sm mb-3">Create custom analytics report</p>
-                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                  Create Custom
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'settings' && (
-        <RoleBasedContent
-          userRole={user?.roles?.includes('admin') ? 'admin' : 'user'}
-          adminContent={
-            <div className="space-y-6">
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Admin Settings</h3>
-                <p className="text-gray-300 mb-4">Full system administration and user management.</p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">User Management</h4>
-                      <p className="text-gray-400 text-sm">Manage all users and permissions</p>
-                    </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Manage Users
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">System Configuration</h4>
-                      <p className="text-gray-400 text-sm">Configure system-wide settings</p>
-                    </div>
-                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Configure
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">Data Management</h4>
-                      <p className="text-gray-400 text-sm">Export and manage all data</p>
-                    </div>
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Manage Data
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Admin Form */}
-              <FormCard 
-                title="Add New User" 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert('User added successfully!');
-                }}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    label="Full Name"
-                    name="fullName"
-                    type="text"
-                    placeholder="Enter full name"
-                    required
-                  />
-                  <FormField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter email address"
-                    required
-                  />
-                  <FormField
-                    label="Role"
-                    name="role"
-                    type="select"
-                    options={[
-                      { value: 'admin', label: 'Administrator' },
-                      { value: 'user', label: 'User' },
-                      { value: 'tenant', label: 'Tenant' }
-                    ]}
-                    required
-                  />
-                  <FormField
-                    label="Department"
-                    name="department"
-                    type="text"
-                    placeholder="Enter department"
-                  />
-                </div>
-                <FormField
-                  label="Notes"
-                  name="notes"
-                  type="textarea"
-                  placeholder="Enter additional notes"
-                  rows={3}
-                />
-              </FormCard>
-            </div>
-          }
-          userContent={
-            <div className="space-y-6">
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">User Settings</h3>
-                <p className="text-gray-300 mb-4">Configure your account and preferences.</p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">Email Notifications</h4>
-                      <p className="text-gray-400 text-sm">Receive email updates</p>
-                    </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Configure
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">API Access</h4>
-                      <p className="text-gray-400 text-sm">Manage API keys and access</p>
-                    </div>
-                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">Data Export</h4>
-                      <p className="text-gray-400 text-sm">Export your data</p>
-                    </div>
-                    <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Export
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* User Form */}
-              <FormCard 
-                title="Update Profile" 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert('Profile updated successfully!');
-                }}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    label="Full Name"
-                    name="fullName"
-                    type="text"
-                    placeholder="Enter full name"
-                    required
-                  />
-                  <FormField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter email address"
-                    required
-                  />
-                  <FormField
-                    label="Department"
-                    name="department"
-                    type="text"
-                    placeholder="Enter department"
-                  />
-                  <FormField
-                    label="Phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="Enter phone number"
-                  />
-                </div>
-                <FormField
-                  label="Bio"
-                  name="bio"
-                  type="textarea"
-                  placeholder="Tell us about yourself"
-                  rows={3}
-                />
-              </FormCard>
-            </div>
-          }
-          tenantContent={
-            <div className="space-y-6">
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Basic Settings</h3>
-                <p className="text-gray-300 mb-4">Manage your basic account settings.</p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">Profile Settings</h4>
-                      <p className="text-gray-400 text-sm">Update your profile information</p>
-                    </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Update
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <div>
-                      <h4 className="text-white font-medium">Subscription</h4>
-                      <p className="text-gray-400 text-sm">Manage your subscription</p>
-                    </div>
-                    <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tenant Form */}
-              <FormCard 
-                title="Basic Profile" 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert('Profile updated successfully!');
-                }}
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    label="Full Name"
-                    name="fullName"
-                    type="text"
-                    placeholder="Enter full name"
-                    required
-                  />
-                  <FormField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-                <FormField
-                  label="Company"
-                  name="company"
-                  type="text"
-                  placeholder="Enter company name"
-                />
-              </FormCard>
-            </div>
-          }
-        />
-      )}
-    </DashboardLayout>
+      </SecureDashboard>
+    </SecureRoute>
   );
 } 
