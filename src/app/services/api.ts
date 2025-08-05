@@ -1,5 +1,5 @@
 // API Service Layer for Laravel Backend
-import { API_CONFIG, getApiUrl } from '../config/api';
+import { API_CONFIG, getApiUrl } from "../config/api";
 
 // Types
 export interface ApiResponse<T = any> {
@@ -29,6 +29,20 @@ export interface LoginResponse {
   };
 }
 
+export interface ProfileResponse {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+  permissions: string[];
+  profile?: any;
+  tenant: {
+    id: string;
+    name: string;
+    domains: string[];
+  };
+}
+
 export interface TenantInfo {
   id: string;
   company: string | null;
@@ -39,7 +53,7 @@ export interface Module {
   id: number;
   name: string;
   description: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -69,7 +83,7 @@ export interface Plan {
   price: number;
   duration: string;
   features: string[];
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -85,22 +99,22 @@ class ApiClient {
   }
 
   private loadToken(): void {
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('auth_token');
+    if (typeof window !== "undefined") {
+      this.token = localStorage.getItem("auth_token");
     }
   }
 
   private setToken(token: string): void {
     this.token = token;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('auth_token', token);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("auth_token", token);
     }
   }
 
   private removeToken(): void {
     this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_token");
     }
   }
 
@@ -109,15 +123,15 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      headers["Authorization"] = `Bearer ${this.token}`;
     }
 
     try {
@@ -133,26 +147,27 @@ class ApiClient {
         return {
           success: false,
           message: data.message || `HTTP error! status: ${response.status}`,
-          errors: data.errors || {}
+          errors: data.errors || {},
         };
       }
 
       return data;
     } catch (error) {
-      console.error('API Request Error:', error);
+      console.error("API Request Error:", error);
       // Return error response instead of throwing
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Network error occurred',
-        errors: {}
+        message:
+          error instanceof Error ? error.message : "Network error occurred",
+        errors: {},
       };
     }
   }
 
   // Authentication Methods
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-    const response = await this.request<LoginResponse>('/login', {
-      method: 'POST',
+    const response = await this.request<LoginResponse>("/login", {
+      method: "POST",
       body: JSON.stringify(credentials),
     });
 
@@ -163,114 +178,147 @@ class ApiClient {
     return response;
   }
 
-  logout(): void {
-    console.log('ApiClient logout called'); // Debug log
-    // Just remove token from localStorage
-    this.removeToken();
-    console.log('Token removed from localStorage'); // Debug log
+  async logout(): Promise<ApiResponse> {
+    try {
+      const response = await this.request("/logout", {
+        method: "POST",
+      });
+
+      if (response.success) {
+        this.removeToken();
+      }
+
+      return response;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Failed to logout",
+        errors: {},
+      };
+    }
   }
 
-  async getProfile(): Promise<ApiResponse<LoginResponse>> {
-    return this.request<LoginResponse>('/auth/profile');
+  async getProfile(): Promise<ApiResponse<ProfileResponse>> {
+    return this.request<ProfileResponse>("/profiles/me");
   }
 
   // Modules CRUD
   async getModules(): Promise<ApiResponse<Module[]>> {
-    return this.request<Module[]>('/modules');
+    return this.request<Module[]>("/modules");
   }
 
-  async createModule(module: Omit<Module, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Module>> {
-    return this.request<Module>('/modules', {
-      method: 'POST',
+  async createModule(
+    module: Omit<Module, "id" | "created_at" | "updated_at">
+  ): Promise<ApiResponse<Module>> {
+    return this.request<Module>("/modules", {
+      method: "POST",
       body: JSON.stringify(module),
     });
   }
 
-  async updateModule(id: number, module: Partial<Module>): Promise<ApiResponse<Module>> {
+  async updateModule(
+    id: number,
+    module: Partial<Module>
+  ): Promise<ApiResponse<Module>> {
     return this.request<Module>(`/modules/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(module),
     });
   }
 
   async deleteModule(id: number): Promise<ApiResponse> {
     return this.request(`/modules/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   // Permissions CRUD
   async getPermissions(): Promise<ApiResponse<Permission[]>> {
-    return this.request<Permission[]>('/permissions');
+    return this.request<Permission[]>("/permissions");
   }
 
-  async createPermission(permission: Omit<Permission, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Permission>> {
-    return this.request<Permission>('/permissions', {
-      method: 'POST',
+  async createPermission(
+    permission: Omit<Permission, "id" | "created_at" | "updated_at">
+  ): Promise<ApiResponse<Permission>> {
+    return this.request<Permission>("/permissions", {
+      method: "POST",
       body: JSON.stringify(permission),
     });
   }
 
-  async updatePermission(id: number, permission: Partial<Permission>): Promise<ApiResponse<Permission>> {
+  async updatePermission(
+    id: number,
+    permission: Partial<Permission>
+  ): Promise<ApiResponse<Permission>> {
     return this.request<Permission>(`/permissions/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(permission),
     });
   }
 
   async deletePermission(id: number): Promise<ApiResponse> {
     return this.request(`/permissions/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   // Roles CRUD
   async getRoles(): Promise<ApiResponse<Role[]>> {
-    return this.request<Role[]>('/roles');
+    return this.request<Role[]>("/roles");
   }
 
-  async createRole(role: Omit<Role, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Role>> {
-    return this.request<Role>('/roles', {
-      method: 'POST',
+  async createRole(
+    role: Omit<Role, "id" | "created_at" | "updated_at">
+  ): Promise<ApiResponse<Role>> {
+    return this.request<Role>("/roles", {
+      method: "POST",
       body: JSON.stringify(role),
     });
   }
 
-  async updateRole(id: number, role: Partial<Role>): Promise<ApiResponse<Role>> {
+  async updateRole(
+    id: number,
+    role: Partial<Role>
+  ): Promise<ApiResponse<Role>> {
     return this.request<Role>(`/roles/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(role),
     });
   }
 
   async deleteRole(id: number): Promise<ApiResponse> {
     return this.request(`/roles/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
   // Plans CRUD
   async getPlans(): Promise<ApiResponse<Plan[]>> {
-    return this.request<Plan[]>('/plans');
+    return this.request<Plan[]>("/plans");
   }
 
-  async createPlan(plan: Omit<Plan, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Plan>> {
-    return this.request<Plan>('/plans', {
-      method: 'POST',
+  async createPlan(
+    plan: Omit<Plan, "id" | "created_at" | "updated_at">
+  ): Promise<ApiResponse<Plan>> {
+    return this.request<Plan>("/plans", {
+      method: "POST",
       body: JSON.stringify(plan),
     });
   }
 
-  async updatePlan(id: number, plan: Partial<Plan>): Promise<ApiResponse<Plan>> {
+  async updatePlan(
+    id: number,
+    plan: Partial<Plan>
+  ): Promise<ApiResponse<Plan>> {
     return this.request<Plan>(`/plans/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(plan),
     });
   }
 
   async deletePlan(id: number): Promise<ApiResponse> {
     return this.request(`/plans/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   }
 
@@ -287,4 +335,4 @@ class ApiClient {
 // Export singleton instance
 export const apiClient = new ApiClient(API_CONFIG.BASE_URL);
 
-// Export types - remove duplicate exports since they're already exported above 
+// Export types - remove duplicate exports since they're already exported above

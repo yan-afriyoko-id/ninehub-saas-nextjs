@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from './AuthContext';
-import { getFilteredMenuItems } from '../config/menu';
-import { 
-  BarChart3, 
-  Users, 
-  Settings, 
-  User, 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useAuth } from "./AuthContext";
+import { getFilteredMenuItems } from "../config/menu";
+import {
+  BarChart3,
+  Users,
+  Settings,
+  User,
   Bell,
   Search,
   LogOut,
@@ -23,8 +23,9 @@ import {
   Briefcase,
   BookOpen,
   Target,
-  MessageCircle
-} from 'lucide-react';
+  MessageCircle,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Icon mapping
 const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
@@ -41,13 +42,24 @@ const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
   Briefcase,
   BookOpen,
   Target,
-  MessageCircle
+  MessageCircle,
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  useEffect(() => {
+    if (!user && !isLoading) {
+      router.replace("/login");
+    }
+  }, [user, router, isLoading]);
+
   return (
     <div className="min-h-screen bg-gray-900 flex">
       {/* Sidebar */}
@@ -58,43 +70,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Analytics Pro
             </h1>
           </Link>
-          
+
           <nav className="space-y-2">
-            {user && getFilteredMenuItems(user.roles, user.permissions).map((item) => {
-              const IconComponent = iconMap[item.icon];
-              return (
-                <Link
-                  key={item.id}
-                  href={item.path}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === item.id
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-700'
-                  }`}
-                  onClick={() => setActiveTab(item.id)}
-                >
-                  {IconComponent && <IconComponent size={20} />}
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+            {user &&
+              getFilteredMenuItems(user.roles, user.permissions).map((item) => {
+                const IconComponent = iconMap[item.icon];
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.path}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      activeTab === item.id
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300 hover:bg-gray-700"
+                    }`}
+                    onClick={() => setActiveTab(item.id)}
+                  >
+                    {IconComponent && <IconComponent size={20} />}
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
           </nav>
 
           {/* Bottom section */}
           <div className="mt-8 pt-6 border-t border-gray-700">
-            <Link 
+            <Link
               href="/"
               className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
             >
               <Home size={20} />
               <span>Back to Home</span>
             </Link>
-            
-            <button 
-              onClick={(e) => {
+
+            <button
+              onClick={async (e) => {
                 e.preventDefault();
-                console.log('Logout button clicked'); // Debug log
-                logout();
+                console.log("Logout button clicked"); // Debug log
+                await logout();
               }}
               className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors mt-2"
             >
@@ -112,10 +125,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h2 className="text-2xl font-bold text-white">
-                {user?.roles?.includes('admin') ? 'Admin Dashboard' : 'User Dashboard'}
+                {user?.roles?.includes("admin")
+                  ? "Admin Dashboard"
+                  : "User Dashboard"}
               </h2>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -123,25 +141,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button className="relative p-2 text-gray-300 hover:text-white">
                 <Bell size={20} />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  3
+                </span>
               </button>
-              <Link href="/dashboard/profile" className="flex items-center space-x-2 text-gray-300 hover:text-white">
+              <Link
+                href="/dashboard/profile"
+                className="flex items-center space-x-2 text-gray-300 hover:text-white"
+              >
                 <User size={20} />
-                <span>{user?.name || 'User'}</span>
+                <span>{user?.name || "User"}</span>
               </Link>
             </div>
           </div>
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );
-} 
+}
