@@ -1,9 +1,19 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService, User } from '../services/api';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  apiClient,
+  type LoginResponse,
+  type ProfileResponse,
+} from "../services/api";
 
-export type UserRole = 'admin' | 'tenant';
+export type UserRole = "admin" | "tenant";
 
 interface MenuItem {
   id: string;
@@ -14,8 +24,11 @@ interface MenuItem {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
-  logout: () => void;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; message: string }>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -24,6 +37,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Helper function to transform API user data to frontend format
 const transformUserData = (apiUser: any): User => {
   // Add null check to prevent errors
+
+  if (!laravelUser) {
+    throw new Error("User data is undefined or null");
+  }
+
   if (!apiUser) {
     throw new Error('User data is undefined or null');
   }
@@ -42,35 +60,57 @@ const transformUserData = (apiUser: any): User => {
   };
 };
 
+// Helper function to transform profile data (without token)
+const transformProfileData = (profileData: ProfileResponse): User => {
+  // Add null check to prevent errors
+  if (!profileData) {
+    throw new Error("Profile data is undefined or null");
+  }
+
+  return {
+    id: profileData.id,
+    email: profileData.email,
+    name: profileData.name,
+    roles: profileData.roles || [],
+    permissions: profileData.permissions || [],
+    tenant: profileData.tenant,
+    profile: profileData.profile,
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in and token exists
+    // Check if user is logged in and validate token with backend
     const checkAuthStatus = async () => {
       try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-        if (token) {
-          // For now, use dummy user data for testing
-          const dummyUser: User = {
-            id: '1',
-            email: 'admin@example.com',
-            name: 'Admin User',
-            roles: ['admin'],
-            permissions: ['dashboard.view', 'user-management.view', 'settings.view'],
-            avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D9488&color=fff',
-            company_id: '1'
-          };
-          setUser(dummyUser);
-          setIsLoading(false);
+        if (apiClient.isAuthenticated()) {
+          // Validate token by calling profile endpoint
+          const profileResponse = await apiClient.getProfile();
+
+          if (profileResponse.success && profileResponse.data) {
+            // Transform the user data from profile response
+            const transformedUser = transformProfileData(profileResponse.data);
+            setUser(transformedUser);
+            console.log("Token validated successfully, user authenticated");
+          } else {
+            // Token is invalid or expired
+            console.warn("Token validation failed:", profileResponse.message);
+            await apiClient.logout();
+            setUser(null);
+          }
         } else {
-          setIsLoading(false);
+          // No token found
+          setUser(null);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
         // Clear invalid token
-        apiService.logout();
+        await apiClient.logout();
+        setUser(null);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -80,10 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    
+
     try {
-      const response = await apiService.login({ email, password });
-      
+      const response = await apiClient.login({ email, password });
       if (response.success && response.data) {
         try {
           // Handle different possible response structures
@@ -91,88 +130,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const transformedUser = transformUserData(userData);
           setUser(transformedUser);
           setIsLoading(false);
-          return { success: true, message: response.message || 'Login successful!' };
+          return {
+            success: true,
+            message: response.message || "Login successful!",
+          };
         } catch (transformError) {
-          console.error('Error transforming user data:', transformError);
+          console.error("Error transforming user data:", transformError);
           setIsLoading(false);
-          return { 
-            success: false, 
-            message: 'Invalid user data received from server' 
+          return {
+            success: false,
+            message: "Invalid user data received from server",
           };
         }
       } else {
         setIsLoading(false);
-        return { 
-          success: false, 
-          message: response.message || 'Invalid email or password' 
+        return {
+          success: false,
+          message: response.message || "Invalid email or password",
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       setIsLoading(false);
-      
-      // Development fallback for testing
-      if (process.env.NODE_ENV === 'development' && error instanceof Error && error.message.includes('Network error')) {
-        console.log('Using development fallback login');
-        
-        // Create a dummy user for development testing
-        const dummyUser: User = {
-          id: '1',
-          email: email,
-          name: email.split('@')[0],
-          roles: email.includes('admin') ? ['admin'] : ['user'],
-          permissions: email.includes('admin') 
-            ? ['dashboard.view', 'user-management.view', 'settings.view', 'admin.view']
-            : ['dashboard.view'],
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=0D9488&color=fff`,
-          company_id: '1'
-        };
-        
-        setUser(dummyUser);
-        return { 
-          success: true, 
-          message: 'Development mode: Using dummy login (API not available)' 
-        };
-      }
-      
-      // Provide more specific error messages
-      let errorMessage = 'Network error occurred. Please check your connection.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('Network error: Unable to connect to the server')) {
-          errorMessage = 'Cannot connect to the server. Please check if the backend is running at http://192.168.137.130:8000';
-        } else if (error.message.includes('HTTP 401')) {
-          errorMessage = 'Invalid email or password';
-        } else if (error.message.includes('HTTP 422')) {
-          errorMessage = 'Invalid input data. Please check your email and password format.';
-        } else if (error.message.includes('HTTP 500')) {
-          errorMessage = 'Server error. Please try again later.';
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      
-      return { 
-        success: false, 
-        message: errorMessage
+      return {
+        success: false,
+        message: "Network error occurred. Please check your connection.",
       };
     }
   };
 
-  const logout = () => {
-    console.log('Logout called'); // Debug log
-    
-    // Clear token using apiService
-    apiService.logout();
-    
+  const logout = async () => {
+    console.log("Logout called"); // Debug log
+
+    try {
+      // Send logout request to backend with bearer token
+      const response = await apiClient.logout();
+
+      if (response.success) {
+        console.log("Logout successful:", response.message);
+      } else {
+        console.warn("Logout warning:", response.message);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+          
     // Clear user state
     setUser(null);
-    
-    console.log('User state cleared, redirecting...'); // Debug log
-    
+
+    console.log("User state cleared, redirecting..."); // Debug log
+
     // Redirect to login page
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
     }
   };
 
@@ -186,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-} 
+}

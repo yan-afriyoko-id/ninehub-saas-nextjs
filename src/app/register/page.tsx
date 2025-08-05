@@ -1,10 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Eye, EyeOff, Loader2, User, Mail, Lock, Building, Globe } from 'lucide-react';
-import { getApiUrl } from '../config/api';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  User,
+  Mail,
+  Lock,
+  Building,
+  Globe,
+} from "lucide-react";
+import { getApiUrl } from "../config/api";
+import { useAuth } from "../components/AuthContext";
 
 interface RegisterFormData {
   name: string;
@@ -16,47 +26,52 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.push("/dashboard");
+    }
+  }, [user, router, isLoading]);
   const [formData, setFormData] = useState<RegisterFormData>({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    company: '',
-    domain: ''
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    company: "",
+    domain: "",
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     // Basic validation
     if (formData.password !== formData.password_confirmation) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       setIsSubmitting(false);
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await fetch(getApiUrl('/register'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/register"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -66,23 +81,23 @@ export default function RegisterPage() {
       if (response.ok && data.success) {
         setSuccess(true);
         setTimeout(() => {
-          router.push('/login');
+          router.push("/login");
         }, 2000);
       } else {
-        setError(data.message || 'Registration failed. Please try again.');
+        setError(data.message || "Registration failed. Please try again.");
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      setError('An error occurred during registration. Please try again.');
+      console.error("Registration error:", error);
+      setError("An error occurred during registration. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleInputChange = (field: keyof RegisterFormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -94,8 +109,12 @@ export default function RegisterPage() {
             <Link href="/" className="inline-block mb-4">
               <h1 className="text-3xl font-bold text-white">Analytics Pro</h1>
             </Link>
-            <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
-            <p className="text-gray-300">Join our platform and start your analytics journey</p>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Create Account
+            </h2>
+            <p className="text-gray-300">
+              Join our platform and start your analytics journey
+            </p>
           </div>
 
           {/* Success Message */}
@@ -126,7 +145,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your full name"
                   autoComplete="name"
@@ -145,7 +164,7 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your email"
                   autoComplete="email"
@@ -164,7 +183,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   value={formData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  onChange={(e) => handleInputChange("company", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your company name"
                   autoComplete="organization"
@@ -183,7 +202,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   value={formData.domain}
-                  onChange={(e) => handleInputChange('domain', e.target.value)}
+                  onChange={(e) => handleInputChange("domain", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your domain"
                   autoComplete="url"
@@ -200,9 +219,11 @@ export default function RegisterPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   className="w-full pl-10 pr-12 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your password"
                   autoComplete="new-password"
@@ -213,7 +234,11 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -226,9 +251,11 @@ export default function RegisterPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   value={formData.password_confirmation}
-                  onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password_confirmation", e.target.value)
+                  }
                   className="w-full pl-10 pr-12 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Confirm your password"
                   autoComplete="new-password"
@@ -239,7 +266,11 @@ export default function RegisterPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -256,7 +287,7 @@ export default function RegisterPage() {
                   Creating Account...
                 </>
               ) : (
-                'Create Account'
+                "Create Account"
               )}
             </button>
           </form>
@@ -264,16 +295,17 @@ export default function RegisterPage() {
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Already have an account?{' '}
-              <Link href="/login" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
                 Sign in
               </Link>
             </p>
           </div>
         </div>
-
-
       </div>
     </div>
   );
-} 
+}
