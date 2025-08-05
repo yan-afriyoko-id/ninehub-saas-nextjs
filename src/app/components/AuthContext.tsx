@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return { 
         success: false, 
-        message: error instanceof Error ? error.message : 'An error occurred during login' 
+        message: 'Network error occurred. Please check your connection.' 
       };
     }
   };
