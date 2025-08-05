@@ -12,7 +12,6 @@ import DataTable from '../components/dashboard/DataTable';
 import FormCard from '../components/dashboard/FormCard';
 import FormField from '../components/dashboard/FormField';
 import RoleBasedContent from '../components/dashboard/RoleBasedContent';
-import { apiClient } from '../services/api';
 import { 
   BarChart3, 
   PieChart as PieChartIcon, 
@@ -52,37 +51,52 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Use user data if available, otherwise use dummy data
-  const subscriptionEndDate = user?.subscription?.endDate 
-    ? new Date(user.subscription.endDate) 
-    : new Date('2025-03-15');
+  // Use dummy subscription data since user doesn't have subscription field
+  const subscriptionEndDate = new Date('2025-03-15');
   const daysUntilExpiry = Math.ceil((subscriptionEndDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
-  // Load dashboard data from API
+  // Load dashboard data with dummy data
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadDashboardData = () => {
       try {
         setLoading(true);
         setError('');
         
-        // Fetch dashboard data from Laravel API
-        const response = await fetch('http://localhost:8000/api/dashboard', {
-          headers: {
-            'Authorization': `Bearer ${apiClient.getToken()}`,
-            'Accept': 'application/json',
+        // Dummy dashboard data
+        const dummyData: DashboardData = {
+          stats: {
+            totalUsers: 1247,
+            revenue: 45678,
+            sessions: 8923,
+            conversion: 3.2,
+            userGrowth: 12.5,
+            revenueGrowth: 8.3,
+            sessionGrowth: 15.7,
+            conversionGrowth: -0.5
           },
-        });
+          chartData: [
+            { month: 'Jan', value: 1200 },
+            { month: 'Feb', value: 1350 },
+            { month: 'Mar', value: 1420 },
+            { month: 'Apr', value: 1580 },
+            { month: 'May', value: 1650 },
+            { month: 'Jun', value: 1800 }
+          ],
+          pieData: [
+            { label: 'Direct', value: 45, color: '#3B82F6' },
+            { label: 'Organic', value: 30, color: '#10B981' },
+            { label: 'Referral', value: 15, color: '#F59E0B' },
+            { label: 'Social', value: 10, color: '#EF4444' }
+          ],
+          recentUsers: [
+            { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
+            { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Tenant', status: 'Inactive' },
+            { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'User', status: 'Active' }
+          ]
+        };
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setDashboardData(data.data);
-          } else {
-            setError(data.message || 'Failed to load dashboard data');
-          }
-        } else {
-          setError('Failed to load dashboard data');
-        }
+        setDashboardData(dummyData);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
         setError('Failed to load dashboard data. Please try again.');
@@ -91,10 +105,9 @@ export default function DashboardPage() {
       }
     };
 
-    if (user) {
-      loadDashboardData();
-    }
-  }, [user]);
+    // Load data immediately, don't wait for user
+    loadDashboardData();
+  }, []);
 
 
 
@@ -164,7 +177,7 @@ export default function DashboardPage() {
 
           {/* Subscription Status */}
           <SubscriptionCard
-            plan={user?.subscription?.plan || "Premium"}
+            plan="Premium"
             endDate={subscriptionEndDate}
             daysLeft={daysUntilExpiry}
             onRenew={handleRenewSubscription}
@@ -324,7 +337,7 @@ export default function DashboardPage() {
 
       {activeTab === 'settings' && (
         <RoleBasedContent
-          userRole={user?.role || 'user'}
+          userRole={user?.roles?.includes('admin') ? 'admin' : 'user'}
           adminContent={
             <div className="space-y-6">
               <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">

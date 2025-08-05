@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2, User, Mail, Lock, Building, Globe } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 interface RegisterFormData {
   name: string;
@@ -51,7 +52,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/register', {
+      const response = await fetch(getApiUrl('/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,6 +129,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your full name"
+                  autoComplete="name"
                   required
                 />
               </div>
@@ -146,6 +148,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your email"
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -164,6 +167,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('company', e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your company name"
+                  autoComplete="organization"
                   required
                 />
               </div>
@@ -182,6 +186,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('domain', e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your domain"
+                  autoComplete="url"
                   required
                 />
               </div>
@@ -200,6 +205,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   className="w-full pl-10 pr-12 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your password"
+                  autoComplete="new-password"
                   required
                 />
                 <button
@@ -225,6 +231,7 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
                   className="w-full pl-10 pr-12 py-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Confirm your password"
+                  autoComplete="new-password"
                   required
                 />
                 <button

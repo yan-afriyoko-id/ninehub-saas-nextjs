@@ -1,0 +1,2508 @@
+{
+	"info": {
+		"_postman_id": "9288307e-8232-4887-9b96-d9594819d6c4",
+		"name": "NineHub",
+		"description": "Complete API collection for BackendChat Multi-Tenant SaaS Platform with AI Chat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43466637",
+		"_collection_link": "https://ninehub.postman.co/workspace/1059e243-2df9-4216-836b-9c04356c9a33/collection/43466637-9288307e-8232-4887-9b96-d9594819d6c4?action=share&source=collection_link&creator=43466637"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"jojo\",\n  \"email\": \"fss@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"company\" : \"jojojo\",\n  \"domain\" : \"sd\"\n} "
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Register User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"teskkkt@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 01 Aug 2025 08:13:04 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Registration successful.\",\n    \"data\": {\n        \"token\": \"1|ecLaASfpBuY0TCWEjjpkSGk9UnZ9IoCjZVInWnvA078f7049\",\n        \"user\": {\n            \"id\": 16,\n            \"name\": \"Test User\",\n            \"email\": \"teskkkt@example.com\"\n        }\n    }\n}"
+						},
+						{
+							"name": "Register User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"jojo\",\n  \"email\": \"ooooooo@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"company\" : \"jojojo\",\n  \"domain\" : \"jojooooooo\"\n} "
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 01 Aug 2025 10:08:35 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Registration successful.\",\n    \"data\": {\n        \"name\": \"jojo\",\n        \"email\": \"ooooooo@example.com\",\n        \"tenant_id\": \"d274daf2-cdf4-4a39-8e22-80795b5a22ba\",\n        \"updated_at\": \"2025-08-01T10:08:35.000000Z\",\n        \"created_at\": \"2025-08-01T10:08:35.000000Z\",\n        \"id\": 1,\n        \"token\": \"1|ZbwmXnWWDCUc62SAtK8va8jSEuPbJD8wKg8D9Qxided6e1e8\",\n        \"tenant\": {\n            \"id\": \"d274daf2-cdf4-4a39-8e22-80795b5a22ba\",\n            \"created_at\": \"2025-08-01T10:08:34.000000Z\",\n            \"updated_at\": \"2025-08-01T10:08:34.000000Z\",\n            \"data\": null,\n            \"domains\": [\n                {\n                    \"id\": 2,\n                    \"domain\": \"jojooooooo\",\n                    \"tenant_id\": \"d274daf2-cdf4-4a39-8e22-80795b5a22ba\",\n                    \"created_at\": \"2025-08-01T10:08:34.000000Z\",\n                    \"updated_at\": \"2025-08-01T10:08:34.000000Z\"\n                }\n            ]\n        }\n    },\n    \"tenant\": {\n        \"id\": \"d274daf2-cdf4-4a39-8e22-80795b5a22ba\",\n        \"company\": null,\n        \"domains\": [\n            \"jojooooooo\"\n        ]\n    }\n}"
+						},
+						{
+							"name": "Register User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"jojo\",\n  \"email\": \"fss@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"company\" : \"jojojo\",\n  \"domain\" : \"sd\"\n} "
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Content",
+							"code": 422,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Host",
+									"value": "192.168.137.130:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.16"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 05 Aug 2025 06:15:54 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"The domain has already been taken.\",\n    \"errors\": {\n        \"domain\": [\n            \"The domain has already been taken.\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"teskkkt@example.com\",\n  \"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 01 Aug 2025 08:17:42 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Login successful.\",\n    \"data\": {\n        \"token\": \"2|zxTJ63V2ZMKxb0Iho78IjnxxFnhhxLzmsNOb4nTZ9a172e82\",\n        \"user\": {\n            \"id\": 16,\n            \"name\": \"Test User\",\n            \"email\": \"teskkkt@example.com\"\n        }\n    }\n}"
+						},
+						{
+							"name": "Login User",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Host",
+									"value": "192.168.137.130:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.3.16"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 05 Aug 2025 04:18:13 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Login successful.\",\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Test User\",\n        \"email\": \"test@example.com\",\n        \"token\": \"28|nZzatZngqGPp27UznrFzGtSQ1AzJsjjcIrHMWkf1e1649cd9\",\n        \"roles\": [\n            \"super-admin\"\n        ],\n        \"permissions\": []\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🤖 AI Chat",
+			"item": [
+				{
+					"name": "Send Chat Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Hello, how are you today?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chat/history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Chat History",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chat/clear",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversation by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chat/conversation/{{conversation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat",
+								"conversation",
+								"{{conversation_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Conversation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chat/conversation/{{conversation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat",
+								"conversation",
+								"{{conversation_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Chat Configuration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chat/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chat",
+								"test"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👤 Profile Management",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profiles/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profiles",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Profiles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"guntur\",\n  \"age\": \"30\",\n  \"gender\": \"male\",\n  \"phone_number\": \"08123456789\",\n  \"address\": \"Jl. Merdeka No. 123, Jakarta\",\n  \"birth_date\": \"1994-05-20\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profiles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profiles/{{profile_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profiles",
+								"{{profile_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"guntur\",\n  \"age\": \"30\",\n  \"gender\": \"male\",\n  \"phone_number\": \"08123456789\",\n  \"address\": \"Jl. Merdeka No. 123, Jakarta\",\n  \"birth_date\": \"1994-05-20\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/profiles/{{profile_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profiles",
+								"{{profile_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/profiles/{{profile_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profiles",
+								"{{profile_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏢 Company Management",
+			"item": [
+				{
+					"name": "Get All Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Companies",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:11:01 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Acme Corporation\",\n            \"industry\": null,\n            \"phone\": \"+6281234567890\",\n            \"email\": \"info@acme.com\",\n            \"address\": \"Jl. Business No. 1\",\n            \"website\": \"https://acme.com\",\n            \"description\": null,\n            \"user\": {\n                \"id\": 1,\n                \"name\": \"jojo\",\n                \"email\": \"ooooooo@example.com\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Acme \",\n  \"email\": \"info@ame.com\",\n  \"phone\": \"\",\n  \"address\": \"Jl. Business No. 1\",\n  \"website\": \"https://acme.com\",\n  \"user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create Company",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Acme Corporation\",\n  \"email\": \"info@acme.com\",\n  \"phone\": \"+6281234567890\",\n  \"address\": \"Jl. Business No. 1\",\n  \"city\": \"Jakarta\",\n  \"country\": \"Indonesia\",\n  \"website\": \"https://acme.com\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/company",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:10:53 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Acme Corporation\",\n        \"industry\": null,\n        \"phone\": \"+6281234567890\",\n        \"email\": \"info@acme.com\",\n        \"address\": \"Jl. Business No. 1\",\n        \"website\": \"https://acme.com\",\n        \"description\": null\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Company by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{company_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Company by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"{{company_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:11:30 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Acme Corporation\",\n        \"industry\": null,\n        \"phone\": \"+6281234567890\",\n        \"email\": \"info@acme.com\",\n        \"address\": \"Jl. Business No. 1\",\n        \"website\": \"https://acme.com\",\n        \"description\": null,\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"jojo\",\n            \"email\": \"ooooooo@example.com\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Acme \",\n  \"email\": \"info@ame.com\",\n  \"phone\": \"\",\n  \"address\": \"Jl. Business No. 1\",\n  \"website\": \"https://acme.com\",\n  \"user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{company_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Company",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Acme Corporation Updated\",\n  \"email\": \"info@acme-updated.com\",\n  \"phone\": \"+6281234567891\",\n  \"address\": \"Jl. Business No. 2\",\n  \"city\": \"Bandung\",\n  \"country\": \"Indonesia\",\n  \"website\": \"https://acme-updated.com\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/company/{{company_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"{{company_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:11:50 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Acme Corporation Updated\",\n        \"industry\": null,\n        \"phone\": \"+6281234567891\",\n        \"email\": \"info@acme-updated.com\",\n        \"address\": \"Jl. Business No. 2\",\n        \"website\": \"https://acme-updated.com\",\n        \"description\": null,\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"jojo\",\n            \"email\": \"ooooooo@example.com\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Company",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"companies",
+								"{{company_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📞 Contact Management",
+			"item": [
+				{
+					"name": "Get All Contacts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Contacts",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/contact",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contact"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:12:17 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": []\n}"
+						},
+						{
+							"name": "Get All Contacts",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/contact",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contact"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:24:06 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"first_name\": \"jo\",\n            \"last_name\": \"ko\",\n            \"full_name\": \"jo ko\",\n            \"email\": \"john@example.com\",\n            \"phone\": \"+6281234567890\",\n            \"job_title\": \"hi\",\n            \"company\": {\n                \"id\": 1,\n                \"name\": \"Acme Corporation Updated\",\n                \"industry\": null,\n                \"phone\": \"+6281234567891\",\n                \"email\": \"info@acme-updated.com\",\n                \"address\": \"Jl. Business No. 2\",\n                \"website\": \"https://acme-updated.com\",\n                \"description\": null\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Contact",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"22222\",\n  \"last_name\": \"wwuhwww\",\n  \"email\": \"janwe.do@e3xample.com\",\n  \"phone\": \"081234567890\",\n  \"job_title\": \"Marketing Manager\",\n  \"company_id\":2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create Contact",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"first_name\":\"jojo\",\n  \"last_name\": \"ko\",\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+6281234567890\",\n  \"position\": \"Manager\",\n  \"job_title\": \"hi\",\n  \"company_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/contact",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contact"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:18:01 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"first_name\": \"jojo\",\n        \"last_name\": \"ko\",\n        \"full_name\": \"jojo ko\",\n        \"email\": \"john@example.com\",\n        \"phone\": \"+6281234567890\",\n        \"job_title\": \"hi\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Contact by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/{{contact_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								"{{contact_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Contact by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/contact/{{contact_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contact",
+										"{{contact_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:18:42 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"first_name\": \"jojo\",\n        \"last_name\": \"ko\",\n        \"full_name\": \"jojo ko\",\n        \"email\": \"john@example.com\",\n        \"phone\": \"+6281234567890\",\n        \"job_title\": \"hi\",\n        \"company\": {\n            \"id\": 1,\n            \"name\": \"Acme Corporation Updated\",\n            \"industry\": null,\n            \"phone\": \"+6281234567891\",\n            \"email\": \"info@acme-updated.com\",\n            \"address\": \"Jl. Business No. 2\",\n            \"website\": \"https://acme-updated.com\",\n            \"description\": null\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Contact",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"22222\",\n  \"last_name\": \"wwuhwww\",\n  \"email\": \"janwe.do@e3xample.com\",\n  \"phone\": \"081234567890\",\n  \"job_title\": \"Marketing Manager\",\n  \"company_id\":2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts/{{contact_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								"{{contact_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Contact",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"first_name\":\"jo\",\n  \"last_name\": \"ko\",\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+6281234567890\",\n  \"position\": \"Manager\",\n  \"job_title\": \"hi\",\n  \"company_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/contact/{{contact_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contact",
+										"{{contact_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:19:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"first_name\": \"jo\",\n        \"last_name\": \"ko\",\n        \"full_name\": \"jo ko\",\n        \"email\": \"john@example.com\",\n        \"phone\": \"+6281234567890\",\n        \"job_title\": \"hi\",\n        \"company\": {\n            \"id\": 1,\n            \"name\": \"Acme Corporation Updated\",\n            \"industry\": null,\n            \"phone\": \"+6281234567891\",\n            \"email\": \"info@acme-updated.com\",\n            \"address\": \"Jl. Business No. 2\",\n            \"website\": \"https://acme-updated.com\",\n            \"description\": null\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Contact",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/{{contact_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								"{{contact_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🎯 Lead Management",
+			"item": [
+				{
+					"name": "Get All Leads",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/leads",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Leads",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/lead",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"lead"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:27:05 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Andi Wijaya2\",\n            \"email\": \"andi3@example.com\",\n            \"phone\": \"081234567890\",\n            \"source\": \"Instagram Ads\",\n            \"status\": \"Terkualifikasi\",\n            \"potential_value\": \"25000000.00\",\n            \"notes\": \"Tertarik dengan produk paket premium.\",\n            \"contact\": {\n                \"id\": 1,\n                \"first_name\": \"jo\",\n                \"last_name\": \"ko\",\n                \"full_name\": \"jo ko\",\n                \"email\": \"john@example.com\",\n                \"phone\": \"+6281234567890\",\n                \"job_title\": \"hi\"\n            }\n        },\n        {\n            \"id\": 4,\n            \"name\": \"Andi Wijaya2\",\n            \"email\": \"a@example.com\",\n            \"phone\": \"081234567890\",\n            \"source\": \"Instagram Ads\",\n            \"status\": \"Terkualifikasi\",\n            \"potential_value\": \"25000000.00\",\n            \"notes\": \"Tertarik dengan produk paket premium.\",\n            \"contact\": {\n                \"id\": 1,\n                \"first_name\": \"jo\",\n                \"last_name\": \"ko\",\n                \"full_name\": \"jo ko\",\n                \"email\": \"john@example.com\",\n                \"phone\": \"+6281234567890\",\n                \"job_title\": \"hi\"\n            }\n        },\n        {\n            \"id\": 6,\n            \"name\": \"Andi Wijaya2\",\n            \"email\": \"joooooooo@example.com\",\n            \"phone\": \"081234567890\",\n            \"source\": \"Instagram Ads\",\n            \"status\": \"Terkualifikasi\",\n            \"potential_value\": \"25000000.00\",\n            \"notes\": \"Tertarik dengan produk paket premium.\",\n            \"contact\": {\n                \"id\": 1,\n                \"first_name\": \"jo\",\n                \"last_name\": \"ko\",\n                \"full_name\": \"jo ko\",\n                \"email\": \"john@example.com\",\n                \"phone\": \"+6281234567890\",\n                \"job_title\": \"hi\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Lead",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Andi Wijaya2\",\n  \"email\": \"joooooooo@example.com\",\n  \"phone\": \"081234567890\",\n  \"source\": \"Instagram Ads\",\n  \"status\": \"Terkualifikasi\",\n  \"potential_value\": 25000000,\n  \"notes\": \"Tertarik dengan produk paket premium.\",\n  \"contact_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/leads",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"leads"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create Lead",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Andi Wijaya2\",\n  \"email\": \"joooooooo@example.com\",\n  \"phone\": \"081234567890\",\n  \"source\": \"Instagram Ads\",\n  \"status\": \"Terkualifikasi\",\n  \"potential_value\": 25000000,\n  \"notes\": \"Tertarik dengan produk paket premium.\",\n  \"contact_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/lead",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"lead"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:26:45 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 6,\n        \"name\": \"Andi Wijaya2\",\n        \"email\": \"joooooooo@example.com\",\n        \"phone\": \"081234567890\",\n        \"source\": \"Instagram Ads\",\n        \"status\": \"Terkualifikasi\",\n        \"potential_value\": 25000000,\n        \"notes\": \"Tertarik dengan produk paket premium.\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Lead by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lead/{{lead_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lead",
+								"{{lead_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Lead by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/lead/{{lead_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"lead",
+										"{{lead_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:28:14 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 6,\n        \"name\": \"Andi Wijaya2\",\n        \"email\": \"joooooooo@example.com\",\n        \"phone\": \"081234567890\",\n        \"source\": \"Instagram Ads\",\n        \"status\": \"Terkualifikasi\",\n        \"potential_value\": \"25000000.00\",\n        \"notes\": \"Tertarik dengan produk paket premium.\",\n        \"contact\": {\n            \"id\": 1,\n            \"first_name\": \"jo\",\n            \"last_name\": \"ko\",\n            \"full_name\": \"jo ko\",\n            \"email\": \"john@example.com\",\n            \"phone\": \"+6281234567890\",\n            \"job_title\": \"hi\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Lead",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Andi Wijaya2\",\n  \"email\": \"andi00@example.com\",\n  \"phone\": \"081234567890\",\n  \"source\": \"Instagram Ads\",\n  \"status\": \"Terkualifikasi\",\n  \"potential_value\": 25000000,\n  \"notes\": \"Tertarik dengan produk paket premium.\",\n  \"contact_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/lead/{{lead_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lead",
+								"{{lead_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update Lead",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Andi Wijaya2\",\n  \"email\": \"andi00@example.com\",\n  \"phone\": \"081234567890\",\n  \"source\": \"Instagram Ads\",\n  \"status\": \"Terkualifikasi\",\n  \"potential_value\": 25000000,\n  \"notes\": \"Tertarik dengan produk paket premium.\",\n  \"contact_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/lead/{{lead_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"lead",
+										"{{lead_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Host",
+									"value": "localhost:8000"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "PHP/8.2.29"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, private"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 02 Aug 2025 02:28:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 6,\n        \"name\": \"Andi Wijaya2\",\n        \"email\": \"andi00@example.com\",\n        \"phone\": \"081234567890\",\n        \"source\": \"Instagram Ads\",\n        \"status\": \"Terkualifikasi\",\n        \"potential_value\": 25000000,\n        \"notes\": \"Tertarik dengan produk paket premium.\",\n        \"contact\": {\n            \"id\": 1,\n            \"first_name\": \"jo\",\n            \"last_name\": \"ko\",\n            \"full_name\": \"jo ko\",\n            \"email\": \"john@example.com\",\n            \"phone\": \"+6281234567890\",\n            \"job_title\": \"hi\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Lead",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/lead/{{lead_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"lead",
+								"{{lead_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📦 Plan Management",
+			"item": [
+				{
+					"name": "Get All Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Premium Plan\",\n  \"slug\": \"premium\",\n  \"description\": \"Premium subscription plan\",\n  \"price\": 999000,\n  \"currency\": \"IDR\",\n  \"max_users\": 50,\n  \"max_storage\": 1000,\n  \"features\": [\"dashboard\", \"user-management\", \"tenant-management\"],\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Plan Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/statistics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"statistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"active"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Free Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/free",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"free"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Paid Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/paid",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"paid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/search?q=premium",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "premium"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Plan by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/{{plan_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"{{plan_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Plan",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Premium Plan\",\n  \"slug\": \"premium-updated\",\n  \"description\": \"Updated premium subscription plan\",\n  \"price\": 1299000,\n  \"currency\": \"IDR\",\n  \"max_users\": 100,\n  \"max_storage\": 2000,\n  \"features\": [\"dashboard\", \"user-management\", \"tenant-management\", \"plan-management\"],\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans/{{plan_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"{{plan_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Plan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/{{plan_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"{{plan_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔧 Module Management",
+			"item": [
+				{
+					"name": "Get All Modules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Module",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"app_name\": \"CRM X\",\n  \"company_name\": \"PT Guntur\",\n  \"logo_url\": \"https://domain.com/logo.png\",\n  \"favicon_url\": \"https://domain.com/favicon.ico\",\n  \"timezone\": \"Asia/Jakarta\",\n  \"locale\": \"id\",\n  \"email_sender\": \"noreply@domain.com\",\n  \"support_email\": \"support@domain.com\",\n  \"email_signature\": \"Thanks, PT Guntur\",\n  \"feature_chat\": true,\n  \"feature_invoice\": false,\n  \"feature_report\": true,\n  \"max_users\": 50,\n  \"max_storage_mb\": 1000,\n  \"allow_ip_whitelist\": [\"192.168.1.1\", \"10.0.0.1\"],\n  \"theme\": {\n    \"primary_color\": \"#007BFF\",\n    \"secondary_color\": \"#6C757D\",\n    \"dark_mode\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Module by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/{{module_slug}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_slug}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Module",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Module\",\n  \"slug\": \"updated-module\",\n  \"description\": \"Updated module description\",\n  \"icon\": \"updated-icon\",\n  \"route\": \"updated-module.index\",\n  \"order\": 11,\n  \"is_active\": true,\n  \"is_public\": false,\n  \"permissions\": [\"view\", \"create\", \"edit\", \"delete\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/{{module_slug}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_slug}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Module",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/{{module_slug}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_slug}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🔐 Permission Management",
+			"item": [
+				{
+					"name": "Get All Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"new-module.view\",\n  \"guard_name\": \"web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Permission Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/statistics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"statistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Permissions by Guard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/guard/web",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"guard",
+								"web"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Permissions by Module",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/module/tenant-management",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"module",
+								"tenant-management"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/search?q=view",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "view"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Permissions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"permissions\": [\"new-permission.view\", \"new-permission.create\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/permissions/sync",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Permission by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/{{permission_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"{{permission_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Permission",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"updated-permission.view\",\n  \"guard_name\": \"web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/permissions/{{permission_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"{{permission_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/permissions/{{permission_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"permissions",
+								"{{permission_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👥 Role Management",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"new-role\",\n  \"guard_name\": \"web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/statistics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"statistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Roles by Guard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/guard/web",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"guard",
+								"web"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/search?q=admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "admin"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"{{role_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"updated-role\",\n  \"guard_name\": \"web\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"{{role_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"{{role_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Permissions to Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"permissions\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/{{role_id}}/assign-permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"{{role_id}}",
+								"assign-permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Permissions from Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"permissions\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/{{role_id}}/remove-permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"{{role_id}}",
+								"remove-permissions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

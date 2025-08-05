@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../components/AuthContext';
@@ -13,8 +13,15 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const router = useRouter();
+
+  // Auto redirect if user is already logged in
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.push('/dashboard');
+    }
+  }, [user, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +30,6 @@ export default function LoginPage() {
 
     try {
       const result = await login(email, password);
-      
       if (result.success) {
         router.push('/dashboard');
       } else {
@@ -35,6 +41,18 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading if checking auth status
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
@@ -57,6 +75,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 placeholder="Enter your email"
+                autoComplete="username"
                 required
               />
             </div>
@@ -73,6 +92,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                   required
                 />
                 <button

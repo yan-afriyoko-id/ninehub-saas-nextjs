@@ -16,20 +16,14 @@ interface User {
   id: number;
   email: string;
   name: string;
-  role: UserRole;
-  company: string;
-  phone?: string;
-  location?: string;
-  joinDate?: string;
-  subscription: {
-    plan: string;
-    status: string;
-    startDate: string;
-    endDate: string;
-    price: string;
-  };
+  roles: string[];
   permissions: string[];
-  menuItems: MenuItem[];
+  tenant: {
+    id: string;
+    name: string;
+    domains: string[];
+  };
+  profile?: any;
 }
 
 interface AuthContextType {
@@ -42,25 +36,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Helper function to transform Laravel user data to frontend format
-const transformUserData = (laravelUser: LoginResponse['user']): User => {
+const transformUserData = (laravelUser: LoginResponse): User => {
+  // Add null check to prevent errors
+  if (!laravelUser) {
+    throw new Error('User data is undefined or null');
+  }
+
   return {
     id: laravelUser.id,
     email: laravelUser.email,
     name: laravelUser.name,
-    role: laravelUser.role,
-    company: laravelUser.company,
-    phone: laravelUser.phone,
-    location: laravelUser.location,
-    joinDate: laravelUser.join_date,
-    subscription: {
-      plan: laravelUser.subscription.plan,
-      status: laravelUser.subscription.status,
-      startDate: laravelUser.subscription.start_date,
-      endDate: laravelUser.subscription.end_date,
-      price: laravelUser.subscription.price,
-    },
-    permissions: laravelUser.permissions,
-    menuItems: laravelUser.menu_items,
+    roles: laravelUser.roles || [],
+    permissions: laravelUser.permissions || [],
+    tenant: laravelUser.tenant,
+    profile: laravelUser.profile,
   };
 };
 
@@ -73,19 +62,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuthStatus = async () => {
       try {
         if (apiClient.isAuthenticated()) {
-          const response = await apiClient.getProfile();
-          if (response.success && response.data) {
-            setUser(transformUserData(response.data));
-          } else {
-            // Token is invalid, clear it
-            apiClient.logout();
-          }
+          // For now, use dummy user data for testing
+          const dummyUser: User = {
+            id: 1,
+            email: 'admin@example.com',
+            name: 'Admin User',
+            roles: ['admin'],
+            permissions: ['dashboard.view', 'user-management.view', 'settings.view'],
+            tenant: {
+              id: 'dummy-tenant-id',
+              name: 'Dummy Company',
+              domains: ['example.com']
+            },
+            profile: null
+          };
+          setUser(dummyUser);
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
         // Clear invalid token
         apiClient.logout();
-      } finally {
         setIsLoading(false);
       }
     };
@@ -100,10 +99,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiClient.login({ email, password });
       
       if (response.success && response.data) {
-        const transformedUser = transformUserData(response.data.user);
-        setUser(transformedUser);
-        setIsLoading(false);
-        return { success: true, message: response.message || 'Login successful!' };
+        try {
+          const transformedUser = transformUserData(response.data);
+          setUser(transformedUser);
+          setIsLoading(false);
+          return { success: true, message: response.message || 'Login successful!' };
+        } catch (transformError) {
+          console.error('Error transforming user data:', transformError);
+          setIsLoading(false);
+          return { 
+            success: false, 
+            message: 'Invalid user data received from server' 
+          };
+        }
       } else {
         setIsLoading(false);
         return { 
@@ -121,13 +129,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
-    try {
-      await apiClient.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
+  const logout = () => {
+    console.log('Logout called'); // Debug log
+    
+    // Clear token using apiClient
+    apiClient.logout();
+    
+    // Clear user state
+    setUser(null);
+    
+    console.log('User state cleared, redirecting...'); // Debug log
+    
+    // Redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
     }
   };
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from './AuthContext';
+import { getFilteredMenuItems } from '../config/menu';
 import { 
   BarChart3, 
   Users, 
@@ -16,7 +17,13 @@ import {
   Database,
   Shield,
   UserCheck,
-  CreditCard
+  CreditCard,
+  LayoutDashboard,
+  Building,
+  Briefcase,
+  BookOpen,
+  Target,
+  MessageCircle
 } from 'lucide-react';
 
 // Icon mapping
@@ -28,7 +35,13 @@ const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
   Shield,
   UserCheck,
   CreditCard,
-  Settings
+  Settings,
+  LayoutDashboard,
+  Building,
+  Briefcase,
+  BookOpen,
+  Target,
+  MessageCircle
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -47,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
           
           <nav className="space-y-2">
-            {user?.menuItems?.map((item) => {
+            {user && getFilteredMenuItems(user.roles, user.permissions).map((item) => {
               const IconComponent = iconMap[item.icon];
               return (
                 <Link
@@ -78,7 +91,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
             
             <button 
-              onClick={logout}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Logout button clicked'); // Debug log
+                logout();
+              }}
               className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors mt-2"
             >
               <LogOut size={20} />
@@ -95,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h2 className="text-2xl font-bold text-white">
-                {user?.role === 'admin' ? 'Admin Dashboard' : 'Tenant Dashboard'}
+                {user?.roles?.includes('admin') ? 'Admin Dashboard' : 'User Dashboard'}
               </h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />

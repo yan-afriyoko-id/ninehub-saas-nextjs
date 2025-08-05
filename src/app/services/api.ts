@@ -1,5 +1,5 @@
-// API Service Layer for Laravel Backend Integration
-const API_BASE_URL = 'http://192.168.137.130:8000/api';
+// API Service Layer for Laravel Backend
+import { API_CONFIG, getApiUrl } from '../config/api';
 
 // Types
 export interface ApiResponse<T = any> {
@@ -15,32 +15,24 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: 'admin' | 'tenant';
-    company: string;
-    phone?: string;
-    location?: string;
-    join_date: string;
-    subscription: {
-      plan: string;
-      status: string;
-      start_date: string;
-      end_date: string;
-      price: string;
-    };
-    permissions: string[];
-    menu_items: Array<{
-      id: string;
-      label: string;
-      icon: string;
-      path: string;
-    }>;
-  };
+  id: number;
+  name: string;
+  email: string;
   token: string;
-  token_type: string;
+  roles: string[];
+  permissions: string[];
+  profile?: any;
+  tenant: {
+    id: string;
+    name: string;
+    domains: string[];
+  };
+}
+
+export interface TenantInfo {
+  id: string;
+  company: string | null;
+  domains: string[];
 }
 
 export interface Module {
@@ -118,10 +110,10 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
@@ -171,22 +163,15 @@ class ApiClient {
     return response;
   }
 
-  async logout(): Promise<ApiResponse> {
-    try {
-      await this.request('/logout', {
-        method: 'POST',
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      this.removeToken();
-    }
-
-    return { success: true, message: 'Logged out successfully' };
+  logout(): void {
+    console.log('ApiClient logout called'); // Debug log
+    // Just remove token from localStorage
+    this.removeToken();
+    console.log('Token removed from localStorage'); // Debug log
   }
 
-  async getProfile(): Promise<ApiResponse<LoginResponse['user']>> {
-    return this.request<LoginResponse['user']>('/auth/profile');
+  async getProfile(): Promise<ApiResponse<LoginResponse>> {
+    return this.request<LoginResponse>('/auth/profile');
   }
 
   // Modules CRUD
@@ -300,7 +285,6 @@ class ApiClient {
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient(API_CONFIG.BASE_URL);
 
-// Export types
-export type { ApiResponse, LoginRequest, LoginResponse, Module, Permission, Role, Plan }; 
+// Export types - remove duplicate exports since they're already exported above 
