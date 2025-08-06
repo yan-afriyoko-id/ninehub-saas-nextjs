@@ -49,6 +49,18 @@ export interface TenantInfo {
   domains: string[];
 }
 
+export interface Tenant {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  status: 'active' | 'inactive';
+  plan_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Module {
   id: number;
   name: string;
@@ -86,6 +98,16 @@ export interface Plan {
   status: "active" | "inactive";
   created_at: string;
   updated_at: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  roles: string[];
+  permissions: string[];
+  avatar?: string;
+  company_id?: string;
 }
 
 // API Client Class
@@ -198,8 +220,62 @@ class ApiClient {
     }
   }
 
-  async getProfile(): Promise<ApiResponse<ProfileResponse>> {
-    return this.request<ProfileResponse>("/profiles/me");
+  async getProfile(): Promise<ApiResponse<User>> {
+    return this.request<User>('/auth/profile');
+  }
+
+  async getProfileById(profileId: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/profiles/${profileId}`);
+  }
+
+  async getMyProfile(): Promise<ApiResponse<any>> {
+    return this.request<any>('/profiles/me');
+  }
+
+  async updateProfile(profileData: any): Promise<ApiResponse<User>> {
+    return this.request<User>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async updateMyProfile(profileData: any): Promise<ApiResponse<any>> {
+    return this.request<any>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async updateProfileById(profileId: string, profileData: any): Promise<ApiResponse<any>> {
+    return this.request<any>(`/profiles/${profileId}`, {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  // Admin Management
+  async getTenants(): Promise<ApiResponse<Tenant[]>> {
+    return this.request<Tenant[]>('/admin/tenants');
+  }
+
+  async createTenant(tenantData: Partial<Tenant>): Promise<ApiResponse<Tenant>> {
+    return this.request<Tenant>('/admin/tenants', {
+      method: 'POST',
+      body: JSON.stringify(tenantData),
+    });
+  }
+
+  async updateTenant(id: string, tenantData: Partial<Tenant>): Promise<ApiResponse<Tenant>> {
+    return this.request<Tenant>(`/admin/tenants/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(tenantData),
+    });
+  }
+
+  async deleteTenant(id: string): Promise<ApiResponse> {
+    return this.request(`/admin/tenants/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   // Modules CRUD
@@ -329,6 +405,34 @@ class ApiClient {
 
   getToken(): string | null {
     return this.token;
+  }
+
+  // Chat API
+  async sendChatMessage(message: string): Promise<ApiResponse<any>> {
+    return this.request<any>('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+  }
+
+  async getChatHistory(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/chat/history');
+  }
+
+  async clearChatHistory(): Promise<ApiResponse> {
+    return this.request('/chat/clear', {
+      method: 'DELETE',
+    });
+  }
+
+  async getConversation(conversationId: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/chat/conversation/${conversationId}`);
+  }
+
+  async deleteConversation(conversationId: string): Promise<ApiResponse> {
+    return this.request(`/chat/conversation/${conversationId}`, {
+      method: 'DELETE',
+    });
   }
 }
 

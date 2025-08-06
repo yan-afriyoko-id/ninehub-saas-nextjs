@@ -59,7 +59,6 @@ const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
   'settings': Settings,
   'user': User,
   'lock': Lock,
-  'users': Users,
   'bar-chart-3': BarChart3,
   'message-square': MessageSquare,
   'user-check': UserCheck,
@@ -85,6 +84,15 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
       router.push('/login');
       return;
     }
+
+    // Debug: Log user data
+    console.log('🔍 User Data:', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roles: user.roles,
+      permissions: user.permissions
+    });
 
     setIsLoading(false);
   }, [user, router]);
@@ -120,9 +128,25 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
   }
 
   const isUserAdmin = isAdmin(user.roles);
-  const menuItems = isUserAdmin 
-    ? getAdminMenuItems(user.roles, user.permissions)
-    : getUserMenuItems(user.roles, user.permissions);
+  
+  // Debug: Log admin check
+  console.log('🔍 Admin Check:', {
+    isUserAdmin,
+    userRoles: user.roles,
+    adminRoles: ['admin', 'super-admin']
+  });
+  
+  // Get appropriate menu items based on user role
+  let menuItems;
+  if (isUserAdmin) {
+    // Admin gets all admin menus + general menus
+    menuItems = getFilteredMenuItems(user.roles, user.permissions);
+    console.log('🔍 Admin Menu Items:', menuItems);
+  } else {
+    // Regular user gets only user menus (non-admin)
+    menuItems = getUserMenuItems(user.roles, user.permissions);
+    console.log('🔍 User Menu Items:', menuItems);
+  }
 
   const renderMenuItem = (item: any, level: number = 0) => {
     const IconComponent = iconMap[item.icon];

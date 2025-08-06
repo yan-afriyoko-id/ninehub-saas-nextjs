@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import SecureRoute from '../../components/SecureRoute';
 import SecureDashboard from '../../components/SecureDashboard';
-import { apiService, Tenant } from '../../services/api';
+import { apiClient, Tenant } from '../../services/api';
 import { 
   Building, 
   Mail, 
@@ -36,7 +36,7 @@ export default function TenantsPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await apiService.getTenants();
+              const response = await apiClient.getTenants();
       
       if (response.success && response.data) {
         setTenants(response.data);
@@ -127,7 +127,7 @@ export default function TenantsPage() {
   const handleDeleteTenant = async (id: string) => {
     if (confirm('Are you sure you want to delete this tenant?')) {
       try {
-        const response = await apiService.deleteTenant(id);
+        const response = await apiClient.deleteTenant(id);
         if (response.success) {
           setTenants(prev => prev.filter(tenant => tenant.id !== id));
         } else {
@@ -143,7 +143,7 @@ export default function TenantsPage() {
   const handleToggleStatus = async (id: string, currentStatus: string) => {
     try {
       const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      const response = await apiService.updateTenant(id, { status: newStatus });
+              const response = await apiClient.updateTenant(id, { status: newStatus });
       
       if (response.success && response.data) {
         setTenants(prev => prev.map(tenant => 

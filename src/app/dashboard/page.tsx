@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import SecureRoute from '../components/SecureRoute';
 import SecureDashboard from '../components/SecureDashboard';
+import { apiClient } from '../services/api';
+import { useAuth } from '../components/AuthContext';
 import { 
   Users, 
   Building, 
@@ -45,6 +47,7 @@ interface UserDashboardStats {
 }
 
 export default function UserDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<UserDashboardStats>({
     totalContacts: 0,
     totalLeads: 0,
@@ -54,85 +57,84 @@ export default function UserDashboard() {
     upcomingTasks: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStats({
-        totalContacts: 156,
-        totalLeads: 23,
-        totalCompanies: 12,
-        activeChats: 5,
-        recentActivities: [
-          {
-            id: '1',
-            type: 'contact',
-            message: 'New contact added: John Doe from TechCorp',
-            timestamp: '2 minutes ago',
-            status: 'success'
-          },
-          {
-            id: '2',
-            type: 'lead',
-            message: 'Lead "Acme Project" status updated to Qualified',
-            timestamp: '15 minutes ago',
-            status: 'success'
-          },
-          {
-            id: '3',
-            type: 'company',
-            message: 'Company profile updated: ABC Corporation',
-            timestamp: '1 hour ago',
-            status: 'success'
-          },
-          {
-            id: '4',
-            type: 'chat',
-            message: 'AI Chat session started with customer support',
-            timestamp: '2 hours ago',
-            status: 'success'
-          },
-          {
-            id: '5',
-            type: 'lead',
-            message: 'Follow-up reminder: Contact Sarah Johnson',
-            timestamp: '3 hours ago',
-            status: 'warning'
-          }
-        ],
-        upcomingTasks: [
-          {
-            id: '1',
-            title: 'Follow up with TechCorp proposal',
-            dueDate: 'Today',
-            priority: 'high',
-            type: 'follow-up'
-          },
-          {
-            id: '2',
-            title: 'Meeting with ABC Corp team',
-            dueDate: 'Tomorrow',
-            priority: 'medium',
-            type: 'meeting'
-          },
-          {
-            id: '3',
-            title: 'Submit monthly report',
-            dueDate: 'Dec 15',
-            priority: 'high',
-            type: 'deadline'
-          },
-          {
-            id: '4',
-            title: 'Review lead pipeline',
-            dueDate: 'Dec 20',
-            priority: 'low',
-            type: 'follow-up'
-          }
-        ]
-      });
-      setIsLoading(false);
-    }, 1000);
+    const loadDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Load data from API - using available methods
+        const [tenantsResponse, modulesResponse, permissionsResponse, rolesResponse] = await Promise.all([
+          apiClient.getTenants(),
+          apiClient.getModules(),
+          apiClient.getPermissions(),
+          apiClient.getRoles()
+        ]);
+
+        // Calculate stats from API responses
+        const totalTenants = tenantsResponse.success ? tenantsResponse.data?.length || 0 : 0;
+        const totalModules = modulesResponse.success ? modulesResponse.data?.length || 0 : 0;
+        const totalPermissions = permissionsResponse.success ? permissionsResponse.data?.length || 0 : 0;
+        const totalRoles = rolesResponse.success ? rolesResponse.data?.length || 0 : 0;
+
+        setStats({
+          totalContacts: totalTenants, // Using tenants as contacts
+          totalLeads: totalModules, // Using modules as leads
+          totalCompanies: totalPermissions, // Using permissions as companies
+          activeChats: totalRoles, // Using roles as chats
+          recentActivities: [
+            {
+              id: '1',
+              type: 'contact',
+              message: `Total tenants: ${totalTenants}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '2',
+              type: 'lead',
+              message: `Total modules: ${totalModules}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '3',
+              type: 'company',
+              message: `Total permissions: ${totalPermissions}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '4',
+              type: 'chat',
+              message: `Total roles: ${totalRoles}`,
+              timestamp: 'Just now',
+              status: 'success'
+            }
+          ],
+          upcomingTasks: []
+        });
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        setError('Failed to load dashboard data');
+        
+        // Fallback to empty stats
+        setStats({
+          totalContacts: 0,
+          totalLeads: 0,
+          totalCompanies: 0,
+          activeChats: 0,
+          recentActivities: [],
+          upcomingTasks: []
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, []);
 
   const getStatusIcon = (status: 'success' | 'warning' | 'error') => {
@@ -193,6 +195,20 @@ export default function UserDashboard() {
         <SecureDashboard>
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        </SecureDashboard>
+      </SecureRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <SecureRoute>
+        <SecureDashboard>
+          <div className="p-6">
+            <div className="bg-red-600 text-white p-4 rounded-lg mb-6">
+              {error}
+            </div>
           </div>
         </SecureDashboard>
       </SecureRoute>

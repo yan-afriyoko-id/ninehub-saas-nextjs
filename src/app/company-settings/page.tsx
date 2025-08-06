@@ -3,45 +3,45 @@
 import { useState, useEffect } from 'react';
 import SecureRoute from '../components/SecureRoute';
 import SecureDashboard from '../components/SecureDashboard';
+import { apiClient } from '../services/api';
+import { useAuth } from '../components/AuthContext';
 import { 
   Building, 
   Mail, 
   Phone, 
+  Globe, 
   MapPin, 
-  Globe,
+  Calendar,
   Edit,
   Save,
   X,
-  Camera,
   Settings,
-  Users,
   Shield,
   CreditCard,
-  FileText,
-  Calendar,
-  DollarSign
+  Users,
+  Database
 } from 'lucide-react';
 
 interface Company {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  website: string;
-  address: string;
-  logo: string;
-  industry: string;
-  size: string;
-  founded: string;
-  description: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  logo?: string;
+  industry?: string;
+  size?: string;
+  founded?: string;
+  description?: string;
   status: 'active' | 'inactive';
-  subscription: {
+  subscription?: {
     plan: string;
     startDate: string;
     endDate: string;
-    status: 'active' | 'expired' | 'cancelled';
+    status: string;
   };
-  settings: {
+  settings?: {
     timezone: string;
     language: string;
     currency: string;
@@ -53,53 +53,129 @@ interface Company {
 }
 
 export default function CompanySettingsPage() {
+  const { user } = useAuth();
   const [company, setCompany] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Company>>({});
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const dummyCompany: Company = {
-        id: '1',
-        name: 'NineHub Corporation',
-        email: 'info@ninehub.com',
-        phone: '+6281234567890',
-        website: 'https://ninehub.com',
-        address: 'Jl. Business No. 1, Jakarta, Indonesia',
-        logo: 'https://ui-avatars.com/api/?name=NineHub&background=0D9488&color=fff',
-        industry: 'Technology',
-        size: '50-100 employees',
-        founded: '2020-01-01',
-        description: 'Leading multi-tenant SaaS platform providing comprehensive business solutions for modern enterprises.',
-        status: 'active',
-        subscription: {
-          plan: 'Enterprise Plan',
-          startDate: '2024-01-01',
-          endDate: '2024-12-31',
-          status: 'active'
-        },
-        settings: {
-          timezone: 'Asia/Jakarta',
-          language: 'en',
-          currency: 'IDR',
-          dateFormat: 'DD/MM/YYYY',
-          notifications: true,
-          autoBackup: true,
-          twoFactorAuth: true
+    const loadCompanyData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Try to get company data from API
+        const response = await apiClient.getProfile();
+        
+        if (response.success && response.data) {
+          // Transform API data to Company format - only use real data
+          const companyData: Company = {
+            id: response.data.id || user.id,
+            name: response.data.company?.name || 'Company Name',
+            email: response.data.company?.email || response.data.email || user.email,
+            phone: response.data.company?.phone || undefined,
+            website: response.data.company?.website || undefined,
+            address: response.data.company?.address || undefined,
+            logo: response.data.company?.logo || undefined,
+            industry: response.data.company?.industry || undefined,
+            size: response.data.company?.size || undefined,
+            founded: response.data.company?.founded || undefined,
+            description: response.data.company?.description || undefined,
+            status: 'active',
+            subscription: response.data.company?.subscription || {
+              plan: 'Basic Plan',
+              startDate: new Date().toISOString(),
+              endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'active'
+            },
+            settings: {
+              timezone: 'Asia/Jakarta',
+              language: 'en',
+              currency: 'IDR',
+              dateFormat: 'DD/MM/YYYY',
+              notifications: true,
+              autoBackup: true,
+              twoFactorAuth: true
+            }
+          };
+          
+          setCompany(companyData);
+          setEditForm(companyData);
+        } else {
+          throw new Error(response.message || 'Failed to load company data');
         }
-      };
-      setCompany(dummyCompany);
-      setEditForm(dummyCompany);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+      } catch (error) {
+        console.error('Error loading company data:', error);
+        setError('Failed to load company data');
+        
+        // Fallback to minimal company data
+        const fallbackCompany: Company = {
+          id: user.id,
+          name: 'Company Name',
+          email: user.email,
+          status: 'active',
+          subscription: {
+            plan: 'Basic Plan',
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'active'
+          },
+          settings: {
+            timezone: 'Asia/Jakarta',
+            language: 'en',
+            currency: 'IDR',
+            dateFormat: 'DD/MM/YYYY',
+            notifications: true,
+            autoBackup: true,
+            twoFactorAuth: true
+          }
+        };
+        
+        setCompany(fallbackCompany);
+        setEditForm(fallbackCompany);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleSave = () => {
+    loadCompanyData();
+  }, [user]);
+
+  const handleSave = async () => {
     if (company) {
-      setCompany({ ...company, ...editForm });
-      setIsEditing(false);
+      try {
+        setIsLoading(true);
+        
+        // Prepare data for API update - only send fields that have values
+        const updateData: any = {};
+        if (editForm.name) updateData.name = editForm.name;
+        if (editForm.email) updateData.email = editForm.email;
+        if (editForm.phone) updateData.phone = editForm.phone;
+        if (editForm.website) updateData.website = editForm.website;
+        if (editForm.address) updateData.address = editForm.address;
+        if (editForm.industry) updateData.industry = editForm.industry;
+        if (editForm.size) updateData.size = editForm.size;
+        if (editForm.founded) updateData.founded = editForm.founded;
+        if (editForm.description) updateData.description = editForm.description;
+        
+        // Update company data via API
+        const response = await apiClient.updateMyProfile(updateData);
+        
+        if (response.success && response.data) {
+          setCompany({ ...company, ...editForm });
+          setIsEditing(false);
+          setError(null);
+        } else {
+          throw new Error(response.message || 'Failed to update company data');
+        }
+      } catch (error) {
+        console.error('Error updating company data:', error);
+        setError('Failed to update company data. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -118,26 +194,9 @@ export default function CompanySettingsPage() {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    return status === 'active' ? 'text-green-500' : 'text-red-500';
-  };
-
-  const getSubscriptionColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-600';
-      case 'expired':
-        return 'bg-red-600';
-      case 'cancelled':
-        return 'bg-yellow-600';
-      default:
-        return 'bg-gray-600';
-    }
-  };
-
   if (isLoading) {
     return (
-      <SecureRoute>
+      <SecureRoute adminOnly={true}>
         <SecureDashboard>
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -149,11 +208,11 @@ export default function CompanySettingsPage() {
 
   if (!company) {
     return (
-      <SecureRoute>
+      <SecureRoute adminOnly={true}>
         <SecureDashboard>
           <div className="text-center py-12">
             <Building className="mx-auto text-gray-400" size={48} />
-            <h3 className="text-lg font-semibold text-white mt-4">Company not found</h3>
+            <h3 className="text-lg font-semibold text-white mt-4">Company data not found</h3>
           </div>
         </SecureDashboard>
       </SecureRoute>
@@ -161,7 +220,7 @@ export default function CompanySettingsPage() {
   }
 
   return (
-    <SecureRoute>
+    <SecureRoute adminOnly={true}>
       <SecureDashboard>
         <div className="space-y-6">
           {/* Header */}
@@ -169,34 +228,20 @@ export default function CompanySettingsPage() {
             <div>
               <h1 className="text-3xl font-bold text-white">Company Settings</h1>
               <p className="text-gray-400">Manage your company information and preferences</p>
+              {error && (
+                <div className="mt-2 p-3 bg-red-600 text-white rounded-lg">
+                  {error}
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-3">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Save size={20} />
-                    <span>Save</span>
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center space-x-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <X size={20} />
-                    <span>Cancel</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <Edit size={20} />
-                  <span>Edit Company</span>
-                </button>
-              )}
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <Edit size={20} />
+                <span>Edit Company</span>
+              </button>
             </div>
           </div>
 
@@ -205,42 +250,45 @@ export default function CompanySettingsPage() {
             <div className="lg:col-span-1">
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div className="text-center mb-6">
-                  <div className="relative inline-block">
-                    <img
-                      src={company.logo}
-                      alt={company.name}
-                      className="w-32 h-32 rounded-lg mx-auto mb-4"
-                    />
-                    <button className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 p-2 rounded-full transition-colors">
-                      <Camera size={16} className="text-white" />
-                    </button>
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <Building size={32} className="text-white" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white">{company.name}</h2>
-                  <p className="text-gray-400">{company.industry}</p>
-                  <p className="text-gray-500 text-sm">{company.size}</p>
+                  <h3 className="text-xl font-semibold text-white">{company.name}</h3>
+                  <p className="text-gray-400">{company.industry || 'Industry'}</p>
+                  {company.size && (
+                    <p className="text-gray-400 text-sm">{company.size}</p>
+                  )}
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <Globe className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{company.website}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
                     <Mail className="text-gray-400" size={16} />
                     <span className="text-gray-300">{company.email}</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{company.phone}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{company.address}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="text-gray-400" size={16} />
-                    <span className="text-gray-300">Founded {formatDate(company.founded)}</span>
-                  </div>
+                  {company.phone && (
+                    <div className="flex items-center space-x-3">
+                      <Phone className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{company.phone}</span>
+                    </div>
+                  )}
+                  {company.website && (
+                    <div className="flex items-center space-x-3">
+                      <Globe className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{company.website}</span>
+                    </div>
+                  )}
+                  {company.address && (
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{company.address}</span>
+                    </div>
+                  )}
+                  {company.founded && (
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="text-gray-400" size={16} />
+                      <span className="text-gray-300">Founded {formatDate(company.founded)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -253,108 +301,54 @@ export default function CompanySettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Company Name</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.name || ''}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{company.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Industry</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.industry || ''}
-                        onChange={(e) => setEditForm({ ...editForm, industry: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{company.industry}</p>
-                    )}
+                    <p className="text-white">{company.name}</p>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Email</label>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        value={editForm.email || ''}
-                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{company.email}</p>
-                    )}
+                    <p className="text-white">{company.email}</p>
                   </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Phone</label>
-                    {isEditing ? (
-                      <input
-                        type="tel"
-                        value={editForm.phone || ''}
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                  {company.phone && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Phone</label>
                       <p className="text-white">{company.phone}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Website</label>
-                    {isEditing ? (
-                      <input
-                        type="url"
-                        value={editForm.website || ''}
-                        onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {company.website && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Website</label>
                       <p className="text-white">{company.website}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Company Size</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.size || ''}
-                        onChange={(e) => setEditForm({ ...editForm, size: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {company.industry && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Industry</label>
+                      <p className="text-white">{company.industry}</p>
+                    </div>
+                  )}
+                  {company.size && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Company Size</label>
                       <p className="text-white">{company.size}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-400 text-sm mb-2">Address</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.address || ''}
-                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                        rows={3}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {company.founded && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Founded</label>
+                      <p className="text-white">{formatDate(company.founded)}</p>
+                    </div>
+                  )}
+                  {company.address && (
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Address</label>
                       <p className="text-white">{company.address}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-400 text-sm mb-2">Description</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.description || ''}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                        rows={4}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {company.description && (
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Description</label>
                       <p className="text-gray-300">{company.description}</p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -363,159 +357,140 @@ export default function CompanySettingsPage() {
                 <h3 className="text-lg font-semibold text-white mb-4">Subscription Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Current Plan</label>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSubscriptionColor(company.subscription.status)} text-white`}>
-                      {company.subscription.plan}
-                    </span>
+                    <label className="block text-gray-400 text-sm mb-2">Plan</label>
+                    <p className="text-white">{company.subscription?.plan}</p>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Status</label>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSubscriptionColor(company.subscription.status)} text-white`}>
-                      {company.subscription.status.charAt(0).toUpperCase() + company.subscription.status.slice(1)}
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {company.subscription?.status}
                     </span>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Start Date</label>
-                    <p className="text-white">{formatDate(company.subscription.startDate)}</p>
+                    <p className="text-white">{company.subscription?.startDate ? formatDate(company.subscription.startDate) : 'N/A'}</p>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">End Date</label>
-                    <p className="text-white">{formatDate(company.subscription.endDate)}</p>
+                    <p className="text-white">{company.subscription?.endDate ? formatDate(company.subscription.endDate) : 'N/A'}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Company Settings */}
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Company Settings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Timezone</label>
-                    <select
-                      value={company.settings.timezone}
-                      onChange={(e) => setCompany({
-                        ...company,
-                        settings: { ...company.settings, timezone: e.target.value }
-                      })}
-                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="Asia/Jakarta">Asia/Jakarta</option>
-                      <option value="Asia/Singapore">Asia/Singapore</option>
-                      <option value="UTC">UTC</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Language</label>
-                    <select
-                      value={company.settings.language}
-                      onChange={(e) => setCompany({
-                        ...company,
-                        settings: { ...company.settings, language: e.target.value }
-                      })}
-                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="en">English</option>
-                      <option value="id">Indonesian</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Currency</label>
-                    <select
-                      value={company.settings.currency}
-                      onChange={(e) => setCompany({
-                        ...company,
-                        settings: { ...company.settings, currency: e.target.value }
-                      })}
-                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="IDR">IDR (Indonesian Rupiah)</option>
-                      <option value="USD">USD (US Dollar)</option>
-                      <option value="SGD">SGD (Singapore Dollar)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Date Format</label>
-                    <select
-                      value={company.settings.dateFormat}
-                      onChange={(e) => setCompany({
-                        ...company,
-                        settings: { ...company.settings, dateFormat: e.target.value }
-                      })}
-                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                    </select>
-                  </div>
-                </div>
+              {/* Edit Form */}
+              {isEditing && (
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <h3 className="text-lg font-semibold text-white mb-4">Edit Company</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Company Name</label>
+                      <input
+                        type="text"
+                        value={editForm.name || ''}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
 
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Shield className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Two-Factor Authentication</p>
-                        <p className="text-gray-400 text-sm">Enhanced security for company accounts</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Email</label>
                       <input
-                        type="checkbox"
-                        checked={company.settings.twoFactorAuth}
-                        onChange={(e) => setCompany({
-                          ...company,
-                          settings: { ...company.settings, twoFactorAuth: e.target.checked }
-                        })}
-                        className="sr-only peer"
+                        type="email"
+                        value={editForm.email || ''}
+                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={editForm.phone || ''}
+                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Website</label>
+                      <input
+                        type="url"
+                        value={editForm.website || ''}
+                        onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Industry</label>
+                      <input
+                        type="text"
+                        value={editForm.industry || ''}
+                        onChange={(e) => setEditForm({ ...editForm, industry: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Company Size</label>
+                      <input
+                        type="text"
+                        value={editForm.size || ''}
+                        onChange={(e) => setEditForm({ ...editForm, size: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Founded</label>
+                      <input
+                        type="date"
+                        value={editForm.founded || ''}
+                        onChange={(e) => setEditForm({ ...editForm, founded: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <textarea
+                        value={editForm.address || ''}
+                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                        rows={3}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Description</label>
+                      <textarea
+                        value={editForm.description || ''}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        rows={4}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Auto Backup</p>
-                        <p className="text-gray-400 text-sm">Automatically backup company data</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={company.settings.autoBackup}
-                        onChange={(e) => setCompany({
-                          ...company,
-                          settings: { ...company.settings, autoBackup: e.target.checked }
-                        })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Settings className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Notifications</p>
-                        <p className="text-gray-400 text-sm">Receive company-wide notifications</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={company.settings.notifications}
-                        onChange={(e) => setCompany({
-                          ...company,
-                          settings: { ...company.settings, notifications: e.target.checked }
-                        })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+
+                  <div className="flex items-center justify-end space-x-3 mt-6">
+                    <button
+                      onClick={handleCancel}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                    >
+                      <X size={20} />
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <Save size={20} />
+                      <span>Save Changes</span>
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

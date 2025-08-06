@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import SecureRoute from '../components/SecureRoute';
 import SecureDashboard from '../components/SecureDashboard';
+import { apiClient } from '../services/api';
+import { useAuth } from '../components/AuthContext';
 import { 
   User, 
   Mail, 
@@ -24,18 +26,20 @@ interface Profile {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  avatar: string;
-  position: string;
-  department: string;
-  company: string;
-  address: string;
-  bio: string;
-  dateOfBirth: string;
-  joinDate: string;
-  lastLogin: string;
+  age?: string;
+  gender?: string;
+  phone_number?: string;
+  address?: string;
+  birth_date?: string;
+  avatar?: string;
+  position?: string;
+  department?: string;
+  company?: string;
+  bio?: string;
+  joinDate?: string;
+  lastLogin?: string;
   status: 'active' | 'inactive';
-  preferences: {
+  preferences?: {
     notifications: boolean;
     emailUpdates: boolean;
     darkMode: boolean;
@@ -45,47 +49,118 @@ interface Profile {
 }
 
 export default function ProfilePage() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Profile>>({});
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const dummyProfile: Profile = {
-        id: '1',
-        name: 'John Doe',
-        email: 'john.doe@ninehub.com',
-        phone: '+6281234567890',
-        avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=0D9488&color=fff',
-        position: 'Senior Developer',
-        department: 'Engineering',
-        company: 'NineHub',
-        address: 'Jl. Business No. 1, Jakarta, Indonesia',
-        bio: 'Experienced software developer with expertise in full-stack development, cloud architecture, and team leadership.',
-        dateOfBirth: '1990-05-15',
-        joinDate: '2022-03-01',
-        lastLogin: '2024-01-20T10:30:00Z',
-        status: 'active',
-        preferences: {
-          notifications: true,
-          emailUpdates: true,
-          darkMode: true,
-          language: 'en',
-          timezone: 'Asia/Jakarta'
+    const loadProfile = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Try to get profile from API using token (current user's profile)
+        const response = await apiClient.getMyProfile();
+        
+        if (response.success && response.data) {
+          // Transform API data to Profile format - only use real data
+          const profileData: Profile = {
+            id: response.data.id || user.id,
+            name: response.data.name || user.name,
+            email: response.data.email || user.email,
+            age: response.data.age || undefined,
+            gender: response.data.gender || undefined,
+            phone_number: response.data.phone_number || undefined,
+            address: response.data.address || undefined,
+            birth_date: response.data.birth_date || undefined,
+            avatar: response.data.avatar || user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(response.data.name || user.name)}&background=0D9488&color=fff`,
+            position: response.data.position || undefined,
+            department: response.data.department || undefined,
+            company: response.data.company || undefined,
+            bio: response.data.bio || undefined,
+            joinDate: response.data.joinDate || undefined,
+            lastLogin: response.data.lastLogin || undefined,
+            status: 'active',
+            preferences: {
+              notifications: true,
+              emailUpdates: true,
+              darkMode: true,
+              language: 'en',
+              timezone: 'Asia/Jakarta'
+            }
+          };
+          
+          setProfile(profileData);
+          setEditForm(profileData);
+        } else {
+          throw new Error(response.message || 'Failed to load profile');
         }
-      };
-      setProfile(dummyProfile);
-      setEditForm(dummyProfile);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        setError('Failed to load profile data');
+        
+        // Fallback to user data from AuthContext - minimal data only
+        if (user) {
+          const fallbackProfile: Profile = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0D9488&color=fff`,
+            status: 'active',
+            preferences: {
+              notifications: true,
+              emailUpdates: true,
+              darkMode: true,
+              language: 'en',
+              timezone: 'Asia/Jakarta'
+            }
+          };
+          
+          setProfile(fallbackProfile);
+          setEditForm(fallbackProfile);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleSave = () => {
+    loadProfile();
+  }, [user]);
+
+  const handleSave = async () => {
     if (profile) {
-      setProfile({ ...profile, ...editForm });
-      setIsEditing(false);
+      try {
+        setIsLoading(true);
+        
+        // Prepare data for API update - only send fields that have values
+        const updateData: any = {};
+        if (editForm.name) updateData.name = editForm.name;
+        if (editForm.age) updateData.age = editForm.age;
+        if (editForm.gender) updateData.gender = editForm.gender;
+        if (editForm.phone_number) updateData.phone_number = editForm.phone_number;
+        if (editForm.address) updateData.address = editForm.address;
+        if (editForm.birth_date) updateData.birth_date = editForm.birth_date;
+        if (editForm.bio) updateData.bio = editForm.bio;
+        
+        // Update profile via API using PUT method with token
+        const response = await apiClient.updateMyProfile(updateData);
+        
+        if (response.success && response.data) {
+          setProfile({ ...profile, ...editForm });
+          setIsEditing(false);
+          setError(null);
+        } else {
+          throw new Error(response.message || 'Failed to update profile');
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        setError('Failed to update profile. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -148,34 +223,20 @@ export default function ProfilePage() {
             <div>
               <h1 className="text-3xl font-bold text-white">Profile Settings</h1>
               <p className="text-gray-400">Manage your personal information and preferences</p>
+              {error && (
+                <div className="mt-2 p-3 bg-red-600 text-white rounded-lg">
+                  {error}
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-3">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <Save size={20} />
-                    <span>Save</span>
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex items-center space-x-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <X size={20} />
-                    <span>Cancel</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  <Edit size={20} />
-                  <span>Edit Profile</span>
-                </button>
-              )}
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <Edit size={20} />
+                <span>Edit Profile</span>
+              </button>
             </div>
           </div>
 
@@ -184,42 +245,57 @@ export default function ProfilePage() {
             <div className="lg:col-span-1">
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div className="text-center mb-6">
-                  <div className="relative inline-block">
-                    <img
-                      src={profile.avatar}
-                      alt={profile.name}
-                      className="w-32 h-32 rounded-full mx-auto mb-4"
-                    />
-                    <button className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 p-2 rounded-full transition-colors">
-                      <Camera size={16} className="text-white" />
-                    </button>
+                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <User size={32} className="text-white" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white">{profile.name}</h2>
-                  <p className="text-gray-400">{profile.position}</p>
-                  <p className="text-gray-500 text-sm">{profile.department}</p>
+                  <h3 className="text-xl font-semibold text-white">{profile.name}</h3>
+                  <p className="text-gray-400">{profile.position || 'User'}</p>
+                  {profile.company && (
+                    <p className="text-gray-400 text-sm">{profile.company}</p>
+                  )}
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Building className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{profile.company}</span>
-                  </div>
+                  {profile.company && (
+                    <div className="flex items-center space-x-3">
+                      <Building className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{profile.company}</span>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-3">
                     <Mail className="text-gray-400" size={16} />
                     <span className="text-gray-300">{profile.email}</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{profile.phone}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{profile.address}</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="text-gray-400" size={16} />
-                    <span className="text-gray-300">Joined {formatDate(profile.joinDate)}</span>
-                  </div>
+                  {profile.age && (
+                    <div className="flex items-center space-x-3">
+                      <User className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{profile.age} years old</span>
+                    </div>
+                  )}
+                  {profile.gender && (
+                    <div className="flex items-center space-x-3">
+                      <User className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{profile.gender}</span>
+                    </div>
+                  )}
+                  {profile.phone_number && (
+                    <div className="flex items-center space-x-3">
+                      <Phone className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{profile.phone_number}</span>
+                    </div>
+                  )}
+                  {profile.address && (
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="text-gray-400" size={16} />
+                      <span className="text-gray-300">{profile.address}</span>
+                    </div>
+                  )}
+                  {profile.joinDate && (
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="text-gray-400" size={16} />
+                      <span className="text-gray-300">Joined {formatDate(profile.joinDate)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -232,82 +308,54 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Full Name</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.name || ''}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{profile.name}</p>
-                    )}
+                    <p className="text-white">{profile.name}</p>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Email</label>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        value={editForm.email || ''}
-                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{profile.email}</p>
-                    )}
+                    <p className="text-white">{profile.email}</p>
                   </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Phone</label>
-                    {isEditing ? (
-                      <input
-                        type="tel"
-                        value={editForm.phone || ''}
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
-                      <p className="text-white">{profile.phone}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Position</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.position || ''}
-                        onChange={(e) => setEditForm({ ...editForm, position: e.target.value })}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                  {profile.age && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Age</label>
+                      <p className="text-white">{profile.age}</p>
+                    </div>
+                  )}
+                  {profile.gender && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Gender</label>
+                      <p className="text-white">{profile.gender}</p>
+                    </div>
+                  )}
+                  {profile.phone_number && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Phone Number</label>
+                      <p className="text-white">{profile.phone_number}</p>
+                    </div>
+                  )}
+                  {profile.position && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Position</label>
                       <p className="text-white">{profile.position}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-400 text-sm mb-2">Address</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.address || ''}
-                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                        rows={3}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {profile.birth_date && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Birth Date</label>
+                      <p className="text-white">{formatDate(profile.birth_date)}</p>
+                    </div>
+                  )}
+                  {profile.address && (
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Address</label>
                       <p className="text-white">{profile.address}</p>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-400 text-sm mb-2">Bio</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.bio || ''}
-                        onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                        rows={4}
-                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    ) : (
+                    </div>
+                  )}
+                  {profile.bio && (
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Bio</label>
                       <p className="text-gray-300">{profile.bio}</p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -316,97 +364,128 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold text-white mb-4">Account Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Date of Birth</label>
-                    <p className="text-white">{formatDate(profile.dateOfBirth)}</p>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Join Date</label>
-                    <p className="text-white">{formatDate(profile.joinDate)}</p>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 text-sm mb-2">Last Login</label>
-                    <p className="text-white">{formatDateTime(profile.lastLogin)}</p>
+                    <label className="block text-gray-400 text-sm mb-2">User ID</label>
+                    <p className="text-white">{profile.id}</p>
                   </div>
                   <div>
                     <label className="block text-gray-400 text-sm mb-2">Status</label>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      profile.status === 'active' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                    }`}>
-                      {profile.status.charAt(0).toUpperCase() + profile.status.slice(1)}
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {profile.status}
                     </span>
                   </div>
+                  {profile.joinDate && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Join Date</label>
+                      <p className="text-white">{formatDate(profile.joinDate)}</p>
+                    </div>
+                  )}
+                  {profile.lastLogin && (
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Last Login</label>
+                      <p className="text-white">{formatDateTime(profile.lastLogin)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Preferences */}
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Bell className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Push Notifications</p>
-                        <p className="text-gray-400 text-sm">Receive notifications for important updates</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+              {/* Edit Form */}
+              {isEditing && (
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <h3 className="text-lg font-semibold text-white mb-4">Edit Profile</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Full Name</label>
                       <input
-                        type="checkbox"
-                        checked={profile.preferences.notifications}
-                        onChange={(e) => setProfile({
-                          ...profile,
-                          preferences: { ...profile.preferences, notifications: e.target.checked }
-                        })}
-                        className="sr-only peer"
+                        type="text"
+                        value={editForm.name || ''}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Age</label>
+                      <input
+                        type="number"
+                        value={editForm.age || ''}
+                        onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Gender</label>
+                      <select
+                        value={editForm.gender || ''}
+                        onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={editForm.phone_number || ''}
+                        onChange={(e) => setEditForm({ ...editForm, phone_number: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-400 text-sm mb-2">Birth Date</label>
+                      <input
+                        type="date"
+                        value={editForm.birth_date || ''}
+                        onChange={(e) => setEditForm({ ...editForm, birth_date: e.target.value })}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <textarea
+                        value={editForm.address || ''}
+                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                        rows={3}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-400 text-sm mb-2">Bio</label>
+                      <textarea
+                        value={editForm.bio || ''}
+                        onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                        rows={4}
+                        className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Email Updates</p>
-                        <p className="text-gray-400 text-sm">Receive email notifications</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profile.preferences.emailUpdates}
-                        onChange={(e) => setProfile({
-                          ...profile,
-                          preferences: { ...profile.preferences, emailUpdates: e.target.checked }
-                        })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Settings className="text-gray-400" size={20} />
-                      <div>
-                        <p className="text-white font-medium">Dark Mode</p>
-                        <p className="text-gray-400 text-sm">Use dark theme</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profile.preferences.darkMode}
-                        onChange={(e) => setProfile({
-                          ...profile,
-                          preferences: { ...profile.preferences, darkMode: e.target.checked }
-                        })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+
+                  <div className="flex items-center justify-end space-x-3 mt-6">
+                    <button
+                      onClick={handleCancel}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                    >
+                      <X size={20} />
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      <Save size={20} />
+                      <span>Save Changes</span>
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

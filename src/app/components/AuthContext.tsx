@@ -15,6 +15,18 @@ import {
 
 export type UserRole = "admin" | "tenant";
 
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  roles: string[];
+  permissions: string[];
+  avatar?: string;
+  company_id?: string;
+  tenant?: any;
+  profile?: any;
+}
+
 interface MenuItem {
   id: string;
   label: string;
@@ -37,11 +49,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Helper function to transform API user data to frontend format
 const transformUserData = (apiUser: any): User => {
   // Add null check to prevent errors
-
-  if (!laravelUser) {
-    throw new Error("User data is undefined or null");
-  }
-
   if (!apiUser) {
     throw new Error('User data is undefined or null');
   }
@@ -49,32 +56,148 @@ const transformUserData = (apiUser: any): User => {
   // Handle different possible response structures
   const userData = apiUser.user || apiUser;
   
+  // Ensure roles array exists and contains at least one role
+  let roles = userData.roles || [];
+  if (!Array.isArray(roles)) {
+    roles = [roles].filter(Boolean);
+  }
+  
+  // If no roles provided, check if user has admin-like properties
+  if (roles.length === 0) {
+    if (userData.is_admin || userData.role === 'admin' || userData.role === 'super-admin') {
+      roles = ['admin'];
+    } else {
+      roles = ['user'];
+    }
+  }
+  
+  // Ensure permissions array exists
+  let permissions = userData.permissions || [];
+  if (!Array.isArray(permissions)) {
+    permissions = [permissions].filter(Boolean);
+  }
+  
+  // Add default permissions based on roles
+  if (roles.includes('admin') || roles.includes('super-admin')) {
+    const adminPermissions = [
+      'dashboard.view',
+      'admin.dashboard.view',
+      'tenant-management.view',
+      'modules.view',
+      'permissions.view',
+      'roles.view',
+      'plans.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'company-settings.view',
+      'security.view',
+      'logs.view',
+      'backup.view',
+      'system-settings.view'
+    ];
+    
+    // Add admin permissions if not already present
+    adminPermissions.forEach(permission => {
+      if (!permissions.includes(permission)) {
+        permissions.push(permission);
+      }
+    });
+  }
+  
+  console.log('🔧 Transformed User Data:', {
+    id: userData.id?.toString() || '1',
+    email: userData.email || '',
+    name: userData.name || '',
+    roles,
+    permissions
+  });
+  
   return {
     id: userData.id?.toString() || '1',
     email: userData.email || '',
     name: userData.name || '',
-    roles: userData.roles || ['user'],
-    permissions: userData.permissions || [],
+    roles,
+    permissions,
     avatar: userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=0D9488&color=fff`,
     company_id: userData.company_id?.toString() || '1',
   };
 };
 
 // Helper function to transform profile data (without token)
-const transformProfileData = (profileData: ProfileResponse): User => {
+const transformProfileData = (profileData: any): User => {
   // Add null check to prevent errors
   if (!profileData) {
     throw new Error("Profile data is undefined or null");
   }
 
-  return {
-    id: profileData.id,
+  // Ensure roles array exists and contains at least one role
+  let roles = profileData.roles || [];
+  if (!Array.isArray(roles)) {
+    roles = [roles].filter(Boolean);
+  }
+  
+  // If no roles provided, check if user has admin-like properties
+  if (roles.length === 0) {
+    if (profileData.is_admin || profileData.role === 'admin' || profileData.role === 'super-admin') {
+      roles = ['admin'];
+    } else {
+      roles = ['user'];
+    }
+  }
+  
+  // Ensure permissions array exists
+  let permissions = profileData.permissions || [];
+  if (!Array.isArray(permissions)) {
+    permissions = [permissions].filter(Boolean);
+  }
+  
+  // Add default permissions based on roles
+  if (roles.includes('admin') || roles.includes('super-admin')) {
+    const adminPermissions = [
+      'dashboard.view',
+      'admin.dashboard.view',
+      'tenant-management.view',
+      'modules.view',
+      'permissions.view',
+      'roles.view',
+      'plans.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'company-settings.view',
+      'security.view',
+      'logs.view',
+      'backup.view',
+      'system-settings.view'
+    ];
+    
+    // Add admin permissions if not already present
+    adminPermissions.forEach(permission => {
+      if (!permissions.includes(permission)) {
+        permissions.push(permission);
+      }
+    });
+  }
+  
+  console.log('🔧 Transformed Profile Data:', {
+    id: profileData.id?.toString() || '1',
     email: profileData.email,
     name: profileData.name,
-    roles: profileData.roles || [],
-    permissions: profileData.permissions || [],
-    tenant: profileData.tenant,
-    profile: profileData.profile,
+    roles,
+    permissions
+  });
+
+  return {
+    id: profileData.id?.toString() || '1',
+    email: profileData.email,
+    name: profileData.name,
+    roles,
+    permissions,
+    avatar: profileData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileData.name || 'User')}&background=0D9488&color=fff`,
+    company_id: profileData.company_id?.toString() || '1',
   };
 };
 
@@ -126,7 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.success && response.data) {
         try {
           // Handle different possible response structures
-          const userData = response.data.user || response.data;
+          const userData = response.data;
           const transformedUser = transformUserData(userData);
           setUser(transformedUser);
           setIsLoading(false);

@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import SecureRoute from '../../components/SecureRoute';
 import SecureDashboard from '../../components/SecureDashboard';
+import DebugUserInfo from '../../components/DebugUserInfo';
+import { apiClient } from '../../services/api';
+import { useAuth } from '../../components/AuthContext';
 import { 
   Users, 
   Building, 
@@ -40,6 +43,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalTenants: 0,
@@ -49,56 +53,94 @@ export default function AdminDashboard() {
     recentActivities: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStats({
-        totalUsers: 1247,
-        totalTenants: 89,
-        totalRevenue: 12500000,
-        activeChats: 23,
-        systemHealth: 'good',
-        recentActivities: [
-          {
-            id: '1',
-            type: 'user',
-            message: 'New user registered: john.doe@company.com',
-            timestamp: '2 minutes ago',
-            status: 'success'
-          },
-          {
-            id: '2',
-            type: 'tenant',
-            message: 'Tenant "Acme Corp" upgraded to Premium plan',
-            timestamp: '15 minutes ago',
-            status: 'success'
-          },
-          {
-            id: '3',
-            type: 'payment',
-            message: 'Payment received: $2,500 from TechStart Inc',
-            timestamp: '1 hour ago',
-            status: 'success'
-          },
-          {
-            id: '4',
-            type: 'system',
-            message: 'System backup completed successfully',
-            timestamp: '2 hours ago',
-            status: 'success'
-          },
-          {
-            id: '5',
-            type: 'user',
-            message: 'User login failed: invalid credentials',
-            timestamp: '3 hours ago',
-            status: 'warning'
-          }
-        ]
-      });
-      setIsLoading(false);
-    }, 1000);
+    const loadAdminDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Load data from API
+        const [tenantsResponse, modulesResponse, permissionsResponse, rolesResponse, plansResponse] = await Promise.all([
+          apiClient.getTenants(),
+          apiClient.getModules(),
+          apiClient.getPermissions(),
+          apiClient.getRoles(),
+          apiClient.getPlans()
+        ]);
+
+        // Calculate stats from API responses
+        const totalTenants = tenantsResponse.success ? tenantsResponse.data?.length || 0 : 0;
+        const totalModules = modulesResponse.success ? modulesResponse.data?.length || 0 : 0;
+        const totalPermissions = permissionsResponse.success ? permissionsResponse.data?.length || 0 : 0;
+        const totalRoles = rolesResponse.success ? rolesResponse.data?.length || 0 : 0;
+        const totalPlans = plansResponse.success ? plansResponse.data?.length || 0 : 0;
+        const activeChats = 0; // No conversations API available
+
+        setStats({
+          totalUsers: totalTenants, // Using tenants as users for now
+          totalTenants,
+          totalRevenue: totalPlans * 1000, // Mock revenue calculation
+          activeChats,
+          systemHealth: 'good',
+          recentActivities: [
+            {
+              id: '1',
+              type: 'tenant',
+              message: `Total tenants: ${totalTenants}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '2',
+              type: 'system',
+              message: `Total modules: ${totalModules}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '3',
+              type: 'system',
+              message: `Total permissions: ${totalPermissions}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '4',
+              type: 'system',
+              message: `Total roles: ${totalRoles}`,
+              timestamp: 'Just now',
+              status: 'success'
+            },
+            {
+              id: '5',
+              type: 'system',
+              message: `Total plans: ${totalPlans}`,
+              timestamp: 'Just now',
+              status: 'success'
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('Error loading admin dashboard data:', error);
+        setError('Failed to load admin dashboard data');
+        
+        // Fallback to empty stats
+        setStats({
+          totalUsers: 0,
+          totalTenants: 0,
+          totalRevenue: 0,
+          activeChats: 0,
+          systemHealth: 'good',
+          recentActivities: []
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAdminDashboardData();
   }, []);
 
   const formatCurrency = (amount: number) => {
@@ -147,10 +189,27 @@ export default function AdminDashboard() {
     );
   }
 
+  if (error) {
+    return (
+      <SecureRoute adminOnly={true}>
+        <SecureDashboard>
+          <div className="p-6">
+            <div className="bg-red-600 text-white p-4 rounded-lg mb-6">
+              {error}
+            </div>
+          </div>
+        </SecureDashboard>
+      </SecureRoute>
+    );
+  }
+
   return (
     <SecureRoute adminOnly={true}>
       <SecureDashboard>
         <div className="space-y-6">
+          {/* Debug Information */}
+          <DebugUserInfo />
+          
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -170,65 +229,107 @@ export default function AdminDashboard() {
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Total Users</p>
-                  <p className="text-2xl font-bold text-white">{stats.totalUsers.toLocaleString()}</p>
-                </div>
-                <div className="bg-blue-600 p-3 rounded-lg">
-                  <Users className="text-white" size={24} />
-                </div>
-              </div>
-              <div className="flex items-center mt-4">
-                <TrendingUp className="text-green-500" size={16} />
-                <span className="text-green-500 text-sm ml-2">+12% from last month</span>
-              </div>
-            </div>
-
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Tenants</p>
+                  <p className="text-gray-400 text-sm">Total Tenants</p>
                   <p className="text-2xl font-bold text-white">{stats.totalTenants}</p>
                 </div>
-                <div className="bg-green-600 p-3 rounded-lg">
+                <div className="bg-blue-600 p-3 rounded-lg">
                   <Building className="text-white" size={24} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
                 <TrendingUp className="text-green-500" size={16} />
-                <span className="text-green-500 text-sm ml-2">+5 new this month</span>
+                <span className="text-green-500 text-sm ml-2">Active tenants</span>
               </div>
             </div>
 
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Total Revenue</p>
-                  <p className="text-2xl font-bold text-white">{formatCurrency(stats.totalRevenue)}</p>
+                  <p className="text-gray-400 text-sm">Total Modules</p>
+                  <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
                 </div>
-                <div className="bg-yellow-600 p-3 rounded-lg">
-                  <DollarSign className="text-white" size={24} />
+                <div className="bg-green-600 p-3 rounded-lg">
+                  <Database className="text-white" size={24} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
                 <TrendingUp className="text-green-500" size={16} />
-                <span className="text-green-500 text-sm ml-2">+8% from last month</span>
+                <span className="text-green-500 text-sm ml-2">System modules</span>
               </div>
             </div>
 
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Active Chats</p>
-                  <p className="text-2xl font-bold text-white">{stats.activeChats}</p>
+                  <p className="text-gray-400 text-sm">Total Roles</p>
+                  <p className="text-2xl font-bold text-white">{stats.totalRevenue / 1000}</p>
                 </div>
-                <div className="bg-purple-600 p-3 rounded-lg">
-                  <MessageCircle className="text-white" size={24} />
+                <div className="bg-yellow-600 p-3 rounded-lg">
+                  <Shield className="text-white" size={24} />
                 </div>
               </div>
               <div className="flex items-center mt-4">
-                <TrendingDown className="text-red-500" size={16} />
-                <span className="text-red-500 text-sm ml-2">-3 from yesterday</span>
+                <TrendingUp className="text-green-500" size={16} />
+                <span className="text-green-500 text-sm ml-2">User roles</span>
               </div>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Plans</p>
+                  <p className="text-2xl font-bold text-white">{stats.activeChats}</p>
+                </div>
+                <div className="bg-purple-600 p-3 rounded-lg">
+                  <CreditCard className="text-white" size={24} />
+                </div>
+              </div>
+              <div className="flex items-center mt-4">
+                <TrendingUp className="text-green-500" size={16} />
+                <span className="text-green-500 text-sm ml-2">Subscription plans</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <Building className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Tenant Management</h3>
+              </div>
+              <p className="text-gray-400 text-sm mb-4">Manage all tenant accounts and their subscriptions</p>
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                Manage Tenants
+              </button>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="bg-green-600 p-2 rounded-lg">
+                  <Database className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Module Management</h3>
+              </div>
+              <p className="text-gray-400 text-sm mb-4">Configure system modules and their permissions</p>
+              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors">
+                Manage Modules
+              </button>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="bg-yellow-600 p-2 rounded-lg">
+                  <Shield className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Role Management</h3>
+              </div>
+              <p className="text-gray-400 text-sm mb-4">Manage user roles and their permissions</p>
+              <button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg transition-colors">
+                Manage Roles
+              </button>
             </div>
           </div>
 

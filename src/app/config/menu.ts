@@ -25,7 +25,7 @@ export const MENU_ITEMS: MenuItem[] = [
   // Admin Only Menus
   {
     id: 'admin-dashboard',
-    label: 'Dashboard Admin',
+    label: 'Admin Dashboard',
     icon: 'shield',
     path: '/admin/dashboard',
     permission: 'admin.dashboard.view',
@@ -117,6 +117,7 @@ export const MENU_ITEMS: MenuItem[] = [
         icon: 'building',
         path: '/company-settings',
         permission: 'company-settings.view',
+        roles: ['admin', 'super-admin'], // Hanya admin yang bisa akses
       },
       {
         id: 'security',
@@ -128,16 +129,16 @@ export const MENU_ITEMS: MenuItem[] = [
     ]
   },
   
-  // User Management - Admin Only
-  {
-    id: 'user-management',
-    label: 'User Management',
-    icon: 'users',
-    path: '/admin/users',
-    permission: 'user-management.view',
-    roles: ['admin', 'super-admin'],
-    isAdmin: true,
-  },
+  // User Management - Admin Only (DISABLED FOR NOW)
+  // {
+  //   id: 'user-management',
+  //   label: 'User Management',
+  //   icon: 'users',
+  //   path: '/admin/users',
+  //   permission: 'user-management.view',
+  //   roles: ['admin', 'super-admin'],
+  //   isAdmin: true,
+  // },
   
   // Additional Admin Menus
   {
@@ -171,30 +172,69 @@ export const MENU_ITEMS: MenuItem[] = [
 
 // Helper function to filter menu items based on user roles and permissions
 export const getFilteredMenuItems = (userRoles: string[], userPermissions: string[]): MenuItem[] => {
+  // Add fallback permissions for admin users if they don't have specific permissions
+  let effectivePermissions = [...userPermissions];
+  let effectiveRoles = [...userRoles];
+  
+  // If user has admin role but no permissions, add default admin permissions
+  if ((userRoles.includes('admin') || userRoles.includes('super-admin')) && userPermissions.length === 0) {
+    const defaultAdminPermissions = [
+      'dashboard.view',
+      'admin.dashboard.view',
+      'tenant-management.view',
+      'modules.view',
+      'permissions.view',
+      'roles.view',
+      'plans.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'company-settings.view',
+      'security.view',
+      'logs.view',
+      'backup.view',
+      'system-settings.view'
+    ];
+    effectivePermissions = defaultAdminPermissions;
+  }
+  
+  console.log('🔧 Menu Filtering:', {
+    originalRoles: userRoles,
+    originalPermissions: userPermissions,
+    effectiveRoles,
+    effectivePermissions
+  });
+  
   return MENU_ITEMS.filter(item => {
     // Check if user has required permission
-    if (item.permission && !userPermissions.includes(item.permission)) {
+    if (item.permission && !effectivePermissions.includes(item.permission)) {
+      console.log(`❌ Menu item "${item.label}" filtered out - missing permission: ${item.permission}`);
       return false;
     }
     
     // Check if user has required role
-    if (item.roles && !item.roles.some(role => userRoles.includes(role))) {
+    if (item.roles && !item.roles.some(role => effectiveRoles.includes(role))) {
+      console.log(`❌ Menu item "${item.label}" filtered out - missing role: ${item.roles.join(', ')}`);
       return false;
     }
     
     // Filter children if they exist
     if (item.children) {
       item.children = item.children.filter(child => {
-        if (child.permission && !userPermissions.includes(child.permission)) {
+        if (child.permission && !effectivePermissions.includes(child.permission)) {
+          console.log(`❌ Child menu item "${child.label}" filtered out - missing permission: ${child.permission}`);
           return false;
         }
-        if (child.roles && !child.roles.some(role => userRoles.includes(role))) {
+        if (child.roles && !child.roles.some(role => effectiveRoles.includes(role))) {
+          console.log(`❌ Child menu item "${child.label}" filtered out - missing role: ${child.roles.join(', ')}`);
           return false;
         }
         return true;
       });
     }
     
+    console.log(`✅ Menu item "${item.label}" included`);
     return true;
   });
 };
