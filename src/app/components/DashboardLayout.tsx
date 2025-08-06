@@ -75,20 +75,42 @@ export default function DashboardLayout({
             {user &&
               getFilteredMenuItems(user.roles, user.permissions).map((item) => {
                 const IconComponent = iconMap[item.icon];
+                const isExternal = item.external;
+                
                 return (
-                  <Link
-                    key={item.id}
-                    href={item.path}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      activeTab === item.id
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-300 hover:bg-gray-700"
-                    }`}
-                    onClick={() => setActiveTab(item.id)}
-                  >
-                    {IconComponent && <IconComponent size={20} />}
-                    <span>{item.label}</span>
-                  </Link>
+                  <div key={item.id}>
+                    {isExternal ? (
+                      // External link - use anchor tag
+                      <a
+                        href={item.path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                          activeTab === item.id
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-300 hover:bg-gray-700"
+                        }`}
+                        onClick={() => setActiveTab(item.id)}
+                      >
+                        {IconComponent && <IconComponent size={20} />}
+                        <span>{item.label}</span>
+                      </a>
+                    ) : (
+                      // Internal link - use Next.js Link
+                      <Link
+                        href={item.path}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                          activeTab === item.id
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-300 hover:bg-gray-700"
+                        }`}
+                        onClick={() => setActiveTab(item.id)}
+                      >
+                        {IconComponent && <IconComponent size={20} />}
+                        <span>{item.label}</span>
+                      </Link>
+                    )}
+                  </div>
                 );
               })}
           </nav>

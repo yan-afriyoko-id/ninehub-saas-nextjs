@@ -121,7 +121,7 @@ export default function SystemSettingsPage() {
     }, 1000);
   };
 
-  const handleInputChange = (section: keyof SystemSettings, field: string, value: any) => {
+  const handleInputChange = (section: keyof SystemSettings, field: string, value: string | number | boolean | string[]) => {
     if (!settings) return;
     
     setSettings({

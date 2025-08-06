@@ -150,16 +150,16 @@ export default function AIChatPage() {
       
       if (response.success && response.data) {
         // Check if response.data is an array
-        let conversationsData: any[] = [];
+        let conversationsData: Record<string, unknown>[] = [];
         
         if (Array.isArray(response.data)) {
-          conversationsData = response.data;
+          conversationsData = response.data as Record<string, unknown>[];
           console.log('✅ Using response.data as array');
-        } else if (response.data && typeof response.data === 'object' && 'conversations' in response.data && Array.isArray((response.data as any).conversations)) {
-          conversationsData = (response.data as any).conversations;
+        } else if (response.data && typeof response.data === 'object' && 'conversations' in response.data && Array.isArray((response.data as Record<string, unknown>).conversations)) {
+          conversationsData = (response.data as Record<string, unknown>).conversations as Record<string, unknown>[];
           console.log('✅ Using response.data.conversations');
-        } else if (response.data && typeof response.data === 'object' && 'history' in response.data && Array.isArray((response.data as any).history)) {
-          conversationsData = (response.data as any).history;
+        } else if (response.data && typeof response.data === 'object' && 'history' in response.data && Array.isArray((response.data as Record<string, unknown>).history)) {
+          conversationsData = (response.data as Record<string, unknown>).history as Record<string, unknown>[];
           console.log('✅ Using response.data.history');
         } else {
           // If no conversations found, create new one
@@ -172,12 +172,12 @@ export default function AIChatPage() {
         console.log('🔍 Conversations data:', conversationsData);
         
         // Transform API data to frontend format
-        const apiConversations: Conversation[] = conversationsData.map((conv: any) => ({
-          id: conv.id || conv.conversation_id || Date.now().toString(),
-          title: conv.title || conv.name || 'Conversation',
-          messages: conv.messages || conv.chat_messages || [],
-          createdAt: conv.created_at || conv.createdAt || new Date().toISOString(),
-          updatedAt: conv.updated_at || conv.updatedAt || new Date().toISOString()
+        const apiConversations: Conversation[] = conversationsData.map((conv: Record<string, unknown>) => ({
+          id: (conv.id as string) || (conv.conversation_id as string) || Date.now().toString(),
+          title: (conv.title as string) || (conv.name as string) || 'Conversation',
+          messages: (conv.messages as Message[]) || (conv.chat_messages as Message[]) || [],
+          createdAt: (conv.created_at as string) || (conv.createdAt as string) || new Date().toISOString(),
+          updatedAt: (conv.updated_at as string) || (conv.updatedAt as string) || new Date().toISOString()
         }));
         
         setConversations(apiConversations);
@@ -240,17 +240,17 @@ export default function AIChatPage() {
         if (typeof response.data === 'string') {
           aiResponse = response.data;
           console.log('✅ Using response.data as string');
-        } else if (response.data.response) {
-          aiResponse = response.data.response;
+        } else if ((response.data as Record<string, unknown>).response) {
+          aiResponse = (response.data as Record<string, unknown>).response as string;
           console.log('✅ Using response.data.response');
-        } else if (response.data.message) {
-          aiResponse = response.data.message;
+        } else if ((response.data as Record<string, unknown>).message) {
+          aiResponse = (response.data as Record<string, unknown>).message as string;
           console.log('✅ Using response.data.message');
-        } else if (response.data.content) {
-          aiResponse = response.data.content;
+        } else if ((response.data as Record<string, unknown>).content) {
+          aiResponse = (response.data as Record<string, unknown>).content as string;
           console.log('✅ Using response.data.content');
-        } else if (response.data.text) {
-          aiResponse = response.data.text;
+        } else if ((response.data as Record<string, unknown>).text) {
+          aiResponse = (response.data as Record<string, unknown>).text as string;
           console.log('✅ Using response.data.text');
         } else {
           aiResponse = 'Sorry, I could not process your request.';

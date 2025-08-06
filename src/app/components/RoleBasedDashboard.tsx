@@ -95,12 +95,23 @@ export default function RoleBasedDashboard({
       label: "Menu ke CRM",
       icon: <MessageSquare size={20} />,
       permission: ["admin", "tenant"],
+      href: "https://your-crm-url.com", // Ganti dengan URL CRM Anda
     },
+    // AI Chat - Admin version (internal)
     {
-      id: "ai-chat",
+      id: "ai-chat-admin",
       label: "Menu ke AI Chat",
       icon: <Bot size={20} />,
-      permission: ["admin", "tenant"],
+      permission: ["admin"],
+      href: "/ai-chat", // Internal path for admin
+    },
+    // AI Chat - User/Tenant version (external)
+    {
+      id: "ai-chat-user",
+      label: "Menu ke AI Chat",
+      icon: <Bot size={20} />,
+      permission: ["tenant"],
+      href: "http://localhost:3001/", // External URL for user/tenant
     },
     {
       id: "settings",
@@ -117,31 +128,73 @@ export default function RoleBasedDashboard({
   const renderMenuItem = (item: MenuItem) => {
     const hasChildren = item.children && item.children.length > 0;
     const isActive = activeTab === item.id;
+    const isExternal = item.href && (item.href.startsWith('http://') || item.href.startsWith('https://'));
+
+    const menuContent = (
+      <div className="flex items-center space-x-3">
+        {item.icon}
+        <span>{item.label}</span>
+      </div>
+    );
+
+    const menuButton = (
+      <div className="flex items-center justify-between">
+        {menuContent}
+        {hasChildren && (
+          <div
+            className={`transform transition-transform ${
+              isActive ? "rotate-180" : ""
+            }`}
+          >
+            ▼
+          </div>
+        )}
+      </div>
+    );
 
     return (
       <div key={item.id}>
-        <button
-          onClick={() => setActiveTab(item.id)}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-            isActive
-              ? "bg-blue-600 text-white"
-              : "text-gray-300 hover:bg-gray-700"
-          }`}
-        >
-          <div className="flex items-center space-x-3">
-            {item.icon}
-            <span>{item.label}</span>
-          </div>
-          {hasChildren && (
-            <div
-              className={`transform transition-transform ${
-                isActive ? "rotate-180" : ""
-              }`}
-            >
-              ▼
-            </div>
-          )}
-        </button>
+        {isExternal ? (
+          // External link - use anchor tag
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:bg-gray-700"
+            }`}
+            onClick={() => setActiveTab(item.id)}
+          >
+            {menuButton}
+          </a>
+        ) : item.href ? (
+          // Internal link - use Next.js Link
+          <Link
+            href={item.href}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:bg-gray-700"
+            }`}
+            onClick={() => setActiveTab(item.id)}
+          >
+            {menuButton}
+          </Link>
+        ) : (
+          // Button without link
+          <button
+            onClick={() => setActiveTab(item.id)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              isActive
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:bg-gray-700"
+            }`}
+          >
+            {menuButton}
+          </button>
+        )}
 
         {hasChildren && isActive && (
           <div className="ml-6 mt-2 space-y-1">

@@ -68,15 +68,15 @@ export default function ProfilePage() {
         if (response.success && response.data) {
           // Transform API data to Profile format - only use real data
           const profileData: Profile = {
-            id: response.data.id || user.id,
-            name: response.data.name || user.name,
-            email: response.data.email || user.email,
+            id: response.data.id || user?.id || '',
+            name: response.data.name || user?.name || '',
+            email: response.data.email || user?.email || '',
             age: response.data.age || undefined,
             gender: response.data.gender || undefined,
             phone_number: response.data.phone_number || undefined,
             address: response.data.address || undefined,
             birth_date: response.data.birth_date || undefined,
-            avatar: response.data.avatar || user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(response.data.name || user.name)}&background=0D9488&color=fff`,
+            avatar: response.data.avatar || user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(response.data.name || user?.name || '')}&background=0D9488&color=fff`,
             position: response.data.position || undefined,
             department: response.data.department || undefined,
             company: response.data.company || undefined,
@@ -136,7 +136,7 @@ export default function ProfilePage() {
         setIsLoading(true);
         
         // Prepare data for API update - only send fields that have values
-        const updateData: any = {};
+        const updateData: Record<string, string> = {};
         if (editForm.name) updateData.name = editForm.name;
         if (editForm.age) updateData.age = editForm.age;
         if (editForm.gender) updateData.gender = editForm.gender;

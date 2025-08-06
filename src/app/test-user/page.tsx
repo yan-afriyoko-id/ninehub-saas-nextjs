@@ -8,7 +8,7 @@ import { getFilteredMenuItems, getAdminMenuItems, getUserMenuItems, isAdmin } fr
 
 export default function TestUserPage() {
   const { user } = useAuth();
-  const [rawApiData, setRawApiData] = useState<any>(null);
+  const [rawApiData, setRawApiData] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

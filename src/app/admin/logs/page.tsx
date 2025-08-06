@@ -10,7 +10,6 @@ import {
   Download,
   Eye,
   AlertTriangle,
-  CheckCircle,
   XCircle,
   Info,
   Clock,
@@ -27,7 +26,7 @@ interface SystemLog {
   ip_address: string;
   user_agent: string;
   created_at: string;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 export default function SystemLogsPage() {
@@ -110,35 +109,7 @@ export default function SystemLogsPage() {
     }
   };
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'info':
-        return 'text-blue-500';
-      case 'warning':
-        return 'text-yellow-500';
-      case 'error':
-        return 'text-red-500';
-      case 'debug':
-        return 'text-gray-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
 
-  const getLevelBgColor = (level: string) => {
-    switch (level) {
-      case 'info':
-        return 'bg-blue-600';
-      case 'warning':
-        return 'bg-yellow-600';
-      case 'error':
-        return 'bg-red-600';
-      case 'debug':
-        return 'bg-gray-600';
-      default:
-        return 'bg-gray-600';
-    }
-  };
 
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleString('id-ID', {
@@ -307,7 +278,12 @@ export default function SystemLogsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           {getLevelIcon(log.level)}
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getLevelBgColor(log.level)} text-white`}>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            log.level === 'info' ? 'bg-blue-600' :
+                            log.level === 'warning' ? 'bg-yellow-600' :
+                            log.level === 'error' ? 'bg-red-600' :
+                            'bg-gray-600'
+                          } text-white`}>
                             {log.level.toUpperCase()}
                           </span>
                         </div>

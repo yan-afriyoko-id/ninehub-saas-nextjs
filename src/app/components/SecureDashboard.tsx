@@ -148,47 +148,83 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
     console.log('🔍 User Menu Items:', menuItems);
   }
 
-  const renderMenuItem = (item: any, level: number = 0) => {
-    const IconComponent = iconMap[item.icon];
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedMenus.has(item.id);
-    const isActive = activeTab === item.id;
+  const renderMenuItem = (item: Record<string, unknown>, level: number = 0) => {
+    const IconComponent = iconMap[item.icon as string];
+    const hasChildren = item.children && (item.children as unknown[]).length > 0;
+    const isExpanded = expandedMenus.has(item.id as string);
+    const isActive = activeTab === (item.id as string);
+    const isExternal = item.external as boolean;
+
+    const menuContent = (
+      <div className="flex items-center space-x-3">
+        {IconComponent && <IconComponent size={20} />}
+        <span>{item.label as string}</span>
+        {item.badge && (
+          <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+            {item.badge as string}
+          </span>
+        )}
+      </div>
+    );
+
+    const menuButton = (
+      <div className="flex items-center justify-between">
+        {menuContent}
+        {hasChildren && (
+          isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+        )}
+      </div>
+    );
 
     return (
       <div key={item.id}>
-        <Link
-          href={item.path}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-            level > 0 ? 'ml-4' : ''
-          } ${
-            isActive
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-300 hover:bg-gray-700'
-          }`}
-          onClick={() => {
-            setActiveTab(item.id);
-            if (hasChildren) {
-              toggleMenu(item.id);
-            }
-          }}
-        >
-          <div className="flex items-center space-x-3">
-            {IconComponent && <IconComponent size={20} />}
-            <span>{item.label}</span>
-            {item.badge && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {item.badge}
-              </span>
-            )}
-          </div>
-          {hasChildren && (
-            isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
-          )}
-        </Link>
+        {isExternal ? (
+          // External link - use anchor tag
+          <a
+            href={item.path}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              level > 0 ? 'ml-4' : ''
+            } ${
+              isActive
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-300 hover:bg-gray-700'
+            }`}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (hasChildren) {
+                toggleMenu(item.id);
+              }
+            }}
+          >
+            {menuButton}
+          </a>
+        ) : (
+          // Internal link - use Next.js Link
+          <Link
+            href={item.path}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              level > 0 ? 'ml-4' : ''
+            } ${
+              isActive
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-300 hover:bg-gray-700'
+            }`}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (hasChildren) {
+                toggleMenu(item.id);
+              }
+            }}
+          >
+            {menuButton}
+          </Link>
+        )}
         
         {hasChildren && isExpanded && (
           <div className="mt-2 space-y-1">
-            {item.children.map((child: any) => renderMenuItem(child, level + 1))}
+            {(item.children as Record<string, unknown>[]).map((child: Record<string, unknown>) => renderMenuItem(child, level + 1))}
           </div>
         )}
       </div>

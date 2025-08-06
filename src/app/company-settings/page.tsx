@@ -72,19 +72,19 @@ export default function CompanySettingsPage() {
         if (response.success && response.data) {
           // Transform API data to Company format - only use real data
           const companyData: Company = {
-            id: response.data.id || user.id,
-            name: response.data.company?.name || 'Company Name',
-            email: response.data.company?.email || response.data.email || user.email,
-            phone: response.data.company?.phone || undefined,
-            website: response.data.company?.website || undefined,
-            address: response.data.company?.address || undefined,
-            logo: response.data.company?.logo || undefined,
-            industry: response.data.company?.industry || undefined,
-            size: response.data.company?.size || undefined,
-            founded: response.data.company?.founded || undefined,
-            description: response.data.company?.description || undefined,
+            id: response.data.id || user?.id || '',
+            name: response.data.name || 'Company Name',
+            email: response.data.email || user?.email || '',
+            phone: undefined,
+            website: undefined,
+            address: undefined,
+            logo: undefined,
+            industry: undefined,
+            size: undefined,
+            founded: undefined,
+            description: undefined,
             status: 'active',
-            subscription: response.data.company?.subscription || {
+            subscription: {
               plan: 'Basic Plan',
               startDate: new Date().toISOString(),
               endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
@@ -112,9 +112,9 @@ export default function CompanySettingsPage() {
         
         // Fallback to minimal company data
         const fallbackCompany: Company = {
-          id: user.id,
+          id: user?.id || '',
           name: 'Company Name',
-          email: user.email,
+          email: user?.email || '',
           status: 'active',
           subscription: {
             plan: 'Basic Plan',
@@ -149,7 +149,7 @@ export default function CompanySettingsPage() {
         setIsLoading(true);
         
         // Prepare data for API update - only send fields that have values
-        const updateData: any = {};
+        const updateData: Record<string, string> = {};
         if (editForm.name) updateData.name = editForm.name;
         if (editForm.email) updateData.email = editForm.email;
         if (editForm.phone) updateData.phone = editForm.phone;

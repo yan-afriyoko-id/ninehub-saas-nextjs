@@ -10,21 +10,14 @@ import {
   Users, 
   Building, 
   CreditCard, 
-  MessageCircle, 
   TrendingUp, 
-  TrendingDown,
   Activity,
   Shield,
   Database,
   Settings,
   AlertTriangle,
   CheckCircle,
-  Clock,
   DollarSign,
-  BarChart3,
-  PieChart,
-  Target,
-  Briefcase
 } from 'lucide-react';
 
 interface DashboardStats {

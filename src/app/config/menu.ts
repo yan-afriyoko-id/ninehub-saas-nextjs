@@ -9,6 +9,7 @@ export interface MenuItem {
   children?: MenuItem[];
   badge?: string;
   isAdmin?: boolean;
+  external?: boolean;
 }
 
 // Menu items configuration
@@ -83,20 +84,34 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'crm',
     label: 'Menu ke CRM',
     icon: 'briefcase',
-    path: '/crm',
+    path: 'https://your-crm-url.com', // Ganti dengan URL CRM Anda
     permission: 'crm.view',
+    external: true,
   },
   
-  // AI Chat - Available for all users
+  // AI Chat - Admin version (internal)
   {
-    id: 'ai-chat',
+    id: 'ai-chat-admin',
     label: 'Menu ke AI Chat',
     icon: 'message-circle',
     path: '/ai-chat',
     permission: 'chat.send',
+    roles: ['admin', 'super-admin'],
+    isAdmin: true,
   },
   
-  // Settings - Available for admin and tenant
+  // AI Chat - User/Tenant version (external)
+  {
+    id: 'ai-chat-user',
+    label: 'Menu ke AI Chat',
+    icon: 'message-circle',
+    path: 'http://localhost:3001/', // Ganti dengan URL AI Chat Anda
+    permission: 'chat.send',
+    external: true,
+    roles: ['tenant', 'user'], // Hanya untuk user/tenant, bukan admin
+  },
+  
+  // Settings - Available for admin and tenant  
   {
     id: 'settings',
     label: 'Menu Settings',

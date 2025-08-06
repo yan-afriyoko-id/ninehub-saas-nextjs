@@ -6,16 +6,13 @@ import SecureDashboard from '../../components/SecureDashboard';
 import { 
   Database, 
   Download, 
-  Upload, 
   Play,
-  Pause,
   Trash2,
   Clock,
   CheckCircle,
   XCircle,
   AlertTriangle,
   HardDrive,
-  FileText,
   Settings,
   RefreshCw
 } from 'lucide-react';

@@ -2,7 +2,7 @@
 import { API_CONFIG, getApiUrl } from "../config/api";
 
 // Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -21,7 +21,7 @@ export interface LoginResponse {
   token: string;
   roles: string[];
   permissions: string[];
-  profile?: any;
+  profile?: Record<string, unknown>;
   tenant: {
     id: string;
     name: string;
@@ -35,7 +35,7 @@ export interface ProfileResponse {
   email: string;
   roles: string[];
   permissions: string[];
-  profile?: any;
+  profile?: Record<string, unknown>;
   tenant: {
     id: string;
     name: string;
@@ -221,33 +221,33 @@ class ApiClient {
   }
 
   async getProfile(): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/profile');
+    return this.request<User>('/profiles');
   }
 
-  async getProfileById(profileId: string): Promise<ApiResponse<any>> {
-    return this.request<any>(`/profiles/${profileId}`);
+  async getProfileById(profileId: string): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>(`/profiles/${profileId}`);
   }
 
-  async getMyProfile(): Promise<ApiResponse<any>> {
-    return this.request<any>('/profiles/me');
+  async getMyProfile(): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>('/profiles/me');
   }
 
-  async updateProfile(profileData: any): Promise<ApiResponse<User>> {
-    return this.request<User>('/auth/profile', {
+  async updateProfile(profileData: Record<string, unknown>): Promise<ApiResponse<User>> {
+    return this.request<User>('/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
   }
 
-  async updateMyProfile(profileData: any): Promise<ApiResponse<any>> {
-    return this.request<any>('/auth/profile', {
+  async updateMyProfile(profileData: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>('/profiles', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
   }
 
-  async updateProfileById(profileId: string, profileData: any): Promise<ApiResponse<any>> {
-    return this.request<any>(`/profiles/${profileId}`, {
+  async updateProfileById(profileId: string, profileData: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>(`/profiles/${profileId}`, {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
@@ -408,15 +408,15 @@ class ApiClient {
   }
 
   // Chat API
-  async sendChatMessage(message: string): Promise<ApiResponse<any>> {
-    return this.request<any>('/chat', {
+  async sendChatMessage(message: string): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>('/chat', {
       method: 'POST',
       body: JSON.stringify({ message }),
     });
   }
 
-  async getChatHistory(): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>('/chat/history');
+  async getChatHistory(): Promise<ApiResponse<Record<string, unknown>[]>> {
+    return this.request<Record<string, unknown>[]>('/chat/history');
   }
 
   async clearChatHistory(): Promise<ApiResponse> {
@@ -425,8 +425,8 @@ class ApiClient {
     });
   }
 
-  async getConversation(conversationId: string): Promise<ApiResponse<any>> {
-    return this.request<any>(`/chat/conversation/${conversationId}`);
+  async getConversation(conversationId: string): Promise<ApiResponse<Record<string, unknown>>> {
+    return this.request<Record<string, unknown>>(`/chat/conversation/${conversationId}`);
   }
 
   async deleteConversation(conversationId: string): Promise<ApiResponse> {
