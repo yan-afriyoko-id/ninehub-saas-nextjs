@@ -78,7 +78,7 @@ export const MENU_ITEMS: MenuItem[] = [
     isAdmin: true,
   },
   
-  // CRM Menus - Available for admin and tenant
+  // CRM Menus - Available for all users
   {
     id: 'crm',
     label: 'Menu ke CRM',
@@ -199,6 +199,19 @@ export const getFilteredMenuItems = (userRoles: string[], userPermissions: strin
     effectivePermissions = defaultAdminPermissions;
   }
   
+  // If user has no permissions, add default user permissions
+  if (userPermissions.length === 0) {
+    const defaultUserPermissions = [
+      'dashboard.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'security.view'
+    ];
+    effectivePermissions = defaultUserPermissions;
+  }
+  
   console.log('🔧 Menu Filtering:', {
     originalRoles: userRoles,
     originalPermissions: userPermissions,
@@ -256,34 +269,132 @@ export const isAdmin = (userRoles: string[]): boolean => {
 
 // Helper function to get admin menu items
 export const getAdminMenuItems = (userRoles: string[], userPermissions: string[]): MenuItem[] => {
+  // Add fallback permissions for admin users if they don't have specific permissions
+  let effectivePermissions = [...userPermissions];
+  let effectiveRoles = [...userRoles];
+  
+  // If user has admin role but no permissions, add default admin permissions
+  if ((userRoles.includes('admin') || userRoles.includes('super-admin')) && userPermissions.length === 0) {
+    const defaultAdminPermissions = [
+      'dashboard.view',
+      'admin.dashboard.view',
+      'tenant-management.view',
+      'modules.view',
+      'permissions.view',
+      'roles.view',
+      'plans.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'company-settings.view',
+      'security.view',
+      'logs.view',
+      'backup.view',
+      'system-settings.view'
+    ];
+    effectivePermissions = defaultAdminPermissions;
+  }
+  
+  console.log('🔧 Admin Menu Filtering:', {
+    originalRoles: userRoles,
+    originalPermissions: userPermissions,
+    effectiveRoles,
+    effectivePermissions
+  });
+  
   return MENU_ITEMS.filter(item => {
     if (!item.isAdmin) return false;
     
-    if (item.permission && !userPermissions.includes(item.permission)) {
+    // Check if user has required permission
+    if (item.permission && !effectivePermissions.includes(item.permission)) {
+      console.log(`❌ Admin menu item "${item.label}" filtered out - missing permission: ${item.permission}`);
       return false;
     }
     
-    if (item.roles && !item.roles.some(role => userRoles.includes(role))) {
+    // Check if user has required role
+    if (item.roles && !item.roles.some(role => effectiveRoles.includes(role))) {
+      console.log(`❌ Admin menu item "${item.label}" filtered out - missing role: ${item.roles.join(', ')}`);
       return false;
     }
     
+    // Filter children if they exist
+    if (item.children) {
+      item.children = item.children.filter(child => {
+        if (child.permission && !effectivePermissions.includes(child.permission)) {
+          console.log(`❌ Child admin menu item "${child.label}" filtered out - missing permission: ${child.permission}`);
+          return false;
+        }
+        if (child.roles && !child.roles.some(role => effectiveRoles.includes(role))) {
+          console.log(`❌ Child admin menu item "${child.label}" filtered out - missing role: ${child.roles.join(', ')}`);
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    console.log(`✅ Admin menu item "${item.label}" included`);
     return true;
   });
 };
 
 // Helper function to get user menu items (non-admin)
 export const getUserMenuItems = (userRoles: string[], userPermissions: string[]): MenuItem[] => {
+  // Add fallback permissions for users if they don't have specific permissions
+  let effectivePermissions = [...userPermissions];
+  let effectiveRoles = [...userRoles];
+  
+  // If user has no permissions, add default user permissions
+  if (userPermissions.length === 0) {
+    const defaultUserPermissions = [
+      'dashboard.view',
+      'crm.view',
+      'chat.send',
+      'settings.view',
+      'profile.view',
+      'security.view'
+    ];
+    effectivePermissions = defaultUserPermissions;
+  }
+  
+  console.log('🔧 User Menu Filtering:', {
+    originalRoles: userRoles,
+    originalPermissions: userPermissions,
+    effectiveRoles,
+    effectivePermissions
+  });
+  
   return MENU_ITEMS.filter(item => {
     if (item.isAdmin) return false;
     
-    if (item.permission && !userPermissions.includes(item.permission)) {
+    // Check if user has required permission
+    if (item.permission && !effectivePermissions.includes(item.permission)) {
+      console.log(`❌ User menu item "${item.label}" filtered out - missing permission: ${item.permission}`);
       return false;
     }
     
-    if (item.roles && !item.roles.some(role => userRoles.includes(role))) {
+    // Check if user has required role
+    if (item.roles && !item.roles.some(role => effectiveRoles.includes(role))) {
+      console.log(`❌ User menu item "${item.label}" filtered out - missing role: ${item.roles.join(', ')}`);
       return false;
     }
     
+    // Filter children if they exist
+    if (item.children) {
+      item.children = item.children.filter(child => {
+        if (child.permission && !effectivePermissions.includes(child.permission)) {
+          console.log(`❌ Child user menu item "${child.label}" filtered out - missing permission: ${child.permission}`);
+          return false;
+        }
+        if (child.roles && !child.roles.some(role => effectiveRoles.includes(role))) {
+          console.log(`❌ Child user menu item "${child.label}" filtered out - missing role: ${child.roles.join(', ')}`);
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    console.log(`✅ User menu item "${item.label}" included`);
     return true;
   });
 }; 

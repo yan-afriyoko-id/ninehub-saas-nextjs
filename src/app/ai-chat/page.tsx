@@ -17,7 +17,9 @@ import {
   Search,
   MoreVertical,
   RefreshCw,
-  StopCircle
+  StopCircle,
+  Copy,
+  Check
 } from 'lucide-react';
 
 interface Message {
@@ -44,8 +46,91 @@ export default function AIChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Function to copy code to clipboard
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  // Function to render message content with code blocks
+  const renderMessageContent = (content: string) => {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const parts: Array<{type: 'text' | 'code', content: string, language?: string}> = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add text before code block
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: content.slice(lastIndex, match.index)
+        });
+      }
+
+      // Add code block
+      parts.push({
+        type: 'code',
+        language: match[1] || 'text',
+        content: match[2]
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push({
+        type: 'text',
+        content: content.slice(lastIndex)
+      });
+    }
+
+    return parts.map((part, index) => {
+      if (part.type === 'code') {
+        return (
+          <div key={index} className="my-3 bg-gray-800 rounded-lg border border-gray-600 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-700 border-b border-gray-600">
+              <span className="text-xs text-gray-300 font-mono uppercase">{part.language}</span>
+              <button
+                onClick={() => copyToClipboard(part.content)}
+                className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-gray-600"
+              >
+                {copiedCode === part.content ? (
+                  <Check size={14} className="text-green-500" />
+                ) : (
+                  <Copy size={14} />
+                )}
+                <span className="text-xs">
+                  {copiedCode === part.content ? 'Copied!' : 'Copy'}
+                </span>
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <pre className="p-4 text-sm text-gray-200 font-mono leading-relaxed">
+                <code>{part.content}</code>
+              </pre>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div key={index} className="whitespace-pre-wrap">
+            {part.content}
+          </div>
+        );
+      }
+    });
+  };
 
   useEffect(() => {
     loadChatHistory();
@@ -65,16 +150,16 @@ export default function AIChatPage() {
       
       if (response.success && response.data) {
         // Check if response.data is an array
-        let conversationsData = [];
+        let conversationsData: any[] = [];
         
         if (Array.isArray(response.data)) {
           conversationsData = response.data;
           console.log('✅ Using response.data as array');
-        } else if (response.data.conversations && Array.isArray(response.data.conversations)) {
-          conversationsData = response.data.conversations;
+        } else if (response.data && typeof response.data === 'object' && 'conversations' in response.data && Array.isArray((response.data as any).conversations)) {
+          conversationsData = (response.data as any).conversations;
           console.log('✅ Using response.data.conversations');
-        } else if (response.data.history && Array.isArray(response.data.history)) {
-          conversationsData = response.data.history;
+        } else if (response.data && typeof response.data === 'object' && 'history' in response.data && Array.isArray((response.data as any).history)) {
+          conversationsData = (response.data as any).history;
           console.log('✅ Using response.data.history');
         } else {
           // If no conversations found, create new one
@@ -389,7 +474,7 @@ export default function AIChatPage() {
             </div>
             
             {/* Conversations List */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {conversations.length === 0 ? (
                 <div className="p-4 text-center">
                   <p className="text-gray-400 text-sm">No conversations yet</p>
@@ -410,7 +495,7 @@ export default function AIChatPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">{conversation.title}</h3>
                           {conversation.messages.length > 0 && (
-                            <p className="text-xs opacity-75 truncate">
+                            <p className="text-xs opacity-75 truncate mt-1">
                               {conversation.messages[conversation.messages.length - 1].content}
                             </p>
                           )}
@@ -469,7 +554,7 @@ export default function AIChatPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {error && (
                 <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-3">
                   <p className="text-red-400 text-sm">{error}</p>
@@ -477,10 +562,10 @@ export default function AIChatPage() {
               )}
               
               {messages.length === 0 ? (
-                <div className="text-center py-12">
+                <div className="text-center py-12 flex flex-col items-center justify-center h-full">
                   <Bot className="mx-auto text-gray-400" size={48} />
                   <h3 className="text-lg font-semibold text-white mt-4">Start a conversation</h3>
-                  <p className="text-gray-400 mt-2">Ask me anything about your project or get help with technical questions.</p>
+                  <p className="text-gray-400 mt-2 max-w-md">Ask me anything about your project or get help with technical questions.</p>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -488,10 +573,10 @@ export default function AIChatPage() {
                     key={message.id}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-start space-x-3 max-w-3xl ${
+                    <div className={`flex items-start space-x-3 max-w-5xl ${
                       message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                     }`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         message.role === 'user' ? 'bg-blue-600' : 'bg-gray-600'
                       }`}>
                         {message.role === 'user' ? (
@@ -500,13 +585,15 @@ export default function AIChatPage() {
                           <Bot size={16} className="text-white" />
                         )}
                       </div>
-                      <div className={`rounded-lg p-3 ${
+                      <div className={`rounded-lg p-4 max-w-5xl ${
                         message.role === 'user' 
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-700 text-gray-200'
                       }`}>
-                        <p className="whitespace-pre-wrap">{message.content}</p>
-                        <p className={`text-xs mt-2 ${
+                        <div className="max-h-12 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 pr-2">
+                          {renderMessageContent(message.content)}
+                        </div>
+                        <p className={`text-xs mt-3 ${
                           message.role === 'user' ? 'text-blue-200' : 'text-gray-400'
                         }`}>
                           {formatTime(message.timestamp)}
@@ -519,11 +606,11 @@ export default function AIChatPage() {
               
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="flex items-start space-x-3 max-w-3xl">
-                    <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
+                  <div className="flex items-start space-x-3 max-w-5xl">
+                    <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
                       <Bot size={16} className="text-white" />
                     </div>
-                    <div className="bg-gray-700 rounded-lg p-3">
+                    <div className="bg-gray-700 rounded-lg p-4 max-w-5xl">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -555,7 +642,7 @@ export default function AIChatPage() {
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isTyping}
-                  className="p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  className="p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors flex-shrink-0"
                 >
                   <Send size={20} className="text-white" />
                 </button>
