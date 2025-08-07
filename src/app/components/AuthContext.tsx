@@ -252,6 +252,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userData = response.data;
           const transformedUser = transformUserData(userData as unknown as Record<string, unknown>);
           setUser(transformedUser);
+          
+          // Store user data in localStorage for menu access
+          if (typeof window !== "undefined") {
+            localStorage.setItem("user_data", JSON.stringify(transformedUser));
+          }
+          
           setIsLoading(false);
           return {
             success: true,
@@ -300,6 +306,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
     // Clear user state
     setUser(null);
+    
+    // Clear user data from localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user_data");
+    }
 
     console.log("User state cleared, redirecting..."); // Debug log
 

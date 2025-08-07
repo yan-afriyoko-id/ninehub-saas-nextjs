@@ -9,7 +9,8 @@ import {
   getAdminMenuItems, 
   getUserMenuItems,
   isAdmin,
-  hasPermission 
+  hasPermission,
+  getMenuItemPath
 } from '../config/menu';
 import { 
   BarChart3, 
@@ -148,9 +149,9 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
     console.log('🔍 User Menu Items:', menuItems);
   }
 
-  const renderMenuItem = (item: Record<string, unknown>, level: number = 0) => {
+  const renderMenuItem = (item: any, level: number = 0) => {
     const IconComponent = iconMap[item.icon as string];
-    const hasChildren = item.children && (item.children as unknown[]).length > 0;
+    const hasChildren = item.children && (item.children as any[]).length > 0;
     const isExpanded = expandedMenus.has(item.id as string);
     const isActive = activeTab === (item.id as string);
     const isExternal = item.external as boolean;
@@ -177,11 +178,11 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
     );
 
     return (
-      <div key={item.id}>
+      <div key={item.id as string}>
         {isExternal ? (
           // External link - use anchor tag
           <a
-            href={item.path}
+            href={getMenuItemPath(item as any)}
             target="_blank"
             rel="noopener noreferrer"
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
@@ -192,9 +193,9 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
                 : 'text-gray-300 hover:bg-gray-700'
             }`}
             onClick={() => {
-              setActiveTab(item.id);
+              setActiveTab(item.id as string);
               if (hasChildren) {
-                toggleMenu(item.id);
+                toggleMenu(item.id as string);
               }
             }}
           >
@@ -203,7 +204,7 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
         ) : (
           // Internal link - use Next.js Link
           <Link
-            href={item.path}
+            href={getMenuItemPath(item as any)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
               level > 0 ? 'ml-4' : ''
             } ${
@@ -212,9 +213,9 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
                 : 'text-gray-300 hover:bg-gray-700'
             }`}
             onClick={() => {
-              setActiveTab(item.id);
+              setActiveTab(item.id as string);
               if (hasChildren) {
-                toggleMenu(item.id);
+                toggleMenu(item.id as string);
               }
             }}
           >
@@ -224,7 +225,7 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
         
         {hasChildren && isExpanded && (
           <div className="mt-2 space-y-1">
-            {(item.children as Record<string, unknown>[]).map((child: Record<string, unknown>) => renderMenuItem(child, level + 1))}
+            {(item.children as any[]).map((child: any) => renderMenuItem(child, level + 1))}
           </div>
         )}
       </div>
@@ -282,7 +283,7 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
           
           {/* Navigation */}
           <nav className="space-y-2">
-            {menuItems.map((item) => renderMenuItem(item))}
+            {menuItems.map((item: any) => renderMenuItem(item))}
           </nav>
 
           {/* Bottom section */}

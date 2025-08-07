@@ -3,7 +3,7 @@ export interface MenuItem {
   id: string;
   label: string;
   icon: string;
-  path: string;
+  path: string | (() => string);
   permission?: string;
   roles?: string[];
   children?: MenuItem[];
@@ -11,6 +11,40 @@ export interface MenuItem {
   isAdmin?: boolean;
   external?: boolean;
 }
+
+// Helper function to get current user's token and email
+const getCurrentUserData = () => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("auth_token");
+    // Get user data from AuthContext or localStorage
+    const userData = localStorage.getItem("user_data");
+    let email = "";
+    
+    if (userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        email = parsedUserData.email || "";
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+    
+    return { token, email };
+  }
+  return { token: null, email: "" };
+};
+
+// Helper function to generate AI Chat URL with current user's token and email
+const generateAiChatUrl = (): string => {
+  const { token, email } = getCurrentUserData();
+  
+  if (!token || !email) {
+    console.warn("Token or email not available for AI Chat URL generation");
+    return "http://localhost:3001/";
+  }
+  
+  return `http://localhost:3001/?token=${token}&email=${encodeURIComponent(email)}`;
+};
 
 // Menu items configuration
 export const MENU_ITEMS: MenuItem[] = [
@@ -105,7 +139,7 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'ai-chat-user',
     label: 'Menu ke AI Chat',
     icon: 'message-circle',
-    path: 'http://localhost:3001/', // Ganti dengan URL AI Chat Anda
+    path: generateAiChatUrl,
     permission: 'chat.send',
     external: true,
     roles: ['tenant', 'user'], // Hanya untuk user/tenant, bukan admin
@@ -184,6 +218,14 @@ export const MENU_ITEMS: MenuItem[] = [
     isAdmin: true,
   },
 ];
+
+// Helper function to get the actual path (handles both string and function paths)
+export const getMenuItemPath = (item: MenuItem): string => {
+  if (typeof item.path === 'function') {
+    return item.path();
+  }
+  return item.path;
+};
 
 // Helper function to filter menu items based on user roles and permissions
 export const getFilteredMenuItems = (userRoles: string[], userPermissions: string[]): MenuItem[] => {
