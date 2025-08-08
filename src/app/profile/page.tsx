@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "../components/AuthContext";
+import { apiClient } from "../services/api";
 import SecureRoute from "../components/SecureRoute";
 import SecureDashboard from "../components/SecureDashboard";
-import { apiClient } from "../services/api";
-import { useAuth } from "../components/AuthContext";
+import type { Profile } from "../services/types";
 import {
   User,
   Mail,
@@ -14,41 +15,26 @@ import {
   Edit,
   Save,
   X,
-  Building,
 } from "lucide-react";
 
-interface Profile {
-  id: string;
+interface ProfileFormData {
   name: string;
-  email: string;
   age?: string;
   gender?: string;
   phone_number?: string;
   address?: string;
   birth_date?: string;
-  avatar?: string;
-  position?: string;
-  department?: string;
-  company?: string;
   bio?: string;
-  joinDate?: string;
-  lastLogin?: string;
-  status: "active" | "inactive";
-  preferences?: {
-    notifications: boolean;
-    emailUpdates: boolean;
-    darkMode: boolean;
-    language: string;
-    timezone: string;
-  };
 }
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [editForm, setEditForm] = useState<ProfileFormData>({
+    name: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<Partial<Profile>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,91 +43,57 @@ export default function ProfilePage() {
         setIsLoading(true);
         setError(null);
 
-        // Try to get profile from API using token (current user's profile)
-        const response = await apiClient.getMyProfile();
+        // Try to get profile from API first
+        const response = await apiClient.me();
 
         if (response.success && response.data) {
-          // Transform API data to Profile format - only use real data
-          const profileData: Profile = {
-            id:
-              typeof response.data.id === "string"
-                ? response.data.id
-                : user?.id || "",
-            name:
-              typeof response.data.name === "string"
-                ? response.data.name
-                : user?.name || "",
-            email:
-              typeof response.data.email === "string"
-                ? response.data.email
-                : user?.email || "",
-            age:
-              typeof response.data.age === "string"
-                ? response.data.age
-                : undefined,
-            gender:
-              typeof response.data.gender === "string"
-                ? response.data.gender
-                : undefined,
-            phone_number:
-              typeof response.data.phone_number === "string"
-                ? response.data.phone_number
-                : undefined,
-            address:
-              typeof response.data.address === "string"
-                ? response.data.address
-                : undefined,
-            birth_date:
-              typeof response.data.birth_date === "string"
-                ? response.data.birth_date
-                : undefined,
-            avatar:
-              typeof response.data.avatar === "string"
-                ? response.data.avatar
-                : user?.avatar ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    typeof response.data.name === "string"
-                      ? response.data.name
-                      : user?.name || ""
-                  )}&background=0D9488&color=fff`,
-            position:
-              typeof response.data.position === "string"
-                ? response.data.position
-                : undefined,
-            department:
-              typeof response.data.department === "string"
-                ? response.data.department
-                : undefined,
-            company:
-              typeof response.data.company === "string"
-                ? response.data.company
-                : undefined,
-            bio:
-              typeof response.data.bio === "string"
-                ? response.data.bio
-                : undefined,
-            joinDate:
-              typeof response.data.joinDate === "string"
-                ? response.data.joinDate
-                : undefined,
-            lastLogin:
-              typeof response.data.lastLogin === "string"
-                ? response.data.lastLogin
-                : undefined,
-            status: "active",
-            preferences: {
-              notifications: true,
-              emailUpdates: true,
-              darkMode: true,
-              language: "en",
-              timezone: "Asia/Jakarta",
-            },
+          const userData = response.data as any;
+
+          // Create profile from user data
+          const userProfile: Profile = {
+            id: userData.id,
+            name: userData.name,
+            age: userData.profile?.age || 0,
+            gender: userData.profile?.gender || null,
+            phone_number: userData.profile?.phone_number || null,
+            address: userData.profile?.address || null,
+            birth_date: userData.profile?.birth_date || null,
+            user_id: userData.id,
           };
 
-          setProfile(profileData);
-          setEditForm(profileData);
+          setProfile(userProfile);
+          setEditForm({
+            name: userProfile.name,
+            age: userProfile.age?.toString() || "",
+            gender: userProfile.gender || "",
+            phone_number: userProfile.phone_number || "",
+            address: userProfile.address || "",
+            birth_date: userProfile.birth_date || "",
+          });
         } else {
-          throw new Error(response.message || "Failed to load profile");
+          // Fallback to user data from AuthContext
+          if (user) {
+            const fallbackProfile: Profile = {
+              id: user.id,
+              name: user.name,
+              age: 0,
+              gender: null,
+              phone_number: null,
+              address: null,
+              birth_date: null,
+              user_id: user.id,
+            };
+
+            setProfile(fallbackProfile);
+            setEditForm({
+              name: fallbackProfile.name,
+              age: "",
+              gender: "",
+              phone_number: "",
+              address: "",
+              birth_date: "",
+            });
+          }
         }
       } catch (error) {
         console.error("Error loading profile:", error);
@@ -152,24 +104,23 @@ export default function ProfilePage() {
           const fallbackProfile: Profile = {
             id: user.id,
             name: user.name,
-            email: user.email,
-            avatar:
-              user.avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                user.name
-              )}&background=0D9488&color=fff`,
-            status: "active",
-            preferences: {
-              notifications: true,
-              emailUpdates: true,
-              darkMode: true,
-              language: "en",
-              timezone: "Asia/Jakarta",
-            },
+            age: 0,
+            gender: null,
+            phone_number: null,
+            address: null,
+            birth_date: null,
+            user_id: user.id,
           };
 
           setProfile(fallbackProfile);
-          setEditForm(fallbackProfile);
+          setEditForm({
+            name: fallbackProfile.name,
+            age: "",
+            gender: "",
+            phone_number: "",
+            address: "",
+            birth_date: "",
+          });
         }
       } finally {
         setIsLoading(false);
@@ -199,7 +150,17 @@ export default function ProfilePage() {
         const response = await apiClient.updateMyProfile(updateData);
 
         if (response.success && response.data) {
-          setProfile({ ...profile, ...editForm });
+          // Update profile with new data
+          const updatedProfile: Profile = {
+            ...profile,
+            name: editForm.name,
+            age: editForm.age ? parseInt(editForm.age) : profile.age,
+            gender: editForm.gender || null,
+            phone_number: editForm.phone_number || null,
+            address: editForm.address || null,
+            birth_date: editForm.birth_date || null,
+          };
+          setProfile(updatedProfile);
           setIsEditing(false);
           setError(null);
         } else {
@@ -216,7 +177,14 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     if (profile) {
-      setEditForm(profile);
+      setEditForm({
+        name: profile.name,
+        age: profile.age?.toString() || "",
+        gender: profile.gender || "",
+        phone_number: profile.phone_number || "",
+        address: profile.address || "",
+        birth_date: profile.birth_date || "",
+      });
       setIsEditing(false);
     }
   };
@@ -226,16 +194,6 @@ export default function ProfilePage() {
       year: "numeric",
       month: "long",
       day: "numeric",
-    });
-  };
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString("id-ID", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
@@ -256,7 +214,6 @@ export default function ProfilePage() {
       <SecureRoute>
         <SecureDashboard>
           <div className="text-center py-12">
-            <User className="mx-auto text-gray-400" size={48} />
             <h3 className="text-lg font-semibold text-white mt-4">
               Profile not found
             </h3>
@@ -307,24 +264,15 @@ export default function ProfilePage() {
                   <h3 className="text-xl font-semibold text-white">
                     {profile.name}
                   </h3>
-                  <p className="text-gray-400">{profile.position || "User"}</p>
-                  {profile.company && (
-                    <p className="text-gray-400 text-sm">{profile.company}</p>
-                  )}
+                  <p className="text-gray-400">User</p>
                 </div>
 
                 <div className="space-y-4">
-                  {profile.company && (
-                    <div className="flex items-center space-x-3">
-                      <Building className="text-gray-400" size={16} />
-                      <span className="text-gray-300">{profile.company}</span>
-                    </div>
-                  )}
                   <div className="flex items-center space-x-3">
                     <Mail className="text-gray-400" size={16} />
-                    <span className="text-gray-300">{profile.email}</span>
+                    <span className="text-gray-300">{user?.email}</span>
                   </div>
-                  {profile.age && (
+                  {profile.age && profile.age > 0 && (
                     <div className="flex items-center space-x-3">
                       <User className="text-gray-400" size={16} />
                       <span className="text-gray-300">
@@ -352,11 +300,11 @@ export default function ProfilePage() {
                       <span className="text-gray-300">{profile.address}</span>
                     </div>
                   )}
-                  {profile.joinDate && (
+                  {profile.birth_date && (
                     <div className="flex items-center space-x-3">
                       <Calendar className="text-gray-400" size={16} />
                       <span className="text-gray-300">
-                        Joined {formatDate(profile.joinDate)}
+                        {formatDate(profile.birth_date)}
                       </span>
                     </div>
                   )}
@@ -382,9 +330,9 @@ export default function ProfilePage() {
                     <label className="block text-gray-400 text-sm mb-2">
                       Email
                     </label>
-                    <p className="text-white">{profile.email}</p>
+                    <p className="text-white">{user?.email}</p>
                   </div>
-                  {profile.age && (
+                  {profile.age && profile.age > 0 && (
                     <div>
                       <label className="block text-gray-400 text-sm mb-2">
                         Age
@@ -408,14 +356,6 @@ export default function ProfilePage() {
                       <p className="text-white">{profile.phone_number}</p>
                     </div>
                   )}
-                  {profile.position && (
-                    <div>
-                      <label className="block text-gray-400 text-sm mb-2">
-                        Position
-                      </label>
-                      <p className="text-white">{profile.position}</p>
-                    </div>
-                  )}
                   {profile.birth_date && (
                     <div>
                       <label className="block text-gray-400 text-sm mb-2">
@@ -432,14 +372,6 @@ export default function ProfilePage() {
                         Address
                       </label>
                       <p className="text-white">{profile.address}</p>
-                    </div>
-                  )}
-                  {profile.bio && (
-                    <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">
-                        Bio
-                      </label>
-                      <p className="text-gray-300">{profile.bio}</p>
                     </div>
                   )}
                 </div>
@@ -462,29 +394,9 @@ export default function ProfilePage() {
                       Status
                     </label>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {profile.status}
+                      Active
                     </span>
                   </div>
-                  {profile.joinDate && (
-                    <div>
-                      <label className="block text-gray-400 text-sm mb-2">
-                        Join Date
-                      </label>
-                      <p className="text-white">
-                        {formatDate(profile.joinDate)}
-                      </p>
-                    </div>
-                  )}
-                  {profile.lastLogin && (
-                    <div>
-                      <label className="block text-gray-400 text-sm mb-2">
-                        Last Login
-                      </label>
-                      <p className="text-white">
-                        {formatDateTime(profile.lastLogin)}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
 

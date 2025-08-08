@@ -24,10 +24,8 @@ export default function TestUserPage() {
         setIsLoading(true);
 
         // Get raw profile data from API
-        const profileResponse = await apiClient.getProfile();
+        const profileResponse = await apiClient.me();
         setRawApiData(profileResponse as unknown as Record<string, unknown>);
-
-        console.log("🔍 Raw API Response:", profileResponse);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {

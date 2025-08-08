@@ -21,7 +21,7 @@ import {
   Building,
 } from "lucide-react";
 
-interface User {
+interface AdminUser {
   id: string;
   name: string;
   email: string;
@@ -32,12 +32,11 @@ interface User {
   lastLogin: string;
   createdAt: string;
   updatedAt: string;
-  avatar?: string;
 }
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
@@ -45,12 +44,12 @@ export default function UsersPage() {
   >("all");
   const [filterRole, setFilterRole] = useState<string>("all");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
-      const dummyUsers: User[] = [
+      const dummyUsers: AdminUser[] = [
         {
           id: "1",
           name: "John Doe",
@@ -62,8 +61,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-20T10:30:00Z",
           createdAt: "2024-01-15T10:00:00Z",
           updatedAt: "2024-01-20T14:30:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=John+Doe&background=0D9488&color=fff",
         },
         {
           id: "2",
@@ -76,8 +73,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-19T15:20:00Z",
           createdAt: "2024-01-10T09:00:00Z",
           updatedAt: "2024-01-18T16:45:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=Jane+Smith&background=3B82F6&color=fff",
         },
         {
           id: "3",
@@ -90,8 +85,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-20T08:15:00Z",
           createdAt: "2024-01-12T11:30:00Z",
           updatedAt: "2024-01-19T13:20:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=Bob+Johnson&background=8B5CF6&color=fff",
         },
         {
           id: "4",
@@ -104,8 +97,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-15T12:00:00Z",
           createdAt: "2024-01-05T14:20:00Z",
           updatedAt: "2024-01-16T09:15:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=Alice+Brown&background=F59E0B&color=fff",
         },
         {
           id: "5",
@@ -118,8 +109,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-10T16:45:00Z",
           createdAt: "2024-01-08T08:15:00Z",
           updatedAt: "2024-01-17T10:30:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=Charlie+Wilson&background=EF4444&color=fff",
         },
         {
           id: "6",
@@ -132,8 +121,6 @@ export default function UsersPage() {
           lastLogin: "2024-01-20T09:30:00Z",
           createdAt: "2024-01-16T11:00:00Z",
           updatedAt: "2024-01-20T12:30:00Z",
-          avatar:
-            "https://ui-avatars.com/api/?name=Diana+Davis&background=10B981&color=fff",
         },
       ];
       setUsers(dummyUsers);
@@ -333,12 +320,9 @@ export default function UsersPage() {
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden">
                       <Image
-                        src={
-                          user.avatar ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            user.name
-                          )}&background=6B7280&color=fff`
-                        }
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.name
+                        )}&background=6B7280&color=fff`}
                         alt={user.name}
                         width={48}
                         height={48}

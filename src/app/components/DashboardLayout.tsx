@@ -128,7 +128,6 @@ export default function DashboardLayout({
             <button
               onClick={async (e) => {
                 e.preventDefault();
-                console.log("Logout button clicked"); // Debug log
                 await logout();
               }}
               className="w-full flex items-center space-x-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors mt-2"

@@ -10,23 +10,11 @@ import {
   Search,
   Key,
   Shield,
-  Eye,
-  EyeOff,
-  CheckCircle,
-  XCircle,
   AlertTriangle,
 } from "lucide-react";
+import type { Permission as PermissionResource } from "../../services/types";
 
-interface Permission {
-  id: string;
-  name: string;
-  guardName: string;
-  module: string;
-  description: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+type Permission = PermissionResource & { module: string }; // ensure module exists for UI filter/tag
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -47,104 +35,84 @@ export default function PermissionsPage() {
     setTimeout(() => {
       const dummyPermissions: Permission[] = [
         {
-          id: "1",
+          id: 1,
           name: "user.view",
-          guardName: "web",
+          guard_name: "web",
           module: "user-management",
-          description: "View user information",
-          isActive: true,
-          createdAt: "2024-01-15T10:00:00Z",
-          updatedAt: "2024-01-20T14:30:00Z",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-20T14:30:00Z",
         },
         {
-          id: "2",
+          id: 2,
           name: "user.create",
-          guardName: "web",
+          guard_name: "web",
           module: "user-management",
-          description: "Create new users",
-          isActive: true,
-          createdAt: "2024-01-15T10:00:00Z",
-          updatedAt: "2024-01-20T14:30:00Z",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-20T14:30:00Z",
         },
         {
-          id: "3",
+          id: 3,
           name: "user.edit",
-          guardName: "web",
+          guard_name: "web",
           module: "user-management",
-          description: "Edit user information",
-          isActive: true,
-          createdAt: "2024-01-15T10:00:00Z",
-          updatedAt: "2024-01-20T14:30:00Z",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-20T14:30:00Z",
         },
         {
-          id: "4",
+          id: 4,
           name: "user.delete",
-          guardName: "web",
+          guard_name: "web",
           module: "user-management",
-          description: "Delete users",
-          isActive: true,
-          createdAt: "2024-01-15T10:00:00Z",
-          updatedAt: "2024-01-20T14:30:00Z",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-20T14:30:00Z",
         },
         {
-          id: "5",
+          id: 5,
           name: "tenant.view",
-          guardName: "web",
+          guard_name: "web",
           module: "tenant-management",
-          description: "View tenant information",
-          isActive: true,
-          createdAt: "2024-01-10T09:00:00Z",
-          updatedAt: "2024-01-18T16:45:00Z",
+          created_at: "2024-01-10T09:00:00Z",
+          updated_at: "2024-01-18T16:45:00Z",
         },
         {
-          id: "6",
+          id: 6,
           name: "tenant.create",
-          guardName: "web",
+          guard_name: "web",
           module: "tenant-management",
-          description: "Create new tenants",
-          isActive: true,
-          createdAt: "2024-01-10T09:00:00Z",
-          updatedAt: "2024-01-18T16:45:00Z",
+          created_at: "2024-01-10T09:00:00Z",
+          updated_at: "2024-01-18T16:45:00Z",
         },
         {
-          id: "7",
+          id: 7,
           name: "plan.view",
-          guardName: "web",
+          guard_name: "web",
           module: "plan-management",
-          description: "View subscription plans",
-          isActive: true,
-          createdAt: "2024-01-12T11:30:00Z",
-          updatedAt: "2024-01-19T13:20:00Z",
+          created_at: "2024-01-12T11:30:00Z",
+          updated_at: "2024-01-19T13:20:00Z",
         },
         {
-          id: "8",
+          id: 8,
           name: "plan.create",
-          guardName: "web",
+          guard_name: "web",
           module: "plan-management",
-          description: "Create new plans",
-          isActive: true,
-          createdAt: "2024-01-12T11:30:00Z",
-          updatedAt: "2024-01-19T13:20:00Z",
+          created_at: "2024-01-12T11:30:00Z",
+          updated_at: "2024-01-19T13:20:00Z",
         },
         {
-          id: "9",
+          id: 9,
           name: "chat.send",
-          guardName: "web",
+          guard_name: "web",
           module: "ai-chat",
-          description: "Send chat messages",
-          isActive: true,
-          createdAt: "2024-01-05T14:20:00Z",
-          updatedAt: "2024-01-16T09:15:00Z",
+          created_at: "2024-01-05T14:20:00Z",
+          updated_at: "2024-01-16T09:15:00Z",
         },
         {
-          id: "10",
+          id: 10,
           name: "chat.history",
-          guardName: "web",
+          guard_name: "web",
           module: "ai-chat",
-          description: "View chat history",
-          isActive: true,
-          createdAt: "2024-01-05T14:20:00Z",
-          updatedAt: "2024-01-16T09:15:00Z",
+          created_at: "2024-01-05T14:20:00Z",
+          updated_at: "2024-01-16T09:15:00Z",
         },
       ];
       setPermissions(dummyPermissions);
@@ -156,14 +124,11 @@ export default function PermissionsPage() {
   useEffect(() => {
     let filtered = permissions;
 
-    // Filter by search term
+    // Filter by search term (name/module only per backend fields)
     if (searchTerm) {
       filtered = filtered.filter(
         (permission) =>
           permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          permission.description
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
           permission.module.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -171,7 +136,7 @@ export default function PermissionsPage() {
     // Filter by guard
     if (filterGuard !== "all") {
       filtered = filtered.filter(
-        (permission) => permission.guardName === filterGuard
+        (permission) => permission.guard_name === filterGuard
       );
     }
 
@@ -185,30 +150,12 @@ export default function PermissionsPage() {
     setFilteredPermissions(filtered);
   }, [permissions, searchTerm, filterGuard, filterModule]);
 
-  const handleToggleStatus = (permissionId: string) => {
-    setPermissions((prev) =>
-      prev.map((permission) =>
-        permission.id === permissionId
-          ? { ...permission, isActive: !permission.isActive }
-          : permission
-      )
-    );
-  };
-
-  const handleDeletePermission = (permissionId: string) => {
+  const handleDeletePermission = (permissionId: number) => {
     if (confirm("Are you sure you want to delete this permission?")) {
       setPermissions((prev) =>
         prev.filter((permission) => permission.id !== permissionId)
       );
     }
-  };
-
-  const getStatusIcon = (isActive: boolean) => {
-    return isActive ? (
-      <CheckCircle className="text-green-500" size={16} />
-    ) : (
-      <XCircle className="text-red-500" size={16} />
-    );
   };
 
   const getModuleColor = (module: string) => {
@@ -315,10 +262,7 @@ export default function PermissionsPage() {
                       Guard
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Status
+                      Action
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
                       Actions
@@ -352,27 +296,13 @@ export default function PermissionsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-300">
-                          {permission.guardName}
+                          {permission.guard_name}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-300 max-w-xs truncate">
-                          {permission.description}
-                        </div>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {getStatusIcon(permission.isActive)}
-                          <span
-                            className={`ml-2 text-sm ${
-                              permission.isActive
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }`}
-                          >
-                            {permission.isActive ? "Active" : "Inactive"}
-                          </span>
-                        </div>
+                        <span className="text-sm text-gray-300">
+                          {permission.action || "-"}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
@@ -383,21 +313,7 @@ export default function PermissionsPage() {
                           >
                             <Edit size={16} />
                           </button>
-                          <button
-                            onClick={() => handleToggleStatus(permission.id)}
-                            className={`p-1 ${
-                              permission.isActive
-                                ? "text-yellow-400 hover:text-yellow-300"
-                                : "text-green-400 hover:text-green-300"
-                            }`}
-                            title={permission.isActive ? "Disable" : "Enable"}
-                          >
-                            {permission.isActive ? (
-                              <EyeOff size={16} />
-                            ) : (
-                              <Eye size={16} />
-                            )}
-                          </button>
+                          {/* No enable/disable in backend; remove status toggle */}
                           <button
                             onClick={() =>
                               handleDeletePermission(permission.id)
@@ -444,23 +360,13 @@ export default function PermissionsPage() {
                 <Key className="text-blue-500" size={24} />
               </div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Permissions</p>
-                  <p className="text-2xl font-bold text-white">
-                    {permissions.filter((p) => p.isActive).length}
-                  </p>
-                </div>
-                <CheckCircle className="text-green-500" size={24} />
-              </div>
-            </div>
+            {/* Active/Inactive is not part of PermissionResource; remove this card */}
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Web Guard</p>
                   <p className="text-2xl font-bold text-white">
-                    {permissions.filter((p) => p.guardName === "web").length}
+                    {permissions.filter((p) => p.guard_name === "web").length}
                   </p>
                 </div>
                 <Shield className="text-purple-500" size={24} />

@@ -277,19 +277,9 @@ export const getFilteredMenuItems = (
     effectivePermissions = defaultUserPermissions;
   }
 
-  console.log("🔧 Menu Filtering:", {
-    originalRoles: userRoles,
-    originalPermissions: userPermissions,
-    effectiveRoles,
-    effectivePermissions,
-  });
-
   return MENU_ITEMS.filter((item) => {
     // Check if user has required permission
     if (item.permission && !effectivePermissions.includes(item.permission)) {
-      console.log(
-        `❌ Menu item "${item.label}" filtered out - missing permission: ${item.permission}`
-      );
       return false;
     }
 
@@ -298,11 +288,6 @@ export const getFilteredMenuItems = (
       item.roles &&
       !item.roles.some((role) => effectiveRoles.includes(role))
     ) {
-      console.log(
-        `❌ Menu item "${
-          item.label
-        }" filtered out - missing role: ${item.roles.join(", ")}`
-      );
       return false;
     }
 
@@ -313,27 +298,18 @@ export const getFilteredMenuItems = (
           child.permission &&
           !effectivePermissions.includes(child.permission)
         ) {
-          console.log(
-            `❌ Child menu item "${child.label}" filtered out - missing permission: ${child.permission}`
-          );
           return false;
         }
         if (
           child.roles &&
           !child.roles.some((role) => effectiveRoles.includes(role))
         ) {
-          console.log(
-            `❌ Child menu item "${
-              child.label
-            }" filtered out - missing role: ${child.roles.join(", ")}`
-          );
           return false;
         }
         return true;
       });
     }
 
-    console.log(`✅ Menu item "${item.label}" included`);
     return true;
   });
 };
@@ -391,21 +367,11 @@ export const getAdminMenuItems = (
     effectivePermissions = defaultAdminPermissions;
   }
 
-  console.log("🔧 Admin Menu Filtering:", {
-    originalRoles: userRoles,
-    originalPermissions: userPermissions,
-    effectiveRoles,
-    effectivePermissions,
-  });
-
   return MENU_ITEMS.filter((item) => {
     if (!item.isAdmin) return false;
 
     // Check if user has required permission
     if (item.permission && !effectivePermissions.includes(item.permission)) {
-      console.log(
-        `❌ Admin menu item "${item.label}" filtered out - missing permission: ${item.permission}`
-      );
       return false;
     }
 
@@ -414,11 +380,6 @@ export const getAdminMenuItems = (
       item.roles &&
       !item.roles.some((role) => effectiveRoles.includes(role))
     ) {
-      console.log(
-        `❌ Admin menu item "${
-          item.label
-        }" filtered out - missing role: ${item.roles.join(", ")}`
-      );
       return false;
     }
 
@@ -429,27 +390,18 @@ export const getAdminMenuItems = (
           child.permission &&
           !effectivePermissions.includes(child.permission)
         ) {
-          console.log(
-            `❌ Child admin menu item "${child.label}" filtered out - missing permission: ${child.permission}`
-          );
           return false;
         }
         if (
           child.roles &&
           !child.roles.some((role) => effectiveRoles.includes(role))
         ) {
-          console.log(
-            `❌ Child admin menu item "${
-              child.label
-            }" filtered out - missing role: ${child.roles.join(", ")}`
-          );
           return false;
         }
         return true;
       });
     }
 
-    console.log(`✅ Admin menu item "${item.label}" included`);
     return true;
   });
 };
@@ -476,21 +428,11 @@ export const getUserMenuItems = (
     effectivePermissions = defaultUserPermissions;
   }
 
-  console.log("🔧 User Menu Filtering:", {
-    originalRoles: userRoles,
-    originalPermissions: userPermissions,
-    effectiveRoles,
-    effectivePermissions,
-  });
-
   return MENU_ITEMS.filter((item) => {
     if (item.isAdmin) return false;
 
     // Check if user has required permission
     if (item.permission && !effectivePermissions.includes(item.permission)) {
-      console.log(
-        `❌ User menu item "${item.label}" filtered out - missing permission: ${item.permission}`
-      );
       return false;
     }
 
@@ -499,11 +441,6 @@ export const getUserMenuItems = (
       item.roles &&
       !item.roles.some((role) => effectiveRoles.includes(role))
     ) {
-      console.log(
-        `❌ User menu item "${
-          item.label
-        }" filtered out - missing role: ${item.roles.join(", ")}`
-      );
       return false;
     }
 
@@ -514,27 +451,18 @@ export const getUserMenuItems = (
           child.permission &&
           !effectivePermissions.includes(child.permission)
         ) {
-          console.log(
-            `❌ Child user menu item "${child.label}" filtered out - missing permission: ${child.permission}`
-          );
           return false;
         }
         if (
           child.roles &&
           !child.roles.some((role) => effectiveRoles.includes(role))
         ) {
-          console.log(
-            `❌ Child user menu item "${
-              child.label
-            }" filtered out - missing role: ${child.roles.join(", ")}`
-          );
           return false;
         }
         return true;
       });
     }
 
-    console.log(`✅ User menu item "${item.label}" included`);
     return true;
   });
 };
