@@ -21,7 +21,7 @@ import {
   Building,
 } from "lucide-react";
 
-interface User {
+interface AdminUser {
   id: string;
   name: string;
   email: string;
@@ -35,8 +35,8 @@ interface User {
 }
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
@@ -44,12 +44,12 @@ export default function UsersPage() {
   >("all");
   const [filterRole, setFilterRole] = useState<string>("all");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
-      const dummyUsers: User[] = [
+      const dummyUsers: AdminUser[] = [
         {
           id: "1",
           name: "John Doe",

@@ -22,13 +22,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-interface MenuItem {
+interface DashboardMenuItem {
   id: string;
   label: string;
   icon: React.ReactNode;
   href?: string;
   permission: UserRole[];
-  children?: MenuItem[];
+  children?: DashboardMenuItem[];
 }
 
 export default function RoleBasedDashboard({
@@ -45,7 +45,7 @@ export default function RoleBasedDashboard({
   }
 
   // Define menu items based on role
-  const menuItems: MenuItem[] = [
+  const menuItems: DashboardMenuItem[] = [
     {
       id: "overview",
       label: "Overview",
@@ -121,14 +121,21 @@ export default function RoleBasedDashboard({
     },
   ];
 
+  // Filter menu items based on user role
   const filteredMenuItems = menuItems.filter((item) =>
-    item.permission.some((role) => user.roles.includes(role))
+    item.permission.some((role) => user.roles?.includes(role))
   );
 
-  const renderMenuItem = (item: MenuItem) => {
+  // Check if user has admin role
+  const isAdmin = user.roles?.includes("admin") || false;
+  const isTenant = user.roles?.includes("tenant") || false;
+
+  const renderMenuItem = (item: DashboardMenuItem) => {
     const hasChildren = item.children && item.children.length > 0;
     const isActive = activeTab === item.id;
-    const isExternal = item.href && (item.href.startsWith('http://') || item.href.startsWith('https://'));
+    const isExternal =
+      item.href &&
+      (item.href.startsWith("http://") || item.href.startsWith("https://"));
 
     const menuContent = (
       <div className="flex items-center space-x-3">
@@ -200,7 +207,7 @@ export default function RoleBasedDashboard({
           <div className="ml-6 mt-2 space-y-1">
             {item.children
               ?.filter((child) =>
-                child.permission.some((role) => user.roles.includes(role))
+                child.permission.some((role) => user.roles?.includes(role))
               )
               .map((child) => (
                 <button
@@ -230,10 +237,10 @@ export default function RoleBasedDashboard({
           <div className="flex items-center space-x-3 mb-8">
             <div
               className={`p-2 rounded-lg ${
-                user.roles.includes("admin") ? "bg-blue-600" : "bg-green-600"
+                user.roles?.includes("admin") ? "bg-blue-600" : "bg-green-600"
               }`}
             >
-              {user.roles.includes("admin") ? (
+              {user.roles?.includes("admin") ? (
                 <Shield size={20} className="text-white" />
               ) : (
                 <Building size={20} className="text-white" />
@@ -242,7 +249,7 @@ export default function RoleBasedDashboard({
             <div>
               <h1 className="text-xl font-bold text-white">Dashboard</h1>
               <p className="text-xs text-gray-400 capitalize">
-                {user.roles.join(", ")}
+                {user.roles?.join(", ") || "user"}
               </p>
             </div>
           </div>
@@ -279,7 +286,7 @@ export default function RoleBasedDashboard({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h2 className="text-2xl font-bold text-white">
-                {user.roles.includes("admin")
+                {user.roles?.includes("admin")
                   ? "Admin Dashboard"
                   : "Tenant Dashboard"}
               </h2>
@@ -311,7 +318,7 @@ export default function RoleBasedDashboard({
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      user.roles.includes("admin")
+                      user.roles?.includes("admin")
                         ? "bg-blue-600"
                         : "bg-green-600"
                     }`}

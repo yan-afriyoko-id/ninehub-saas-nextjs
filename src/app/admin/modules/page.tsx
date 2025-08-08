@@ -17,7 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-interface Module {
+interface AdminModule {
   id: string;
   name: string;
   slug: string;
@@ -33,11 +33,11 @@ interface Module {
 }
 
 export default function ModulesPage() {
-  const [modules, setModules] = useState<Module[]>([]);
-  const [filteredModules, setFilteredModules] = useState<Module[]>([]);
+  const [modules, setModules] = useState<AdminModule[]>([]);
+  const [filteredModules, setFilteredModules] = useState<AdminModule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingModule, setEditingModule] = useState<Module | null>(null);
+  const [editingModule, setEditingModule] = useState<AdminModule | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "active" | "inactive"
@@ -46,7 +46,7 @@ export default function ModulesPage() {
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
-      const dummyModules: Module[] = [
+      const dummyModules: AdminModule[] = [
         {
           id: "1",
           name: "User Management",

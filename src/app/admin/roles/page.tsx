@@ -19,7 +19,7 @@ import {
   Crown,
 } from "lucide-react";
 
-interface Role {
+interface AdminRole {
   id: string;
   name: string;
   guardName: string;
@@ -32,18 +32,18 @@ interface Role {
 }
 
 export default function RolesPage() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [filteredRoles, setFilteredRoles] = useState<Role[]>([]);
+  const [roles, setRoles] = useState<AdminRole[]>([]);
+  const [filteredRoles, setFilteredRoles] = useState<AdminRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGuard, setFilterGuard] = useState<"all" | "web" | "api">("all");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [editingRole, setEditingRole] = useState<AdminRole | null>(null);
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
-      const dummyRoles: Role[] = [
+      const dummyRoles: AdminRole[] = [
         {
           id: "1",
           name: "super-admin",

@@ -1,451 +1,206 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import SecureRoute from "../../components/SecureRoute";
-import SecureDashboard from "../../components/SecureDashboard";
-import { apiClient, Tenant } from "../../services/api";
-import {
-  Building,
-  Calendar,
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-} from "lucide-react";
+import { useState } from "react";
+import { useTenants } from "../../hooks/useTenants";
+import type { Tenant } from "../../services/types";
 
 export default function TenantsPage() {
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [error, setError] = useState<string | null>(null);
+  const {
+    tenants,
+    loading,
+    error,
+    creating,
+    updating,
+    deleting,
+    createError,
+    updateError,
+    deleteError,
+    createTenant,
+    updateTenant,
+    deleteTenant,
+    fetchTenants,
+  } = useTenants();
 
-  useEffect(() => {
-    fetchTenants();
-  }, []);
+  const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchTenants = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await apiClient.getTenants();
+  const handleCreateTenant = async (tenantData: Partial<Tenant>) => {
+    await createTenant(tenantData);
+    if (!createError) {
+      setIsModalOpen(false);
+      fetchTenants(); // Refresh list
+    }
+  };
 
-      if (response.success && response.data) {
-        setTenants(response.data);
-      } else {
-        // Fallback to dummy data if API fails
-        const dummyTenants: Tenant[] = [
-          {
-            id: 1,
-            name: "TechCorp Solutions",
-            email: "info@techcorp.com",
-            phone: "+6281234567890",
-            logo: null,
-            is_active: true,
-            created_at: "2024-01-15T10:30:00Z",
-            updated_at: "2024-01-20T15:45:00Z",
-            owner: { id: null, name: null, email: null },
-            plan: { id: null, name: null, slug: null, price: null },
-            users_count: 0,
-            modules_count: 0,
-          },
-          {
-            id: 2,
-            name: "Digital Innovations Ltd",
-            email: "contact@digitalinnovations.com",
-            phone: "+6281234567891",
-            logo: null,
-            is_active: true,
-            created_at: "2024-01-10T09:15:00Z",
-            updated_at: "2024-01-19T14:20:00Z",
-            owner: { id: null, name: null, email: null },
-            plan: { id: null, name: null, slug: null, price: null },
-            users_count: 0,
-            modules_count: 0,
-          },
-          {
-            id: 3,
-            name: "StartupHub Indonesia",
-            email: "hello@startuphub.id",
-            phone: "+6281234567892",
-            logo: null,
-            is_active: false,
-            created_at: "2024-01-05T08:00:00Z",
-            updated_at: "2024-01-18T11:30:00Z",
-            owner: { id: null, name: null, email: null },
-            plan: { id: null, name: null, slug: null, price: null },
-            users_count: 0,
-            modules_count: 0,
-          },
-        ];
-        setTenants(dummyTenants);
-      }
-    } catch (error) {
-      console.error("Error fetching tenants:", error);
-      setError("Failed to load tenants. Please try again.");
-      // Fallback to dummy data
-      const dummyTenants: Tenant[] = [
-        {
-          id: 1,
-          name: "TechCorp Solutions",
-          email: "info@techcorp.com",
-          phone: "+6281234567890",
-          logo: null,
-          is_active: true,
-          created_at: "2024-01-15T10:30:00Z",
-          updated_at: "2024-01-20T15:45:00Z",
-          owner: { id: null, name: null, email: null },
-          plan: { id: null, name: null, slug: null, price: null },
-          users_count: 0,
-          modules_count: 0,
-        },
-        {
-          id: 2,
-          name: "Digital Innovations Ltd",
-          email: "contact@digitalinnovations.com",
-          phone: "+6281234567891",
-          logo: null,
-          is_active: true,
-          created_at: "2024-01-10T09:15:00Z",
-          updated_at: "2024-01-19T14:20:00Z",
-          owner: { id: null, name: null, email: null },
-          plan: { id: null, name: null, slug: null, price: null },
-          users_count: 0,
-          modules_count: 0,
-        },
-        {
-          id: 3,
-          name: "StartupHub Indonesia",
-          email: "hello@startuphub.id",
-          phone: "+6281234567892",
-          logo: null,
-          is_active: false,
-          created_at: "2024-01-05T08:00:00Z",
-          updated_at: "2024-01-18T11:30:00Z",
-          owner: { id: null, name: null, email: null },
-          plan: { id: null, name: null, slug: null, price: null },
-          users_count: 0,
-          modules_count: 0,
-        },
-      ];
-      setTenants(dummyTenants);
-    } finally {
-      setIsLoading(false);
+  const handleUpdateTenant = async (
+    id: number,
+    tenantData: Partial<Tenant>
+  ) => {
+    await updateTenant(id, tenantData);
+    if (!updateError) {
+      setSelectedTenant(null);
+      fetchTenants(); // Refresh list
     }
   };
 
   const handleDeleteTenant = async (id: number) => {
-    if (confirm("Are you sure you want to delete this tenant?")) {
-      try {
-        const response = await apiClient.deleteTenant(id);
-        if (response.success) {
-          setTenants((prev) => prev.filter((tenant) => tenant.id !== id));
-        } else {
-          alert("Failed to delete tenant. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error deleting tenant:", error);
-        alert("Failed to delete tenant. Please try again.");
-      }
+    await deleteTenant(id);
+    if (!deleteError) {
+      fetchTenants(); // Refresh list
     }
   };
 
-  const handleToggleStatus = async (
-    id: string | number,
-    currentActive: boolean
-  ) => {
-    try {
-      const nextActive = !currentActive;
-      const response = nextActive
-        ? await apiClient.activateTenant(id)
-        : await apiClient.suspendTenant(id);
-      if (response.success) {
-        setTenants((prev) =>
-          prev.map((tenant) =>
-            tenant.id === id
-              ? ({ ...tenant, is_active: nextActive } as any)
-              : tenant
-          )
-        );
-      } else {
-        alert("Failed to update tenant status. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error updating tenant status:", error);
-      alert("Failed to update tenant status. Please try again.");
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getStatusColor = (active: boolean) => {
-    return active ? "text-green-500" : "text-red-500";
-  };
-
-  const getStatusIcon = (active: boolean) => {
-    return active ? (
-      <CheckCircle className="text-green-500" size={16} />
-    ) : (
-      <XCircle className="text-red-500" size={16} />
-    );
-  };
-
-  const filteredTenants = tenants.filter((tenant) => {
-    const matchesSearch =
-      tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tenant.email || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      (tenant.is_active ? "active" : "inactive") === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <SecureRoute adminOnly={true}>
-        <SecureDashboard>
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        </SecureDashboard>
-      </SecureRoute>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
+          <p className="text-white mt-4">Loading tenants...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Error</h1>
+          <p className="text-red-400">{error}</p>
+          <button
+            onClick={fetchTenants}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <SecureRoute adminOnly={true}>
-      <SecureDashboard>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white">
-                Tenant Management
-              </h1>
-              <p className="text-gray-400">Manage multi-tenant organizations</p>
-            </div>
-            <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-              <Plus size={20} />
-              <span>Add Tenant</span>
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Tenants</p>
-                  <p className="text-2xl font-bold text-white">
-                    {tenants.length}
-                  </p>
-                </div>
-                <Building className="text-blue-500" size={24} />
-              </div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Tenants</p>
-                  <p className="text-2xl font-bold text-white">
-                    {tenants.filter((t) => t.is_active).length}
-                  </p>
-                </div>
-                <CheckCircle className="text-green-500" size={24} />
-              </div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Inactive Tenants</p>
-                  <p className="text-2xl font-bold text-white">
-                    {tenants.filter((t) => !t.is_active).length}
-                  </p>
-                </div>
-                <XCircle className="text-red-500" size={24} />
-              </div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">This Month</p>
-                  <p className="text-2xl font-bold text-white">
-                    {
-                      tenants.filter((t) => {
-                        const created = new Date(t.created_at);
-                        const now = new Date();
-                        return (
-                          created.getMonth() === now.getMonth() &&
-                          created.getFullYear() === now.getFullYear()
-                        );
-                      }).length
-                    }
-                  </p>
-                </div>
-                <Calendar className="text-purple-500" size={24} />
-              </div>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search tenants..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Filter className="text-gray-400" size={20} />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-gray-700 border border-gray-600 rounded-lg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-900 border border-red-700 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="text-red-400" size={20} />
-                <span className="text-red-400">{error}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Tenants Table */}
-          <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Tenant
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {filteredTenants.map((tenant) => (
-                    <tr key={tenant.id} className="hover:bg-gray-700">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-white">
-                            {tenant.name}
-                          </div>
-                          {/* address not available on TenantResource */}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm text-white">
-                            {tenant.email}
-                          </div>
-                          <div className="text-sm text-gray-400">
-                            {tenant.phone}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(tenant.is_active)}
-                          <span
-                            className={`text-sm font-medium ${getStatusColor(
-                              tenant.is_active
-                            )}`}
-                          >
-                            {tenant.is_active ? "Active" : "Inactive"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {formatDate(tenant.created_at)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() =>
-                              handleToggleStatus(tenant.id, tenant.is_active)
-                            }
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                              tenant.is_active
-                                ? "bg-red-600 hover:bg-red-700 text-white"
-                                : "bg-green-600 hover:bg-green-700 text-white"
-                            }`}
-                          >
-                            {tenant.is_active ? "Deactivate" : "Activate"}
-                          </button>
-                          <button className="p-2 hover:bg-gray-600 rounded transition-colors">
-                            <Edit size={16} className="text-blue-400" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTenant(tenant.id)}
-                            className="p-2 hover:bg-gray-600 rounded transition-colors"
-                          >
-                            <Trash2 size={16} className="text-red-400" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {filteredTenants.length === 0 && (
-            <div className="text-center py-12">
-              <Building className="mx-auto text-gray-400" size={48} />
-              <h3 className="text-lg font-semibold text-white mt-4">
-                No tenants found
-              </h3>
-              <p className="text-gray-400 mt-2">
-                No tenants match your current filters.
-              </p>
-            </div>
-          )}
+    <div className="min-h-screen bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">Tenants Management</h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            disabled={creating}
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+          >
+            {creating ? "Creating..." : "Add Tenant"}
+          </button>
         </div>
-      </SecureDashboard>
-    </SecureRoute>
+
+        {/* Error Messages */}
+        {(createError || updateError || deleteError) && (
+          <div className="mb-4 p-4 bg-red-900 border border-red-700 rounded">
+            <p className="text-red-200">
+              {createError || updateError || deleteError}
+            </p>
+          </div>
+        )}
+
+        {/* Tenants List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tenants?.map((tenant) => (
+            <div
+              key={tenant.id}
+              className="bg-gray-800 rounded-lg p-6 border border-gray-700"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-semibold text-white">
+                  {tenant.name}
+                </h3>
+                <span
+                  className={`px-2 py-1 rounded text-xs ${
+                    tenant.is_active
+                      ? "bg-green-900 text-green-200"
+                      : "bg-red-900 text-red-200"
+                  }`}
+                >
+                  {tenant.is_active ? "Active" : "Inactive"}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-gray-300">
+                <p>
+                  <span className="font-medium">Email:</span>{" "}
+                  {tenant.email || "N/A"}
+                </p>
+                <p>
+                  <span className="font-medium">Phone:</span>{" "}
+                  {tenant.phone || "N/A"}
+                </p>
+                <p>
+                  <span className="font-medium">Users:</span>{" "}
+                  {tenant.users_count}
+                </p>
+                <p>
+                  <span className="font-medium">Modules:</span>{" "}
+                  {tenant.modules_count}
+                </p>
+                <p>
+                  <span className="font-medium">Created:</span>{" "}
+                  {new Date(tenant.created_at).toLocaleDateString()}
+                </p>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => setSelectedTenant(tenant)}
+                  disabled={updating}
+                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {updating ? "Updating..." : "Edit"}
+                </button>
+                <button
+                  onClick={() => handleDeleteTenant(tenant.id)}
+                  disabled={deleting}
+                  className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {tenants?.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">No tenants found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal for Create/Edit Tenant */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-white mb-4">
+              {selectedTenant ? "Edit Tenant" : "Create Tenant"}
+            </h2>
+            {/* Add your form here */}
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Handle form submission
+                  setIsModalOpen(false);
+                }}
+                className="flex-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                {selectedTenant ? "Update" : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
