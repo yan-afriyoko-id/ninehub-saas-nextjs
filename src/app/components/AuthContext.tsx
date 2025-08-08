@@ -7,11 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import {
-  apiClient,
-  type LoginResponse,
-  type ProfileResponse,
-} from "../services/api";
+import { apiClient } from "../services/api";
 
 export type UserRole = "admin" | "tenant";
 
@@ -25,13 +21,6 @@ interface User {
   company_id?: string;
   tenant?: Record<string, unknown>;
   profile?: Record<string, unknown>;
-}
-
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: string;
-  path: string;
 }
 
 interface AuthContextType {
@@ -50,78 +39,86 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const transformUserData = (apiUser: Record<string, unknown>): User => {
   // Add null check to prevent errors
   if (!apiUser) {
-    throw new Error('User data is undefined or null');
+    throw new Error("User data is undefined or null");
   }
 
   // Handle different possible response structures
   const userData = (apiUser.user as Record<string, unknown>) || apiUser;
-  
+
   // Ensure roles array exists and contains at least one role
   let roles = (userData.roles as string[]) || [];
   if (!Array.isArray(roles)) {
     roles = [roles as string].filter(Boolean);
   }
-  
+
   // If no roles provided, check if user has admin-like properties
   if (roles.length === 0) {
-    if ((userData.is_admin as boolean) || (userData.role as string) === 'admin' || (userData.role as string) === 'super-admin') {
-      roles = ['admin'];
+    if (
+      (userData.is_admin as boolean) ||
+      (userData.role as string) === "admin" ||
+      (userData.role as string) === "super-admin"
+    ) {
+      roles = ["admin"];
     } else {
-      roles = ['user'];
+      roles = ["user"];
     }
   }
-  
+
   // Ensure permissions array exists
   let permissions = (userData.permissions as string[]) || [];
   if (!Array.isArray(permissions)) {
     permissions = [permissions as string].filter(Boolean);
   }
-  
+
   // Add default permissions based on roles
-  if (roles.includes('admin') || roles.includes('super-admin')) {
+  if (roles.includes("admin") || roles.includes("super-admin")) {
     const adminPermissions = [
-      'dashboard.view',
-      'admin.dashboard.view',
-      'tenant-management.view',
-      'modules.view',
-      'permissions.view',
-      'roles.view',
-      'plans.view',
-      'crm.view',
-      'chat.send',
-      'settings.view',
-      'profile.view',
-      'company-settings.view',
-      'security.view',
-      'logs.view',
-      'backup.view',
-      'system-settings.view'
+      "dashboard.view",
+      "admin.dashboard.view",
+      "tenant-management.view",
+      "modules.view",
+      "permissions.view",
+      "roles.view",
+      "plans.view",
+      "crm.view",
+      "chat.send",
+      "settings.view",
+      "profile.view",
+      "company-settings.view",
+      "security.view",
+      "logs.view",
+      "backup.view",
+      "system-settings.view",
     ];
-    
+
     // Add admin permissions if not already present
-    adminPermissions.forEach(permission => {
+    adminPermissions.forEach((permission) => {
       if (!permissions.includes(permission)) {
         permissions.push(permission);
       }
     });
   }
-  
-  console.log('🔧 Transformed User Data:', {
-    id: userData.id?.toString() || '1',
-    email: userData.email || '',
-    name: userData.name || '',
-    roles,
-    permissions
-  });
-  
-  return {
-    id: (userData.id as string)?.toString() || '1',
-    email: (userData.email as string) || '',
-    name: (userData.name as string) || '',
+
+  console.log("🔧 Transformed User Data:", {
+    id: userData.id?.toString() || "1",
+    email: userData.email || "",
+    name: userData.name || "",
     roles,
     permissions,
-    avatar: (userData.avatar as string) || `https://ui-avatars.com/api/?name=${encodeURIComponent((userData.name as string) || 'User')}&background=0D9488&color=fff`,
-    company_id: (userData.company_id as string)?.toString() || '1',
+  });
+
+  return {
+    id: (userData.id as string)?.toString() || "1",
+    email: (userData.email as string) || "",
+    name: (userData.name as string) || "",
+    roles,
+    permissions,
+    avatar:
+      (userData.avatar as string) ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        (userData.name as string) || "User"
+      )}&background=0D9488&color=fff`,
+    company_id: (userData.company_id as string)?.toString() || "1",
   };
 };
 
@@ -137,67 +134,75 @@ const transformProfileData = (profileData: Record<string, unknown>): User => {
   if (!Array.isArray(roles)) {
     roles = [roles as string].filter(Boolean);
   }
-  
+
   // If no roles provided, check if user has admin-like properties
   if (roles.length === 0) {
-    if ((profileData.is_admin as boolean) || (profileData.role as string) === 'admin' || (profileData.role as string) === 'super-admin') {
-      roles = ['admin'];
+    if (
+      (profileData.is_admin as boolean) ||
+      (profileData.role as string) === "admin" ||
+      (profileData.role as string) === "super-admin"
+    ) {
+      roles = ["admin"];
     } else {
-      roles = ['user'];
+      roles = ["user"];
     }
   }
-  
+
   // Ensure permissions array exists
   let permissions = (profileData.permissions as string[]) || [];
   if (!Array.isArray(permissions)) {
     permissions = [permissions as string].filter(Boolean);
   }
-  
+
   // Add default permissions based on roles
-  if (roles.includes('admin') || roles.includes('super-admin')) {
+  if (roles.includes("admin") || roles.includes("super-admin")) {
     const adminPermissions = [
-      'dashboard.view',
-      'admin.dashboard.view',
-      'tenant-management.view',
-      'modules.view',
-      'permissions.view',
-      'roles.view',
-      'plans.view',
-      'crm.view',
-      'chat.send',
-      'settings.view',
-      'profile.view',
-      'company-settings.view',
-      'security.view',
-      'logs.view',
-      'backup.view',
-      'system-settings.view'
+      "dashboard.view",
+      "admin.dashboard.view",
+      "tenant-management.view",
+      "modules.view",
+      "permissions.view",
+      "roles.view",
+      "plans.view",
+      "crm.view",
+      "chat.send",
+      "settings.view",
+      "profile.view",
+      "company-settings.view",
+      "security.view",
+      "logs.view",
+      "backup.view",
+      "system-settings.view",
     ];
-    
+
     // Add admin permissions if not already present
-    adminPermissions.forEach(permission => {
+    adminPermissions.forEach((permission) => {
       if (!permissions.includes(permission)) {
         permissions.push(permission);
       }
     });
   }
-  
-  console.log('🔧 Transformed Profile Data:', {
-    id: profileData.id?.toString() || '1',
+
+  console.log("🔧 Transformed Profile Data:", {
+    id: profileData.id?.toString() || "1",
     email: profileData.email,
     name: profileData.name,
     roles,
-    permissions
+    permissions,
   });
 
   return {
-    id: (profileData.id as string)?.toString() || '1',
-    email: (profileData.email as string) || '',
-    name: (profileData.name as string) || '',
+    id: (profileData.id as string)?.toString() || "1",
+    email: (profileData.email as string) || "",
+    name: (profileData.name as string) || "",
     roles,
     permissions,
-    avatar: (profileData.avatar as string) || `https://ui-avatars.com/api/?name=${encodeURIComponent((profileData.name as string) || 'User')}&background=0D9488&color=fff`,
-    company_id: (profileData.company_id as string)?.toString() || '1',
+    avatar:
+      (profileData.avatar as string) ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        (profileData.name as string) || "User"
+      )}&background=0D9488&color=fff`,
+    company_id: (profileData.company_id as string)?.toString() || "1",
   };
 };
 
@@ -215,7 +220,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (profileResponse.success && profileResponse.data) {
             // Transform the user data from profile response
-            const transformedUser = transformProfileData(profileResponse.data as unknown as Record<string, unknown>);
+            const transformedUser = transformProfileData(
+              profileResponse.data as unknown as Record<string, unknown>
+            );
             setUser(transformedUser);
             console.log("Token validated successfully, user authenticated");
           } else {
@@ -250,7 +257,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           // Handle different possible response structures
           const userData = response.data;
-          const transformedUser = transformUserData(userData as unknown as Record<string, unknown>);
+          const transformedUser = transformUserData(
+            userData as unknown as Record<string, unknown>
+          );
           setUser(transformedUser);
           
           // Store user data in localStorage for menu access
@@ -303,7 +312,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Logout error:", error);
     }
-          
+
     // Clear user state
     setUser(null);
     

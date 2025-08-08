@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './AuthContext';
-import { hasPermission, hasRole, isAdmin } from '../config/menu';
-import { AlertTriangle, Shield, Lock } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./AuthContext";
+import { hasPermission, hasRole, isAdmin } from "../config/menu";
+import { AlertTriangle, Shield, Lock } from "lucide-react";
 
 interface SecureRouteProps {
   children: React.ReactNode;
@@ -14,12 +14,12 @@ interface SecureRouteProps {
   fallback?: React.ReactNode;
 }
 
-export default function SecureRoute({ 
-  children, 
-  requiredPermissions = [], 
-  requiredRoles = [], 
+export default function SecureRoute({
+  children,
+  requiredPermissions = [],
+  requiredRoles = [],
   adminOnly = false,
-  fallback 
+  fallback,
 }: SecureRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function SecureRoute({
     if (isLoading) return;
 
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -43,7 +43,9 @@ export default function SecureRoute({
 
     // Check required roles
     if (requiredRoles.length > 0) {
-      const hasRequiredRole = requiredRoles.some(role => hasRole(user.roles, role));
+      const hasRequiredRole = requiredRoles.some((role) =>
+        hasRole(user.roles, role)
+      );
       if (!hasRequiredRole) {
         setIsAuthorized(false);
         setIsChecking(false);
@@ -53,7 +55,7 @@ export default function SecureRoute({
 
     // Check required permissions
     if (requiredPermissions.length > 0) {
-      const hasRequiredPermission = requiredPermissions.some(permission => 
+      const hasRequiredPermission = requiredPermissions.some((permission) =>
         hasPermission(user.permissions, permission)
       );
       if (!hasRequiredPermission) {
@@ -90,15 +92,19 @@ export default function SecureRoute({
             <div className="flex items-center justify-center mb-4">
               <Shield className="text-red-500" size={48} />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              Access Denied
+            </h1>
             <p className="text-gray-400 mb-4">
-              You don't have permission to access this page.
+              You don&apos;t have permission to access this page.
             </p>
             {adminOnly && (
               <div className="bg-yellow-900/20 border border-yellow-500/20 rounded-lg p-4 mb-4">
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="text-yellow-500" size={20} />
-                  <span className="text-yellow-400 text-sm">Admin access required</span>
+                  <span className="text-yellow-400 text-sm">
+                    Admin access required
+                  </span>
                 </div>
               </div>
             )}
@@ -107,7 +113,7 @@ export default function SecureRoute({
                 <div className="flex items-center space-x-2">
                   <Lock className="text-blue-500" size={20} />
                   <span className="text-blue-400 text-sm">
-                    Required roles: {requiredRoles.join(', ')}
+                    Required roles: {requiredRoles.join(", ")}
                   </span>
                 </div>
               </div>
@@ -117,7 +123,7 @@ export default function SecureRoute({
                 <div className="flex items-center space-x-2">
                   <Lock className="text-purple-500" size={20} />
                   <span className="text-purple-400 text-sm">
-                    Required permissions: {requiredPermissions.join(', ')}
+                    Required permissions: {requiredPermissions.join(", ")}
                   </span>
                 </div>
               </div>
@@ -135,4 +141,4 @@ export default function SecureRoute({
   }
 
   return <>{children}</>;
-} 
+}

@@ -8,7 +8,6 @@ import {
   Edit, 
   Trash2, 
   Search,
-  Filter,
   MoreVertical,
   CreditCard,
   Crown,
@@ -18,7 +17,6 @@ import {
   AlertTriangle,
   DollarSign,
   Users,
-  Database,
   Zap
 } from 'lucide-react';
 

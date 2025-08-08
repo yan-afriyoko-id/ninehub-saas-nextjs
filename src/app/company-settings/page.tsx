@@ -1,26 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import SecureRoute from '../components/SecureRoute';
-import SecureDashboard from '../components/SecureDashboard';
-import { apiClient } from '../services/api';
-import { useAuth } from '../components/AuthContext';
-import { 
-  Building, 
-  Mail, 
-  Phone, 
-  Globe, 
-  MapPin, 
+import { useState, useEffect } from "react";
+import SecureRoute from "../components/SecureRoute";
+import SecureDashboard from "../components/SecureDashboard";
+import { apiClient } from "../services/api";
+import { useAuth } from "../components/AuthContext";
+import {
+  Building,
+  Mail,
+  Phone,
+  Globe,
+  MapPin,
   Calendar,
   Edit,
   Save,
   X,
-  Settings,
-  Shield,
-  CreditCard,
-  Users,
-  Database
-} from 'lucide-react';
+} from "lucide-react";
 
 interface Company {
   id: string;
@@ -34,7 +29,7 @@ interface Company {
   size?: string;
   founded?: string;
   description?: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   subscription?: {
     plan: string;
     startDate: string;
@@ -65,16 +60,16 @@ export default function CompanySettingsPage() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Try to get company data from API
         const response = await apiClient.getProfile();
-        
+
         if (response.success && response.data) {
           // Transform API data to Company format - only use real data
           const companyData: Company = {
-            id: response.data.id || user?.id || '',
-            name: response.data.name || 'Company Name',
-            email: response.data.email || user?.email || '',
+            id: response.data.id || user?.id || "",
+            name: response.data.name || "Company Name",
+            email: response.data.email || user?.email || "",
             phone: undefined,
             website: undefined,
             address: undefined,
@@ -83,56 +78,60 @@ export default function CompanySettingsPage() {
             size: undefined,
             founded: undefined,
             description: undefined,
-            status: 'active',
+            status: "active",
             subscription: {
-              plan: 'Basic Plan',
+              plan: "Basic Plan",
               startDate: new Date().toISOString(),
-              endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-              status: 'active'
+              endDate: new Date(
+                Date.now() + 365 * 24 * 60 * 60 * 1000
+              ).toISOString(),
+              status: "active",
             },
             settings: {
-              timezone: 'Asia/Jakarta',
-              language: 'en',
-              currency: 'IDR',
-              dateFormat: 'DD/MM/YYYY',
+              timezone: "Asia/Jakarta",
+              language: "en",
+              currency: "IDR",
+              dateFormat: "DD/MM/YYYY",
               notifications: true,
               autoBackup: true,
-              twoFactorAuth: true
-            }
+              twoFactorAuth: true,
+            },
           };
-          
+
           setCompany(companyData);
           setEditForm(companyData);
         } else {
-          throw new Error(response.message || 'Failed to load company data');
+          throw new Error(response.message || "Failed to load company data");
         }
       } catch (error) {
-        console.error('Error loading company data:', error);
-        setError('Failed to load company data');
-        
+        console.error("Error loading company data:", error);
+        setError("Failed to load company data");
+
         // Fallback to minimal company data
         const fallbackCompany: Company = {
-          id: user?.id || '',
-          name: 'Company Name',
-          email: user?.email || '',
-          status: 'active',
+          id: user?.id || "",
+          name: "Company Name",
+          email: user?.email || "",
+          status: "active",
           subscription: {
-            plan: 'Basic Plan',
+            plan: "Basic Plan",
             startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active'
+            endDate: new Date(
+              Date.now() + 365 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+            status: "active",
           },
           settings: {
-            timezone: 'Asia/Jakarta',
-            language: 'en',
-            currency: 'IDR',
-            dateFormat: 'DD/MM/YYYY',
+            timezone: "Asia/Jakarta",
+            language: "en",
+            currency: "IDR",
+            dateFormat: "DD/MM/YYYY",
             notifications: true,
             autoBackup: true,
-            twoFactorAuth: true
-          }
+            twoFactorAuth: true,
+          },
         };
-        
+
         setCompany(fallbackCompany);
         setEditForm(fallbackCompany);
       } finally {
@@ -147,7 +146,7 @@ export default function CompanySettingsPage() {
     if (company) {
       try {
         setIsLoading(true);
-        
+
         // Prepare data for API update - only send fields that have values
         const updateData: Record<string, string> = {};
         if (editForm.name) updateData.name = editForm.name;
@@ -159,20 +158,20 @@ export default function CompanySettingsPage() {
         if (editForm.size) updateData.size = editForm.size;
         if (editForm.founded) updateData.founded = editForm.founded;
         if (editForm.description) updateData.description = editForm.description;
-        
+
         // Update company data via API
         const response = await apiClient.updateMyProfile(updateData);
-        
+
         if (response.success && response.data) {
           setCompany({ ...company, ...editForm });
           setIsEditing(false);
           setError(null);
         } else {
-          throw new Error(response.message || 'Failed to update company data');
+          throw new Error(response.message || "Failed to update company data");
         }
       } catch (error) {
-        console.error('Error updating company data:', error);
-        setError('Failed to update company data. Please try again.');
+        console.error("Error updating company data:", error);
+        setError("Failed to update company data. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -187,10 +186,10 @@ export default function CompanySettingsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -212,7 +211,9 @@ export default function CompanySettingsPage() {
         <SecureDashboard>
           <div className="text-center py-12">
             <Building className="mx-auto text-gray-400" size={48} />
-            <h3 className="text-lg font-semibold text-white mt-4">Company data not found</h3>
+            <h3 className="text-lg font-semibold text-white mt-4">
+              Company data not found
+            </h3>
           </div>
         </SecureDashboard>
       </SecureRoute>
@@ -226,8 +227,12 @@ export default function CompanySettingsPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Company Settings</h1>
-              <p className="text-gray-400">Manage your company information and preferences</p>
+              <h1 className="text-3xl font-bold text-white">
+                Company Settings
+              </h1>
+              <p className="text-gray-400">
+                Manage your company information and preferences
+              </p>
               {error && (
                 <div className="mt-2 p-3 bg-red-600 text-white rounded-lg">
                   {error}
@@ -253,8 +258,12 @@ export default function CompanySettingsPage() {
                   <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <Building size={32} className="text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">{company.name}</h3>
-                  <p className="text-gray-400">{company.industry || 'Industry'}</p>
+                  <h3 className="text-xl font-semibold text-white">
+                    {company.name}
+                  </h3>
+                  <p className="text-gray-400">
+                    {company.industry || "Industry"}
+                  </p>
                   {company.size && (
                     <p className="text-gray-400 text-sm">{company.size}</p>
                   )}
@@ -286,7 +295,9 @@ export default function CompanySettingsPage() {
                   {company.founded && (
                     <div className="flex items-center space-x-3">
                       <Calendar className="text-gray-400" size={16} />
-                      <span className="text-gray-300">Founded {formatDate(company.founded)}</span>
+                      <span className="text-gray-300">
+                        Founded {formatDate(company.founded)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -297,55 +308,77 @@ export default function CompanySettingsPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Company Information */}
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Company Information</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Company Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Company Name</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Company Name
+                    </label>
                     <p className="text-white">{company.name}</p>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Email</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Email
+                    </label>
                     <p className="text-white">{company.email}</p>
                   </div>
                   {company.phone && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Phone</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Phone
+                      </label>
                       <p className="text-white">{company.phone}</p>
                     </div>
                   )}
                   {company.website && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Website</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Website
+                      </label>
                       <p className="text-white">{company.website}</p>
                     </div>
                   )}
                   {company.industry && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Industry</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Industry
+                      </label>
                       <p className="text-white">{company.industry}</p>
                     </div>
                   )}
                   {company.size && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Company Size</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Company Size
+                      </label>
                       <p className="text-white">{company.size}</p>
                     </div>
                   )}
                   {company.founded && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Founded</label>
-                      <p className="text-white">{formatDate(company.founded)}</p>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Founded
+                      </label>
+                      <p className="text-white">
+                        {formatDate(company.founded)}
+                      </p>
                     </div>
                   )}
                   {company.address && (
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Address
+                      </label>
                       <p className="text-white">{company.address}</p>
                     </div>
                   )}
                   {company.description && (
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Description</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Description
+                      </label>
                       <p className="text-gray-300">{company.description}</p>
                     </div>
                   )}
@@ -354,25 +387,43 @@ export default function CompanySettingsPage() {
 
               {/* Subscription Information */}
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Subscription Information</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Subscription Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Plan</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Plan
+                    </label>
                     <p className="text-white">{company.subscription?.plan}</p>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Status</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Status
+                    </label>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       {company.subscription?.status}
                     </span>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Start Date</label>
-                    <p className="text-white">{company.subscription?.startDate ? formatDate(company.subscription.startDate) : 'N/A'}</p>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Start Date
+                    </label>
+                    <p className="text-white">
+                      {company.subscription?.startDate
+                        ? formatDate(company.subscription.startDate)
+                        : "N/A"}
+                    </p>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">End Date</label>
-                    <p className="text-white">{company.subscription?.endDate ? formatDate(company.subscription.endDate) : 'N/A'}</p>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      End Date
+                    </label>
+                    <p className="text-white">
+                      {company.subscription?.endDate
+                        ? formatDate(company.subscription.endDate)
+                        : "N/A"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -380,93 +431,134 @@ export default function CompanySettingsPage() {
               {/* Edit Form */}
               {isEditing && (
                 <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-lg font-semibold text-white mb-4">Edit Company</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Edit Company
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Company Name</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Company Name
+                      </label>
                       <input
                         type="text"
-                        value={editForm.name || ''}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        value={editForm.name || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, name: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Email</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Email
+                      </label>
                       <input
                         type="email"
-                        value={editForm.email || ''}
-                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                        value={editForm.email || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, email: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Phone</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Phone
+                      </label>
                       <input
                         type="tel"
-                        value={editForm.phone || ''}
-                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                        value={editForm.phone || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, phone: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Website</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Website
+                      </label>
                       <input
                         type="url"
-                        value={editForm.website || ''}
-                        onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                        value={editForm.website || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, website: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Industry</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Industry
+                      </label>
                       <input
                         type="text"
-                        value={editForm.industry || ''}
-                        onChange={(e) => setEditForm({ ...editForm, industry: e.target.value })}
+                        value={editForm.industry || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, industry: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Company Size</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Company Size
+                      </label>
                       <input
                         type="text"
-                        value={editForm.size || ''}
-                        onChange={(e) => setEditForm({ ...editForm, size: e.target.value })}
+                        value={editForm.size || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, size: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Founded</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Founded
+                      </label>
                       <input
                         type="date"
-                        value={editForm.founded || ''}
-                        onChange={(e) => setEditForm({ ...editForm, founded: e.target.value })}
+                        value={editForm.founded || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, founded: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Address
+                      </label>
                       <textarea
-                        value={editForm.address || ''}
-                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                        value={editForm.address || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, address: e.target.value })
+                        }
                         rows={3}
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Description</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Description
+                      </label>
                       <textarea
-                        value={editForm.description || ''}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        value={editForm.description || ""}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            description: e.target.value,
+                          })
+                        }
                         rows={4}
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
@@ -497,4 +589,4 @@ export default function CompanySettingsPage() {
       </SecureDashboard>
     </SecureRoute>
   );
-} 
+}

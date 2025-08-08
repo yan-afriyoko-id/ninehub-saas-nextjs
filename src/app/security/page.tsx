@@ -1,27 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import SecureRoute from '../components/SecureRoute';
-import SecureDashboard from '../components/SecureDashboard';
-import { 
-  Shield, 
-  Lock, 
-  Key, 
-  Eye, 
+import { useState, useEffect } from "react";
+import SecureRoute from "../components/SecureRoute";
+import SecureDashboard from "../components/SecureDashboard";
+import {
+  Shield,
+  Lock,
+  Key,
+  Eye,
   EyeOff,
   Smartphone,
-  Mail,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Clock,
   MapPin,
   User,
-  Settings,
-  RefreshCw,
-  Plus,
-  Trash2
-} from 'lucide-react';
+  Trash2,
+} from "lucide-react";
 
 interface SecuritySession {
   id: string;
@@ -31,7 +27,7 @@ interface SecuritySession {
   ipAddress: string;
   lastActive: string;
   isCurrent: boolean;
-  status: 'active' | 'expired';
+  status: "active" | "expired";
 }
 
 interface SecurityLog {
@@ -41,7 +37,7 @@ interface SecurityLog {
   timestamp: string;
   ipAddress: string;
   location: string;
-  status: 'success' | 'failed' | 'warning';
+  status: "success" | "failed" | "warning";
 }
 
 export default function SecurityPage() {
@@ -49,83 +45,83 @@ export default function SecurityPage() {
   const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
       const dummySessions: SecuritySession[] = [
         {
-          id: '1',
-          device: 'MacBook Pro',
-          browser: 'Chrome 120.0.0.0',
-          location: 'Jakarta, Indonesia',
-          ipAddress: '192.168.1.100',
-          lastActive: '2024-01-20T10:30:00Z',
+          id: "1",
+          device: "MacBook Pro",
+          browser: "Chrome 120.0.0.0",
+          location: "Jakarta, Indonesia",
+          ipAddress: "192.168.1.100",
+          lastActive: "2024-01-20T10:30:00Z",
           isCurrent: true,
-          status: 'active'
+          status: "active",
         },
         {
-          id: '2',
-          device: 'iPhone 15',
-          browser: 'Safari Mobile',
-          location: 'Bandung, Indonesia',
-          ipAddress: '192.168.1.101',
-          lastActive: '2024-01-19T15:20:00Z',
+          id: "2",
+          device: "iPhone 15",
+          browser: "Safari Mobile",
+          location: "Bandung, Indonesia",
+          ipAddress: "192.168.1.101",
+          lastActive: "2024-01-19T15:20:00Z",
           isCurrent: false,
-          status: 'active'
+          status: "active",
         },
         {
-          id: '3',
-          device: 'Windows PC',
-          browser: 'Firefox 121.0',
-          location: 'Surabaya, Indonesia',
-          ipAddress: '192.168.1.102',
-          lastActive: '2024-01-18T09:15:00Z',
+          id: "3",
+          device: "Windows PC",
+          browser: "Firefox 121.0",
+          location: "Surabaya, Indonesia",
+          ipAddress: "192.168.1.102",
+          lastActive: "2024-01-18T09:15:00Z",
           isCurrent: false,
-          status: 'expired'
-        }
+          status: "expired",
+        },
       ];
 
       const dummyLogs: SecurityLog[] = [
         {
-          id: '1',
-          action: 'Login',
-          description: 'Successful login from Chrome browser',
-          timestamp: '2024-01-20T10:30:00Z',
-          ipAddress: '192.168.1.100',
-          location: 'Jakarta, Indonesia',
-          status: 'success'
+          id: "1",
+          action: "Login",
+          description: "Successful login from Chrome browser",
+          timestamp: "2024-01-20T10:30:00Z",
+          ipAddress: "192.168.1.100",
+          location: "Jakarta, Indonesia",
+          status: "success",
         },
         {
-          id: '2',
-          action: 'Password Change',
-          description: 'Password changed successfully',
-          timestamp: '2024-01-19T14:20:00Z',
-          ipAddress: '192.168.1.100',
-          location: 'Jakarta, Indonesia',
-          status: 'success'
+          id: "2",
+          action: "Password Change",
+          description: "Password changed successfully",
+          timestamp: "2024-01-19T14:20:00Z",
+          ipAddress: "192.168.1.100",
+          location: "Jakarta, Indonesia",
+          status: "success",
         },
         {
-          id: '3',
-          action: 'Failed Login',
-          description: 'Failed login attempt with incorrect password',
-          timestamp: '2024-01-18T16:45:00Z',
-          ipAddress: '192.168.1.103',
-          location: 'Unknown',
-          status: 'failed'
+          id: "3",
+          action: "Failed Login",
+          description: "Failed login attempt with incorrect password",
+          timestamp: "2024-01-18T16:45:00Z",
+          ipAddress: "192.168.1.103",
+          location: "Unknown",
+          status: "failed",
         },
         {
-          id: '4',
-          action: 'Two-Factor Setup',
-          description: 'Two-factor authentication enabled',
-          timestamp: '2024-01-17T11:30:00Z',
-          ipAddress: '192.168.1.100',
-          location: 'Jakarta, Indonesia',
-          status: 'success'
-        }
+          id: "4",
+          action: "Two-Factor Setup",
+          description: "Two-factor authentication enabled",
+          timestamp: "2024-01-17T11:30:00Z",
+          ipAddress: "192.168.1.100",
+          location: "Jakarta, Indonesia",
+          status: "success",
+        },
       ];
 
       setSessions(dummySessions);
@@ -137,38 +133,38 @@ export default function SecurityPage() {
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match!');
+      alert("New passwords do not match!");
       return;
     }
     if (newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!');
+      alert("Password must be at least 8 characters long!");
       return;
     }
-    alert('Password changed successfully!');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    alert("Password changed successfully!");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   const terminateSession = (sessionId: string) => {
-    if (confirm('Are you sure you want to terminate this session?')) {
-      setSessions(prev => prev.filter(session => session.id !== sessionId));
+    if (confirm("Are you sure you want to terminate this session?")) {
+      setSessions((prev) => prev.filter((session) => session.id !== sessionId));
     }
   };
 
   const terminateAllSessions = () => {
-    if (confirm('Are you sure you want to terminate all other sessions?')) {
-      setSessions(prev => prev.filter(session => session.isCurrent));
+    if (confirm("Are you sure you want to terminate all other sessions?")) {
+      setSessions((prev) => prev.filter((session) => session.isCurrent));
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success':
+      case "success":
         return <CheckCircle className="text-green-500" size={16} />;
-      case 'failed':
+      case "failed":
         return <XCircle className="text-red-500" size={16} />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="text-yellow-500" size={16} />;
       default:
         return <CheckCircle className="text-gray-500" size={16} />;
@@ -177,24 +173,24 @@ export default function SecurityPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success':
-        return 'text-green-500';
-      case 'failed':
-        return 'text-red-500';
-      case 'warning':
-        return 'text-yellow-500';
+      case "success":
+        return "text-green-500";
+      case "failed":
+        return "text-red-500";
+      case "warning":
+        return "text-yellow-500";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('id-ID', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -217,8 +213,12 @@ export default function SecurityPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Security Settings</h1>
-              <p className="text-gray-400">Manage your account security and privacy</p>
+              <h1 className="text-3xl font-bold text-white">
+                Security Settings
+              </h1>
+              <p className="text-gray-400">
+                Manage your account security and privacy
+              </p>
             </div>
           </div>
 
@@ -227,15 +227,19 @@ export default function SecurityPage() {
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <div className="flex items-center space-x-3 mb-6">
                 <Lock className="text-blue-500" size={24} />
-                <h3 className="text-lg font-semibold text-white">Change Password</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Change Password
+                </h3>
               </div>
-              
+
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div>
-                  <label className="block text-gray-400 text-sm mb-2">Current Password</label>
+                  <label className="block text-gray-400 text-sm mb-2">
+                    Current Password
+                  </label>
                   <div className="relative">
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
@@ -251,9 +255,11 @@ export default function SecurityPage() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-400 text-sm mb-2">New Password</label>
+                  <label className="block text-gray-400 text-sm mb-2">
+                    New Password
+                  </label>
                   <input
                     type="password"
                     value={newPassword}
@@ -263,9 +269,11 @@ export default function SecurityPage() {
                     required
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-400 text-sm mb-2">Confirm New Password</label>
+                  <label className="block text-gray-400 text-sm mb-2">
+                    Confirm New Password
+                  </label>
                   <input
                     type="password"
                     value={confirmPassword}
@@ -275,7 +283,7 @@ export default function SecurityPage() {
                     required
                   />
                 </div>
-                
+
                 <button
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
@@ -289,36 +297,50 @@ export default function SecurityPage() {
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <div className="flex items-center space-x-3 mb-6">
                 <Smartphone className="text-green-500" size={24} />
-                <h3 className="text-lg font-semibold text-white">Two-Factor Authentication</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Two-Factor Authentication
+                </h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-white font-medium">SMS Authentication</p>
-                    <p className="text-gray-400 text-sm">Receive codes via SMS</p>
+                    <p className="text-gray-400 text-sm">
+                      Receive codes via SMS
+                    </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      defaultChecked
+                    />
                     <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white font-medium">Email Authentication</p>
-                    <p className="text-gray-400 text-sm">Receive codes via email</p>
+                    <p className="text-white font-medium">
+                      Email Authentication
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      Receive codes via email
+                    </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" />
                     <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-white font-medium">Authenticator App</p>
-                    <p className="text-gray-400 text-sm">Use Google Authenticator or similar</p>
+                    <p className="text-gray-400 text-sm">
+                      Use Google Authenticator or similar
+                    </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" className="sr-only peer" />
@@ -334,7 +356,9 @@ export default function SecurityPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <Shield className="text-purple-500" size={24} />
-                <h3 className="text-lg font-semibold text-white">Active Sessions</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Active Sessions
+                </h3>
               </div>
               <button
                 onClick={terminateAllSessions}
@@ -344,17 +368,22 @@ export default function SecurityPage() {
                 <span>Terminate All Others</span>
               </button>
             </div>
-            
+
             <div className="space-y-4">
               {sessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                <div
+                  key={session.id}
+                  className="flex items-center justify-between p-4 bg-gray-700 rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                       <User size={20} className="text-white" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <p className="text-white font-medium">{session.device}</p>
+                        <p className="text-white font-medium">
+                          {session.device}
+                        </p>
                         {session.isCurrent && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600 text-white">
                             Current
@@ -375,9 +404,13 @@ export default function SecurityPage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      session.status === 'active' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        session.status === "active"
+                          ? "bg-green-600 text-white"
+                          : "bg-red-600 text-white"
+                      }`}
+                    >
                       {session.status}
                     </span>
                     {!session.isCurrent && (
@@ -398,12 +431,17 @@ export default function SecurityPage() {
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div className="flex items-center space-x-3 mb-6">
               <Key className="text-yellow-500" size={24} />
-              <h3 className="text-lg font-semibold text-white">Security Activity</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Security Activity
+              </h3>
             </div>
-            
+
             <div className="space-y-4">
               {securityLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                <div
+                  key={log.id}
+                  className="flex items-center justify-between p-4 bg-gray-700 rounded-lg"
+                >
                   <div className="flex items-center space-x-4">
                     {getStatusIcon(log.status)}
                     <div>
@@ -421,7 +459,11 @@ export default function SecurityPage() {
                       </div>
                     </div>
                   </div>
-                  <span className={`text-sm font-medium ${getStatusColor(log.status)}`}>
+                  <span
+                    className={`text-sm font-medium ${getStatusColor(
+                      log.status
+                    )}`}
+                  >
                     {log.status.charAt(0).toUpperCase() + log.status.slice(1)}
                   </span>
                 </div>
@@ -433,28 +475,46 @@ export default function SecurityPage() {
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div className="flex items-center space-x-3 mb-6">
               <AlertTriangle className="text-orange-500" size={24} />
-              <h3 className="text-lg font-semibold text-white">Security Tips</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Security Tips
+              </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-gray-700 rounded-lg">
                 <h4 className="text-white font-medium mb-2">Strong Password</h4>
-                <p className="text-gray-400 text-sm">Use a combination of letters, numbers, and special characters. Avoid common words and personal information.</p>
+                <p className="text-gray-400 text-sm">
+                  Use a combination of letters, numbers, and special characters.
+                  Avoid common words and personal information.
+                </p>
               </div>
-              
+
               <div className="p-4 bg-gray-700 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Two-Factor Authentication</h4>
-                <p className="text-gray-400 text-sm">Enable 2FA for an extra layer of security. This helps protect your account even if your password is compromised.</p>
+                <h4 className="text-white font-medium mb-2">
+                  Two-Factor Authentication
+                </h4>
+                <p className="text-gray-400 text-sm">
+                  Enable 2FA for an extra layer of security. This helps protect
+                  your account even if your password is compromised.
+                </p>
               </div>
-              
+
               <div className="p-4 bg-gray-700 rounded-lg">
                 <h4 className="text-white font-medium mb-2">Regular Updates</h4>
-                <p className="text-gray-400 text-sm">Keep your devices and browsers updated to the latest versions to protect against security vulnerabilities.</p>
+                <p className="text-gray-400 text-sm">
+                  Keep your devices and browsers updated to the latest versions
+                  to protect against security vulnerabilities.
+                </p>
               </div>
-              
+
               <div className="p-4 bg-gray-700 rounded-lg">
-                <h4 className="text-white font-medium mb-2">Monitor Activity</h4>
-                <p className="text-gray-400 text-sm">Regularly check your security logs and active sessions to identify any suspicious activity.</p>
+                <h4 className="text-white font-medium mb-2">
+                  Monitor Activity
+                </h4>
+                <p className="text-gray-400 text-sm">
+                  Regularly check your security logs and active sessions to
+                  identify any suspicious activity.
+                </p>
               </div>
             </div>
           </div>
@@ -462,4 +522,4 @@ export default function SecurityPage() {
       </SecureDashboard>
     </SecureRoute>
   );
-} 
+}

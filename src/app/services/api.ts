@@ -1,5 +1,5 @@
 // API Service Layer for Laravel Backend
-import { API_CONFIG, getApiUrl } from "../config/api";
+import { API_CONFIG } from "../config/api";
 
 // Types
 export interface ApiResponse<T = unknown> {
@@ -215,7 +215,7 @@ class ApiClient {
       return {
         success: false,
         message: "Failed to logout",
-        errors: {},
+        errors: error as Record<string, string[]>,
       };
     }
   }

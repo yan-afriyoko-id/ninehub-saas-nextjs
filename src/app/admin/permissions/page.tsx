@@ -1,23 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import SecureRoute from '../../components/SecureRoute';
-import SecureDashboard from '../../components/SecureDashboard';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { useState, useEffect } from "react";
+import SecureRoute from "../../components/SecureRoute";
+import SecureDashboard from "../../components/SecureDashboard";
+import {
+  Plus,
+  Edit,
+  Trash2,
   Search,
-  Filter,
-  MoreVertical,
   Key,
   Shield,
   Eye,
   EyeOff,
   CheckCircle,
   XCircle,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle,
+} from "lucide-react";
 
 interface Permission {
   id: string;
@@ -32,118 +30,122 @@ interface Permission {
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [filteredPermissions, setFilteredPermissions] = useState<Permission[]>([]);
+  const [filteredPermissions, setFilteredPermissions] = useState<Permission[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterGuard, setFilterGuard] = useState<'all' | 'web' | 'api'>('all');
-  const [filterModule, setFilterModule] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterGuard, setFilterGuard] = useState<"all" | "web" | "api">("all");
+  const [filterModule, setFilterModule] = useState<string>("all");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingPermission, setEditingPermission] = useState<Permission | null>(null);
+  const [editingPermission, setEditingPermission] = useState<Permission | null>(
+    null
+  );
 
   useEffect(() => {
     // Simulate API call
     setTimeout(() => {
       const dummyPermissions: Permission[] = [
         {
-          id: '1',
-          name: 'user.view',
-          guardName: 'web',
-          module: 'user-management',
-          description: 'View user information',
+          id: "1",
+          name: "user.view",
+          guardName: "web",
+          module: "user-management",
+          description: "View user information",
           isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-20T14:30:00Z'
+          createdAt: "2024-01-15T10:00:00Z",
+          updatedAt: "2024-01-20T14:30:00Z",
         },
         {
-          id: '2',
-          name: 'user.create',
-          guardName: 'web',
-          module: 'user-management',
-          description: 'Create new users',
+          id: "2",
+          name: "user.create",
+          guardName: "web",
+          module: "user-management",
+          description: "Create new users",
           isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-20T14:30:00Z'
+          createdAt: "2024-01-15T10:00:00Z",
+          updatedAt: "2024-01-20T14:30:00Z",
         },
         {
-          id: '3',
-          name: 'user.edit',
-          guardName: 'web',
-          module: 'user-management',
-          description: 'Edit user information',
+          id: "3",
+          name: "user.edit",
+          guardName: "web",
+          module: "user-management",
+          description: "Edit user information",
           isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-20T14:30:00Z'
+          createdAt: "2024-01-15T10:00:00Z",
+          updatedAt: "2024-01-20T14:30:00Z",
         },
         {
-          id: '4',
-          name: 'user.delete',
-          guardName: 'web',
-          module: 'user-management',
-          description: 'Delete users',
+          id: "4",
+          name: "user.delete",
+          guardName: "web",
+          module: "user-management",
+          description: "Delete users",
           isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-20T14:30:00Z'
+          createdAt: "2024-01-15T10:00:00Z",
+          updatedAt: "2024-01-20T14:30:00Z",
         },
         {
-          id: '5',
-          name: 'tenant.view',
-          guardName: 'web',
-          module: 'tenant-management',
-          description: 'View tenant information',
+          id: "5",
+          name: "tenant.view",
+          guardName: "web",
+          module: "tenant-management",
+          description: "View tenant information",
           isActive: true,
-          createdAt: '2024-01-10T09:00:00Z',
-          updatedAt: '2024-01-18T16:45:00Z'
+          createdAt: "2024-01-10T09:00:00Z",
+          updatedAt: "2024-01-18T16:45:00Z",
         },
         {
-          id: '6',
-          name: 'tenant.create',
-          guardName: 'web',
-          module: 'tenant-management',
-          description: 'Create new tenants',
+          id: "6",
+          name: "tenant.create",
+          guardName: "web",
+          module: "tenant-management",
+          description: "Create new tenants",
           isActive: true,
-          createdAt: '2024-01-10T09:00:00Z',
-          updatedAt: '2024-01-18T16:45:00Z'
+          createdAt: "2024-01-10T09:00:00Z",
+          updatedAt: "2024-01-18T16:45:00Z",
         },
         {
-          id: '7',
-          name: 'plan.view',
-          guardName: 'web',
-          module: 'plan-management',
-          description: 'View subscription plans',
+          id: "7",
+          name: "plan.view",
+          guardName: "web",
+          module: "plan-management",
+          description: "View subscription plans",
           isActive: true,
-          createdAt: '2024-01-12T11:30:00Z',
-          updatedAt: '2024-01-19T13:20:00Z'
+          createdAt: "2024-01-12T11:30:00Z",
+          updatedAt: "2024-01-19T13:20:00Z",
         },
         {
-          id: '8',
-          name: 'plan.create',
-          guardName: 'web',
-          module: 'plan-management',
-          description: 'Create new plans',
+          id: "8",
+          name: "plan.create",
+          guardName: "web",
+          module: "plan-management",
+          description: "Create new plans",
           isActive: true,
-          createdAt: '2024-01-12T11:30:00Z',
-          updatedAt: '2024-01-19T13:20:00Z'
+          createdAt: "2024-01-12T11:30:00Z",
+          updatedAt: "2024-01-19T13:20:00Z",
         },
         {
-          id: '9',
-          name: 'chat.send',
-          guardName: 'web',
-          module: 'ai-chat',
-          description: 'Send chat messages',
+          id: "9",
+          name: "chat.send",
+          guardName: "web",
+          module: "ai-chat",
+          description: "Send chat messages",
           isActive: true,
-          createdAt: '2024-01-05T14:20:00Z',
-          updatedAt: '2024-01-16T09:15:00Z'
+          createdAt: "2024-01-05T14:20:00Z",
+          updatedAt: "2024-01-16T09:15:00Z",
         },
         {
-          id: '10',
-          name: 'chat.history',
-          guardName: 'web',
-          module: 'ai-chat',
-          description: 'View chat history',
+          id: "10",
+          name: "chat.history",
+          guardName: "web",
+          module: "ai-chat",
+          description: "View chat history",
           isActive: true,
-          createdAt: '2024-01-05T14:20:00Z',
-          updatedAt: '2024-01-16T09:15:00Z'
-        }
+          createdAt: "2024-01-05T14:20:00Z",
+          updatedAt: "2024-01-16T09:15:00Z",
+        },
       ];
       setPermissions(dummyPermissions);
       setFilteredPermissions(dummyPermissions);
@@ -156,37 +158,48 @@ export default function PermissionsPage() {
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(permission =>
-        permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        permission.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        permission.module.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (permission) =>
+          permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          permission.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          permission.module.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filter by guard
-    if (filterGuard !== 'all') {
-      filtered = filtered.filter(permission => permission.guardName === filterGuard);
+    if (filterGuard !== "all") {
+      filtered = filtered.filter(
+        (permission) => permission.guardName === filterGuard
+      );
     }
 
     // Filter by module
-    if (filterModule !== 'all') {
-      filtered = filtered.filter(permission => permission.module === filterModule);
+    if (filterModule !== "all") {
+      filtered = filtered.filter(
+        (permission) => permission.module === filterModule
+      );
     }
 
     setFilteredPermissions(filtered);
   }, [permissions, searchTerm, filterGuard, filterModule]);
 
   const handleToggleStatus = (permissionId: string) => {
-    setPermissions(prev => prev.map(permission =>
-      permission.id === permissionId
-        ? { ...permission, isActive: !permission.isActive }
-        : permission
-    ));
+    setPermissions((prev) =>
+      prev.map((permission) =>
+        permission.id === permissionId
+          ? { ...permission, isActive: !permission.isActive }
+          : permission
+      )
+    );
   };
 
   const handleDeletePermission = (permissionId: string) => {
-    if (confirm('Are you sure you want to delete this permission?')) {
-      setPermissions(prev => prev.filter(permission => permission.id !== permissionId));
+    if (confirm("Are you sure you want to delete this permission?")) {
+      setPermissions((prev) =>
+        prev.filter((permission) => permission.id !== permissionId)
+      );
     }
   };
 
@@ -200,16 +213,16 @@ export default function PermissionsPage() {
 
   const getModuleColor = (module: string) => {
     const colorMap: { [key: string]: string } = {
-      'user-management': 'bg-blue-600',
-      'tenant-management': 'bg-green-600',
-      'plan-management': 'bg-purple-600',
-      'ai-chat': 'bg-pink-600',
-      'crm': 'bg-yellow-600'
+      "user-management": "bg-blue-600",
+      "tenant-management": "bg-green-600",
+      "plan-management": "bg-purple-600",
+      "ai-chat": "bg-pink-600",
+      crm: "bg-yellow-600",
     };
-    return colorMap[module] || 'bg-gray-600';
+    return colorMap[module] || "bg-gray-600";
   };
 
-  const uniqueModules = Array.from(new Set(permissions.map(p => p.module)));
+  const uniqueModules = Array.from(new Set(permissions.map((p) => p.module)));
 
   if (isLoading) {
     return (
@@ -230,8 +243,12 @@ export default function PermissionsPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Permission Management</h1>
-              <p className="text-gray-400">Manage system permissions and access controls</p>
+              <h1 className="text-3xl font-bold text-white">
+                Permission Management
+              </h1>
+              <p className="text-gray-400">
+                Manage system permissions and access controls
+              </p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
@@ -245,7 +262,10 @@ export default function PermissionsPage() {
           {/* Filters */}
           <div className="flex items-center space-x-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="Search permissions..."
@@ -256,7 +276,9 @@ export default function PermissionsPage() {
             </div>
             <select
               value={filterGuard}
-              onChange={(e) => setFilterGuard(e.target.value as 'all' | 'web' | 'api')}
+              onChange={(e) =>
+                setFilterGuard(e.target.value as "all" | "web" | "api")
+              }
               className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Guards</option>
@@ -269,8 +291,10 @@ export default function PermissionsPage() {
               className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Modules</option>
-              {uniqueModules.map(module => (
-                <option key={module} value={module}>{module}</option>
+              {uniqueModules.map((module) => (
+                <option key={module} value={module}>
+                  {module}
+                </option>
               ))}
             </select>
           </div>
@@ -308,18 +332,28 @@ export default function PermissionsPage() {
                         <div className="flex items-center">
                           <Key className="text-blue-500 mr-2" size={16} />
                           <div>
-                            <div className="text-sm font-medium text-white">{permission.name}</div>
-                            <div className="text-xs text-gray-400">ID: {permission.id}</div>
+                            <div className="text-sm font-medium text-white">
+                              {permission.name}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              ID: {permission.id}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getModuleColor(permission.module)} text-white`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getModuleColor(
+                            permission.module
+                          )} text-white`}
+                        >
                           {permission.module}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-300">{permission.guardName}</span>
+                        <span className="text-sm text-gray-300">
+                          {permission.guardName}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-300 max-w-xs truncate">
@@ -329,8 +363,14 @@ export default function PermissionsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {getStatusIcon(permission.isActive)}
-                          <span className={`ml-2 text-sm ${permission.isActive ? 'text-green-500' : 'text-red-500'}`}>
-                            {permission.isActive ? 'Active' : 'Inactive'}
+                          <span
+                            className={`ml-2 text-sm ${
+                              permission.isActive
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {permission.isActive ? "Active" : "Inactive"}
                           </span>
                         </div>
                       </td>
@@ -345,13 +385,23 @@ export default function PermissionsPage() {
                           </button>
                           <button
                             onClick={() => handleToggleStatus(permission.id)}
-                            className={`p-1 ${permission.isActive ? 'text-yellow-400 hover:text-yellow-300' : 'text-green-400 hover:text-green-300'}`}
-                            title={permission.isActive ? 'Disable' : 'Enable'}
+                            className={`p-1 ${
+                              permission.isActive
+                                ? "text-yellow-400 hover:text-yellow-300"
+                                : "text-green-400 hover:text-green-300"
+                            }`}
+                            title={permission.isActive ? "Disable" : "Enable"}
                           >
-                            {permission.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
+                            {permission.isActive ? (
+                              <EyeOff size={16} />
+                            ) : (
+                              <Eye size={16} />
+                            )}
                           </button>
                           <button
-                            onClick={() => handleDeletePermission(permission.id)}
+                            onClick={() =>
+                              handleDeletePermission(permission.id)
+                            }
                             className="text-red-400 hover:text-red-300 p-1"
                             title="Delete"
                           >
@@ -370,12 +420,13 @@ export default function PermissionsPage() {
           {filteredPermissions.length === 0 && (
             <div className="text-center py-12">
               <Key className="mx-auto text-gray-400" size={48} />
-              <h3 className="text-lg font-semibold text-white mt-4">No permissions found</h3>
+              <h3 className="text-lg font-semibold text-white mt-4">
+                No permissions found
+              </h3>
               <p className="text-gray-400 mt-2">
-                {searchTerm || filterGuard !== 'all' || filterModule !== 'all'
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Get started by adding your first permission.'
-                }
+                {searchTerm || filterGuard !== "all" || filterModule !== "all"
+                  ? "Try adjusting your search or filter criteria."
+                  : "Get started by adding your first permission."}
               </p>
             </div>
           )}
@@ -386,7 +437,9 @@ export default function PermissionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Total Permissions</p>
-                  <p className="text-2xl font-bold text-white">{permissions.length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {permissions.length}
+                  </p>
                 </div>
                 <Key className="text-blue-500" size={24} />
               </div>
@@ -395,7 +448,9 @@ export default function PermissionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Active Permissions</p>
-                  <p className="text-2xl font-bold text-white">{permissions.filter(p => p.isActive).length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {permissions.filter((p) => p.isActive).length}
+                  </p>
                 </div>
                 <CheckCircle className="text-green-500" size={24} />
               </div>
@@ -404,7 +459,9 @@ export default function PermissionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Web Guard</p>
-                  <p className="text-2xl font-bold text-white">{permissions.filter(p => p.guardName === 'web').length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {permissions.filter((p) => p.guardName === "web").length}
+                  </p>
                 </div>
                 <Shield className="text-purple-500" size={24} />
               </div>
@@ -413,7 +470,9 @@ export default function PermissionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Modules</p>
-                  <p className="text-2xl font-bold text-white">{uniqueModules.length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {uniqueModules.length}
+                  </p>
                 </div>
                 <AlertTriangle className="text-yellow-500" size={24} />
               </div>
@@ -423,4 +482,4 @@ export default function PermissionsPage() {
       </SecureDashboard>
     </SecureRoute>
   );
-} 
+}

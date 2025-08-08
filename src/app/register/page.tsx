@@ -26,7 +26,7 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const { user, logout, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   useEffect(() => {
     if (user && !isLoading) {

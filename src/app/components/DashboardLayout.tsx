@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./AuthContext";
-import { getFilteredMenuItems } from "../config/menu";
+import { getFilteredMenuItems, getMenuItemPath } from "../config/menu";
 import {
   BarChart3,
   Users,
@@ -76,13 +76,13 @@ export default function DashboardLayout({
               getFilteredMenuItems(user.roles, user.permissions).map((item) => {
                 const IconComponent = iconMap[item.icon];
                 const isExternal = item.external;
-                
+
                 return (
                   <div key={item.id}>
                     {isExternal ? (
                       // External link - use anchor tag
                       <a
-                        href={item.path}
+                        href={getMenuItemPath(item)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
@@ -98,7 +98,7 @@ export default function DashboardLayout({
                     ) : (
                       // Internal link - use Next.js Link
                       <Link
-                        href={item.path}
+                        href={getMenuItemPath(item)}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                           activeTab === item.id
                             ? "bg-blue-600 text-white"

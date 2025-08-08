@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import SecureRoute from '../../components/SecureRoute';
-import SecureDashboard from '../../components/SecureDashboard';
-import { 
-  Database, 
-  Download, 
+import { useState, useEffect } from "react";
+import SecureRoute from "../../components/SecureRoute";
+import SecureDashboard from "../../components/SecureDashboard";
+import {
+  Database,
+  Download,
   Play,
   Trash2,
   Clock,
@@ -14,19 +14,19 @@ import {
   AlertTriangle,
   HardDrive,
   Settings,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+} from "lucide-react";
 
 interface Backup {
   id: string;
   name: string;
-  type: 'full' | 'incremental' | 'database' | 'files';
+  type: "full" | "incremental" | "database" | "files";
   size: string;
-  status: 'completed' | 'in_progress' | 'failed' | 'scheduled';
+  status: "completed" | "in_progress" | "failed" | "scheduled";
   created_at: string;
   completed_at?: string;
   retention_days: number;
-  location: 'local' | 'cloud';
+  location: "local" | "cloud";
 }
 
 export default function BackupRestorePage() {
@@ -40,59 +40,59 @@ export default function BackupRestorePage() {
     setTimeout(() => {
       const dummyBackups: Backup[] = [
         {
-          id: '1',
-          name: 'Full Backup - 2024-01-20',
-          type: 'full',
-          size: '2.5 GB',
-          status: 'completed',
-          created_at: '2024-01-20T10:00:00Z',
-          completed_at: '2024-01-20T10:15:00Z',
+          id: "1",
+          name: "Full Backup - 2024-01-20",
+          type: "full",
+          size: "2.5 GB",
+          status: "completed",
+          created_at: "2024-01-20T10:00:00Z",
+          completed_at: "2024-01-20T10:15:00Z",
           retention_days: 30,
-          location: 'local'
+          location: "local",
         },
         {
-          id: '2',
-          name: 'Database Backup - 2024-01-19',
-          type: 'database',
-          size: '1.2 GB',
-          status: 'completed',
-          created_at: '2024-01-19T22:00:00Z',
-          completed_at: '2024-01-19T22:05:00Z',
+          id: "2",
+          name: "Database Backup - 2024-01-19",
+          type: "database",
+          size: "1.2 GB",
+          status: "completed",
+          created_at: "2024-01-19T22:00:00Z",
+          completed_at: "2024-01-19T22:05:00Z",
           retention_days: 7,
-          location: 'cloud'
+          location: "cloud",
         },
         {
-          id: '3',
-          name: 'Incremental Backup - 2024-01-18',
-          type: 'incremental',
-          size: '500 MB',
-          status: 'completed',
-          created_at: '2024-01-18T22:00:00Z',
-          completed_at: '2024-01-18T22:02:00Z',
+          id: "3",
+          name: "Incremental Backup - 2024-01-18",
+          type: "incremental",
+          size: "500 MB",
+          status: "completed",
+          created_at: "2024-01-18T22:00:00Z",
+          completed_at: "2024-01-18T22:02:00Z",
           retention_days: 7,
-          location: 'local'
+          location: "local",
         },
         {
-          id: '4',
-          name: 'Files Backup - 2024-01-17',
-          type: 'files',
-          size: '800 MB',
-          status: 'completed',
-          created_at: '2024-01-17T22:00:00Z',
-          completed_at: '2024-01-17T22:10:00Z',
+          id: "4",
+          name: "Files Backup - 2024-01-17",
+          type: "files",
+          size: "800 MB",
+          status: "completed",
+          created_at: "2024-01-17T22:00:00Z",
+          completed_at: "2024-01-17T22:10:00Z",
           retention_days: 30,
-          location: 'cloud'
+          location: "cloud",
         },
         {
-          id: '5',
-          name: 'Full Backup - 2024-01-16',
-          type: 'full',
-          size: '2.3 GB',
-          status: 'failed',
-          created_at: '2024-01-16T22:00:00Z',
+          id: "5",
+          name: "Full Backup - 2024-01-16",
+          type: "full",
+          size: "2.3 GB",
+          status: "failed",
+          created_at: "2024-01-16T22:00:00Z",
           retention_days: 30,
-          location: 'local'
-        }
+          location: "local",
+        },
       ];
       setBackups(dummyBackups);
       setIsLoading(false);
@@ -106,44 +106,44 @@ export default function BackupRestorePage() {
       const newBackup: Backup = {
         id: Date.now().toString(),
         name: `Manual Backup - ${new Date().toLocaleDateString()}`,
-        type: 'full',
-        size: '0 MB',
-        status: 'in_progress',
+        type: "full",
+        size: "0 MB",
+        status: "in_progress",
         created_at: new Date().toISOString(),
         retention_days: 30,
-        location: 'local'
+        location: "local",
       };
-      setBackups(prev => [newBackup, ...prev]);
+      setBackups((prev) => [newBackup, ...prev]);
       setIsCreatingBackup(false);
     }, 2000);
   };
 
-  const handleRestore = async (backupId: string) => {
+  const handleRestore = async () => {
     if (confirm('Are you sure you want to restore this backup? This will overwrite current data.')) {
       setIsRestoring(true);
       // Simulate restore process
       setTimeout(() => {
-        alert('Restore completed successfully!');
+        alert("Restore completed successfully!");
         setIsRestoring(false);
       }, 3000);
     }
   };
 
   const handleDeleteBackup = async (backupId: string) => {
-    if (confirm('Are you sure you want to delete this backup?')) {
-      setBackups(prev => prev.filter(backup => backup.id !== backupId));
+    if (confirm("Are you sure you want to delete this backup?")) {
+      setBackups((prev) => prev.filter((backup) => backup.id !== backupId));
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return <CheckCircle className="text-green-500" size={16} />;
-      case 'in_progress':
+      case "in_progress":
         return <RefreshCw className="text-blue-500 animate-spin" size={16} />;
-      case 'failed':
+      case "failed":
         return <XCircle className="text-red-500" size={16} />;
-      case 'scheduled':
+      case "scheduled":
         return <Clock className="text-yellow-500" size={16} />;
       default:
         return <AlertTriangle className="text-gray-500" size={16} />;
@@ -152,41 +152,41 @@ export default function BackupRestorePage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'text-green-500';
-      case 'in_progress':
-        return 'text-blue-500';
-      case 'failed':
-        return 'text-red-500';
-      case 'scheduled':
-        return 'text-yellow-500';
+      case "completed":
+        return "text-green-500";
+      case "in_progress":
+        return "text-blue-500";
+      case "failed":
+        return "text-red-500";
+      case "scheduled":
+        return "text-yellow-500";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'full':
-        return 'bg-blue-600';
-      case 'incremental':
-        return 'bg-green-600';
-      case 'database':
-        return 'bg-purple-600';
-      case 'files':
-        return 'bg-orange-600';
+      case "full":
+        return "bg-blue-600";
+      case "incremental":
+        return "bg-green-600";
+      case "database":
+        return "bg-purple-600";
+      case "files":
+        return "bg-orange-600";
       default:
-        return 'bg-gray-600';
+        return "bg-gray-600";
     }
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('id-ID', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -209,8 +209,12 @@ export default function BackupRestorePage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Backup & Restore</h1>
-              <p className="text-gray-400">Manage system backups and restoration</p>
+              <h1 className="text-3xl font-bold text-white">
+                Backup & Restore
+              </h1>
+              <p className="text-gray-400">
+                Manage system backups and restoration
+              </p>
             </div>
             <div className="flex items-center space-x-3">
               <button
@@ -223,7 +227,9 @@ export default function BackupRestorePage() {
                 ) : (
                   <Database size={20} />
                 )}
-                <span>{isCreatingBackup ? 'Creating...' : 'Create Backup'}</span>
+                <span>
+                  {isCreatingBackup ? "Creating..." : "Create Backup"}
+                </span>
               </button>
             </div>
           </div>
@@ -234,7 +240,9 @@ export default function BackupRestorePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Total Backups</p>
-                  <p className="text-2xl font-bold text-white">{backups.length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {backups.length}
+                  </p>
                 </div>
                 <Database className="text-blue-500" size={24} />
               </div>
@@ -243,7 +251,9 @@ export default function BackupRestorePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Completed</p>
-                  <p className="text-2xl font-bold text-white">{backups.filter(b => b.status === 'completed').length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {backups.filter((b) => b.status === "completed").length}
+                  </p>
                 </div>
                 <CheckCircle className="text-green-500" size={24} />
               </div>
@@ -252,7 +262,9 @@ export default function BackupRestorePage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Failed</p>
-                  <p className="text-2xl font-bold text-white">{backups.filter(b => b.status === 'failed').length}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {backups.filter((b) => b.status === "failed").length}
+                  </p>
                 </div>
                 <XCircle className="text-red-500" size={24} />
               </div>
@@ -272,12 +284,16 @@ export default function BackupRestorePage() {
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div className="flex items-center space-x-3 mb-6">
               <Settings className="text-blue-500" size={24} />
-              <h3 className="text-lg font-semibold text-white">Backup Settings</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Backup Settings
+              </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Auto Backup</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Auto Backup
+                </label>
                 <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -285,18 +301,22 @@ export default function BackupRestorePage() {
                   <option value="disabled">Disabled</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Backup Time</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Backup Time
+                </label>
                 <input
                   type="time"
                   defaultValue="22:00"
                   className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Retention Period</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Retention Period
+                </label>
                 <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="7">7 days</option>
                   <option value="30">30 days</option>
@@ -304,26 +324,32 @@ export default function BackupRestorePage() {
                   <option value="365">1 year</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Storage Location</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Storage Location
+                </label>
                 <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="local">Local Storage</option>
                   <option value="cloud">Cloud Storage</option>
                   <option value="both">Both</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Compression</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Compression
+                </label>
                 <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="enabled">Enabled</option>
                   <option value="disabled">Disabled</option>
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-gray-400 text-sm mb-2">Encryption</label>
+                <label className="block text-gray-400 text-sm mb-2">
+                  Encryption
+                </label>
                 <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="enabled">Enabled</option>
                   <option value="disabled">Disabled</option>
@@ -335,9 +361,11 @@ export default function BackupRestorePage() {
           {/* Backups List */}
           <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
             <div className="p-6 border-b border-gray-700">
-              <h3 className="text-lg font-semibold text-white">Backup History</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Backup History
+              </h3>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-700">
@@ -367,13 +395,22 @@ export default function BackupRestorePage() {
                     <tr key={backup.id} className="hover:bg-gray-700">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-white">{backup.name}</div>
-                          <div className="text-sm text-gray-400">{backup.location}</div>
+                          <div className="text-sm font-medium text-white">
+                            {backup.name}
+                          </div>
+                          <div className="text-sm text-gray-400">
+                            {backup.location}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(backup.type)} text-white`}>
-                          {backup.type.charAt(0).toUpperCase() + backup.type.slice(1)}
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
+                            backup.type
+                          )} text-white`}
+                        >
+                          {backup.type.charAt(0).toUpperCase() +
+                            backup.type.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
@@ -382,8 +419,16 @@ export default function BackupRestorePage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           {getStatusIcon(backup.status)}
-                          <span className={`text-sm font-medium ${getStatusColor(backup.status)}`}>
-                            {backup.status.replace('_', ' ').charAt(0).toUpperCase() + backup.status.replace('_', ' ').slice(1)}
+                          <span
+                            className={`text-sm font-medium ${getStatusColor(
+                              backup.status
+                            )}`}
+                          >
+                            {backup.status
+                              .replace("_", " ")
+                              .charAt(0)
+                              .toUpperCase() +
+                              backup.status.replace("_", " ").slice(1)}
                           </span>
                         </div>
                       </td>
@@ -392,10 +437,10 @@ export default function BackupRestorePage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
-                          {backup.status === 'completed' && (
+                          {backup.status === "completed" && (
                             <>
                               <button
-                                onClick={() => handleRestore(backup.id)}
+                                onClick={() => handleRestore()}
                                 disabled={isRestoring}
                                 className="p-2 hover:bg-gray-600 rounded transition-colors"
                                 title="Restore"
@@ -429,12 +474,16 @@ export default function BackupRestorePage() {
           {backups.length === 0 && (
             <div className="text-center py-12">
               <Database className="mx-auto text-gray-400" size={48} />
-              <h3 className="text-lg font-semibold text-white mt-4">No backups found</h3>
-              <p className="text-gray-400 mt-2">Create your first backup to get started.</p>
+              <h3 className="text-lg font-semibold text-white mt-4">
+                No backups found
+              </h3>
+              <p className="text-gray-400 mt-2">
+                Create your first backup to get started.
+              </p>
             </div>
           )}
         </div>
       </SecureDashboard>
     </SecureRoute>
   );
-} 
+}

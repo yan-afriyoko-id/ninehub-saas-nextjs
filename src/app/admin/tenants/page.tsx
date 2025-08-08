@@ -6,16 +6,12 @@ import SecureDashboard from '../../components/SecureDashboard';
 import { apiClient, Tenant } from '../../services/api';
 import { 
   Building, 
-  Mail, 
-  Phone, 
-  MapPin, 
   Calendar,
   Search,
   Filter,
   Plus,
   Edit,
   Trash2,
-  MoreHorizontal,
   CheckCircle,
   XCircle,
   AlertTriangle

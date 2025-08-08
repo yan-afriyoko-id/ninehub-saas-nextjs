@@ -1,26 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import SecureRoute from '../components/SecureRoute';
-import SecureDashboard from '../components/SecureDashboard';
-import { apiClient } from '../services/api';
-import { useAuth } from '../components/AuthContext';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import { useState, useEffect } from "react";
+import SecureRoute from "../components/SecureRoute";
+import SecureDashboard from "../components/SecureDashboard";
+import { apiClient } from "../services/api";
+import { useAuth } from "../components/AuthContext";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
   Calendar,
   Edit,
   Save,
   X,
-  Camera,
-  Shield,
-  Settings,
-  Bell,
-  Globe,
-  Building
-} from 'lucide-react';
+  Building,
+} from "lucide-react";
 
 interface Profile {
   id: string;
@@ -38,7 +33,7 @@ interface Profile {
   bio?: string;
   joinDate?: string;
   lastLogin?: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   preferences?: {
     notifications: boolean;
     emailUpdates: boolean;
@@ -61,64 +56,118 @@ export default function ProfilePage() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Try to get profile from API using token (current user's profile)
         const response = await apiClient.getMyProfile();
-        
+
         if (response.success && response.data) {
           // Transform API data to Profile format - only use real data
           const profileData: Profile = {
-            id: response.data.id || user?.id || '',
-            name: response.data.name || user?.name || '',
-            email: response.data.email || user?.email || '',
-            age: response.data.age || undefined,
-            gender: response.data.gender || undefined,
-            phone_number: response.data.phone_number || undefined,
-            address: response.data.address || undefined,
-            birth_date: response.data.birth_date || undefined,
-            avatar: response.data.avatar || user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(response.data.name || user?.name || '')}&background=0D9488&color=fff`,
-            position: response.data.position || undefined,
-            department: response.data.department || undefined,
-            company: response.data.company || undefined,
-            bio: response.data.bio || undefined,
-            joinDate: response.data.joinDate || undefined,
-            lastLogin: response.data.lastLogin || undefined,
-            status: 'active',
+            id:
+              typeof response.data.id === "string"
+                ? response.data.id
+                : user?.id || "",
+            name:
+              typeof response.data.name === "string"
+                ? response.data.name
+                : user?.name || "",
+            email:
+              typeof response.data.email === "string"
+                ? response.data.email
+                : user?.email || "",
+            age:
+              typeof response.data.age === "string"
+                ? response.data.age
+                : undefined,
+            gender:
+              typeof response.data.gender === "string"
+                ? response.data.gender
+                : undefined,
+            phone_number:
+              typeof response.data.phone_number === "string"
+                ? response.data.phone_number
+                : undefined,
+            address:
+              typeof response.data.address === "string"
+                ? response.data.address
+                : undefined,
+            birth_date:
+              typeof response.data.birth_date === "string"
+                ? response.data.birth_date
+                : undefined,
+            avatar:
+              typeof response.data.avatar === "string"
+                ? response.data.avatar
+                : user?.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    typeof response.data.name === "string"
+                      ? response.data.name
+                      : user?.name || ""
+                  )}&background=0D9488&color=fff`,
+            position:
+              typeof response.data.position === "string"
+                ? response.data.position
+                : undefined,
+            department:
+              typeof response.data.department === "string"
+                ? response.data.department
+                : undefined,
+            company:
+              typeof response.data.company === "string"
+                ? response.data.company
+                : undefined,
+            bio:
+              typeof response.data.bio === "string"
+                ? response.data.bio
+                : undefined,
+            joinDate:
+              typeof response.data.joinDate === "string"
+                ? response.data.joinDate
+                : undefined,
+            lastLogin:
+              typeof response.data.lastLogin === "string"
+                ? response.data.lastLogin
+                : undefined,
+            status: "active",
             preferences: {
               notifications: true,
               emailUpdates: true,
               darkMode: true,
-              language: 'en',
-              timezone: 'Asia/Jakarta'
-            }
+              language: "en",
+              timezone: "Asia/Jakarta",
+            },
           };
-          
+
           setProfile(profileData);
           setEditForm(profileData);
         } else {
-          throw new Error(response.message || 'Failed to load profile');
+          throw new Error(response.message || "Failed to load profile");
         }
       } catch (error) {
-        console.error('Error loading profile:', error);
-        setError('Failed to load profile data');
-        
+        console.error("Error loading profile:", error);
+        setError("Failed to load profile data");
+
         // Fallback to user data from AuthContext - minimal data only
         if (user) {
           const fallbackProfile: Profile = {
             id: user.id,
             name: user.name,
             email: user.email,
-            avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=0D9488&color=fff`,
-            status: 'active',
+            avatar:
+              user.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                user.name
+              )}&background=0D9488&color=fff`,
+            status: "active",
             preferences: {
               notifications: true,
               emailUpdates: true,
               darkMode: true,
-              language: 'en',
-              timezone: 'Asia/Jakarta'
-            }
+              language: "en",
+              timezone: "Asia/Jakarta",
+            },
           };
-          
+
           setProfile(fallbackProfile);
           setEditForm(fallbackProfile);
         }
@@ -134,30 +183,31 @@ export default function ProfilePage() {
     if (profile) {
       try {
         setIsLoading(true);
-        
+
         // Prepare data for API update - only send fields that have values
         const updateData: Record<string, string> = {};
         if (editForm.name) updateData.name = editForm.name;
         if (editForm.age) updateData.age = editForm.age;
         if (editForm.gender) updateData.gender = editForm.gender;
-        if (editForm.phone_number) updateData.phone_number = editForm.phone_number;
+        if (editForm.phone_number)
+          updateData.phone_number = editForm.phone_number;
         if (editForm.address) updateData.address = editForm.address;
         if (editForm.birth_date) updateData.birth_date = editForm.birth_date;
         if (editForm.bio) updateData.bio = editForm.bio;
-        
+
         // Update profile via API using PUT method with token
         const response = await apiClient.updateMyProfile(updateData);
-        
+
         if (response.success && response.data) {
           setProfile({ ...profile, ...editForm });
           setIsEditing(false);
           setError(null);
         } else {
-          throw new Error(response.message || 'Failed to update profile');
+          throw new Error(response.message || "Failed to update profile");
         }
       } catch (error) {
-        console.error('Error updating profile:', error);
-        setError('Failed to update profile. Please try again.');
+        console.error("Error updating profile:", error);
+        setError("Failed to update profile. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -172,20 +222,20 @@ export default function ProfilePage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('id-ID', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -207,7 +257,9 @@ export default function ProfilePage() {
         <SecureDashboard>
           <div className="text-center py-12">
             <User className="mx-auto text-gray-400" size={48} />
-            <h3 className="text-lg font-semibold text-white mt-4">Profile not found</h3>
+            <h3 className="text-lg font-semibold text-white mt-4">
+              Profile not found
+            </h3>
           </div>
         </SecureDashboard>
       </SecureRoute>
@@ -221,8 +273,12 @@ export default function ProfilePage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Profile Settings</h1>
-              <p className="text-gray-400">Manage your personal information and preferences</p>
+              <h1 className="text-3xl font-bold text-white">
+                Profile Settings
+              </h1>
+              <p className="text-gray-400">
+                Manage your personal information and preferences
+              </p>
               {error && (
                 <div className="mt-2 p-3 bg-red-600 text-white rounded-lg">
                   {error}
@@ -248,8 +304,10 @@ export default function ProfilePage() {
                   <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <User size={32} className="text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">{profile.name}</h3>
-                  <p className="text-gray-400">{profile.position || 'User'}</p>
+                  <h3 className="text-xl font-semibold text-white">
+                    {profile.name}
+                  </h3>
+                  <p className="text-gray-400">{profile.position || "User"}</p>
                   {profile.company && (
                     <p className="text-gray-400 text-sm">{profile.company}</p>
                   )}
@@ -269,7 +327,9 @@ export default function ProfilePage() {
                   {profile.age && (
                     <div className="flex items-center space-x-3">
                       <User className="text-gray-400" size={16} />
-                      <span className="text-gray-300">{profile.age} years old</span>
+                      <span className="text-gray-300">
+                        {profile.age} years old
+                      </span>
                     </div>
                   )}
                   {profile.gender && (
@@ -281,7 +341,9 @@ export default function ProfilePage() {
                   {profile.phone_number && (
                     <div className="flex items-center space-x-3">
                       <Phone className="text-gray-400" size={16} />
-                      <span className="text-gray-300">{profile.phone_number}</span>
+                      <span className="text-gray-300">
+                        {profile.phone_number}
+                      </span>
                     </div>
                   )}
                   {profile.address && (
@@ -293,7 +355,9 @@ export default function ProfilePage() {
                   {profile.joinDate && (
                     <div className="flex items-center space-x-3">
                       <Calendar className="text-gray-400" size={16} />
-                      <span className="text-gray-300">Joined {formatDate(profile.joinDate)}</span>
+                      <span className="text-gray-300">
+                        Joined {formatDate(profile.joinDate)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -304,55 +368,77 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Personal Information */}
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Personal Information</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Personal Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Full Name</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Full Name
+                    </label>
                     <p className="text-white">{profile.name}</p>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Email</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Email
+                    </label>
                     <p className="text-white">{profile.email}</p>
                   </div>
                   {profile.age && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Age</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Age
+                      </label>
                       <p className="text-white">{profile.age}</p>
                     </div>
                   )}
                   {profile.gender && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Gender</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Gender
+                      </label>
                       <p className="text-white">{profile.gender}</p>
                     </div>
                   )}
                   {profile.phone_number && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Phone Number</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Phone Number
+                      </label>
                       <p className="text-white">{profile.phone_number}</p>
                     </div>
                   )}
                   {profile.position && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Position</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Position
+                      </label>
                       <p className="text-white">{profile.position}</p>
                     </div>
                   )}
                   {profile.birth_date && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Birth Date</label>
-                      <p className="text-white">{formatDate(profile.birth_date)}</p>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Birth Date
+                      </label>
+                      <p className="text-white">
+                        {formatDate(profile.birth_date)}
+                      </p>
                     </div>
                   )}
                   {profile.address && (
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Address
+                      </label>
                       <p className="text-white">{profile.address}</p>
                     </div>
                   )}
                   {profile.bio && (
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Bio</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Bio
+                      </label>
                       <p className="text-gray-300">{profile.bio}</p>
                     </div>
                   )}
@@ -361,28 +447,42 @@ export default function ProfilePage() {
 
               {/* Account Information */}
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Account Information</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Account Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">User ID</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      User ID
+                    </label>
                     <p className="text-white">{profile.id}</p>
                   </div>
                   <div>
-                    <label className="block text-gray-400 text-sm mb-2">Status</label>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Status
+                    </label>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       {profile.status}
                     </span>
                   </div>
                   {profile.joinDate && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Join Date</label>
-                      <p className="text-white">{formatDate(profile.joinDate)}</p>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Join Date
+                      </label>
+                      <p className="text-white">
+                        {formatDate(profile.joinDate)}
+                      </p>
                     </div>
                   )}
                   {profile.lastLogin && (
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Last Login</label>
-                      <p className="text-white">{formatDateTime(profile.lastLogin)}</p>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Last Login
+                      </label>
+                      <p className="text-white">
+                        {formatDateTime(profile.lastLogin)}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -391,33 +491,47 @@ export default function ProfilePage() {
               {/* Edit Form */}
               {isEditing && (
                 <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                  <h3 className="text-lg font-semibold text-white mb-4">Edit Profile</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Edit Profile
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Full Name</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Full Name
+                      </label>
                       <input
                         type="text"
-                        value={editForm.name || ''}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        value={editForm.name || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, name: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Age</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Age
+                      </label>
                       <input
                         type="number"
-                        value={editForm.age || ''}
-                        onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
+                        value={editForm.age || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, age: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Gender</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Gender
+                      </label>
                       <select
-                        value={editForm.gender || ''}
-                        onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                        value={editForm.gender || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, gender: e.target.value })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">Select Gender</option>
@@ -428,40 +542,62 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Phone Number</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Phone Number
+                      </label>
                       <input
                         type="tel"
-                        value={editForm.phone_number || ''}
-                        onChange={(e) => setEditForm({ ...editForm, phone_number: e.target.value })}
+                        value={editForm.phone_number || ""}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            phone_number: e.target.value,
+                          })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-gray-400 text-sm mb-2">Birth Date</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Birth Date
+                      </label>
                       <input
                         type="date"
-                        value={editForm.birth_date || ''}
-                        onChange={(e) => setEditForm({ ...editForm, birth_date: e.target.value })}
+                        value={editForm.birth_date || ""}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            birth_date: e.target.value,
+                          })
+                        }
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Address</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Address
+                      </label>
                       <textarea
-                        value={editForm.address || ''}
-                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                        value={editForm.address || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, address: e.target.value })
+                        }
                         rows={3}
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-gray-400 text-sm mb-2">Bio</label>
+                      <label className="block text-gray-400 text-sm mb-2">
+                        Bio
+                      </label>
                       <textarea
-                        value={editForm.bio || ''}
-                        onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                        value={editForm.bio || ""}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, bio: e.target.value })
+                        }
                         rows={4}
                         className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
@@ -492,4 +628,4 @@ export default function ProfilePage() {
       </SecureDashboard>
     </SecureRoute>
   );
-} 
+}
