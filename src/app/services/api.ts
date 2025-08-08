@@ -3,7 +3,6 @@ import type {
   ApiResponse,
   LoginRequest,
   LoginResponse,
-  ProfileResponse,
   TenantInfo,
   Tenant,
   Module,
@@ -28,8 +27,7 @@ class ApiFacade {
   // Auth
   login = authService.login.bind(authService);
   logout = authService.logout.bind(authService);
-  getProfile = authService.getProfile.bind(authService);
-  getMyProfile = authService.getMyProfile.bind(authService);
+  me = authService.me.bind(authService);
 
   // Profile edits (ke depan bisa dipindah ke profile.service.ts)
   async updateProfile(
@@ -100,7 +98,6 @@ export type {
   ApiResponse,
   LoginRequest,
   LoginResponse,
-  ProfileResponse,
   TenantInfo,
   Tenant,
   Module,

@@ -144,18 +144,12 @@ export default function AIChatPage() {
 
       const response = await apiClient.getChatHistory();
 
-      // Debug: Log the response format
-      console.log("🔍 Chat History Response:", response);
-      console.log("🔍 Response data type:", typeof response.data);
-      console.log("🔍 Response data:", response.data);
-
       if (response.success && response.data) {
         // Check if response.data is an array
         let conversationsData: Record<string, unknown>[] = [];
 
         if (Array.isArray(response.data)) {
           conversationsData = response.data as Record<string, unknown>[];
-          console.log("✅ Using response.data as array");
         } else if (
           response.data &&
           typeof response.data === "object" &&
@@ -166,7 +160,6 @@ export default function AIChatPage() {
         ) {
           conversationsData = (response.data as Record<string, unknown>)
             .conversations as Record<string, unknown>[];
-          console.log("✅ Using response.data.conversations");
         } else if (
           response.data &&
           typeof response.data === "object" &&
@@ -175,16 +168,12 @@ export default function AIChatPage() {
         ) {
           conversationsData = (response.data as Record<string, unknown>)
             .history as Record<string, unknown>[];
-          console.log("✅ Using response.data.history");
         } else {
           // If no conversations found, create new one
-          console.log("❌ No conversations found in response:", response.data);
           createNewConversation();
           setIsLoading(false);
           return;
         }
-
-        console.log("🔍 Conversations data:", conversationsData);
 
         // Transform API data to frontend format
         const apiConversations: Conversation[] = conversationsData.map(
@@ -220,7 +209,6 @@ export default function AIChatPage() {
         }
       } else {
         // If no history, create new conversation
-        console.log("❌ No chat history found, creating new conversation");
         createNewConversation();
       }
     } catch (error) {
@@ -263,39 +251,27 @@ export default function AIChatPage() {
       // Send message to API
       const response = await apiClient.sendChatMessage(inputMessage);
 
-      // Debug: Log the response format
-      console.log("🔍 Send Message Response:", response);
-      console.log("🔍 Response data:", response.data);
-
       if (response.success && response.data) {
         // Handle different response formats
         let aiResponse = "";
 
         if (typeof response.data === "string") {
           aiResponse = response.data;
-          console.log("✅ Using response.data as string");
         } else if ((response.data as Record<string, unknown>).response) {
           aiResponse = (response.data as Record<string, unknown>)
             .response as string;
-          console.log("✅ Using response.data.response");
         } else if ((response.data as Record<string, unknown>).message) {
           aiResponse = (response.data as Record<string, unknown>)
             .message as string;
-          console.log("✅ Using response.data.message");
         } else if ((response.data as Record<string, unknown>).content) {
           aiResponse = (response.data as Record<string, unknown>)
             .content as string;
-          console.log("✅ Using response.data.content");
         } else if ((response.data as Record<string, unknown>).text) {
           aiResponse = (response.data as Record<string, unknown>)
             .text as string;
-          console.log("✅ Using response.data.text");
         } else {
           aiResponse = "Sorry, I could not process your request.";
-          console.log("❌ No valid response format found");
         }
-
-        console.log("🔍 AI Response:", aiResponse);
 
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -322,8 +298,6 @@ export default function AIChatPage() {
         }
       } else {
         // If API is not available, provide a fallback response
-        console.log("⚠️ API not available, using fallback response");
-
         const fallbackResponse = `I understand you said: "${inputMessage}". This is a fallback response because the AI chat API is not yet available. In a real implementation, this would be connected to an actual AI service.`;
 
         const aiMessage: Message = {

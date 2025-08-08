@@ -24,12 +24,12 @@ export interface LoginResponse {
   id: number;
   name: string;
   email: string;
-  token: string;
-  roles: string[];
-  permissions: string[];
-  profile?: Record<string, unknown>;
-  tenant: {
-    id: string;
+  token?: string;
+  roles?: string[];
+  permissions?: string[];
+  profile?: Profile;
+  tenant?: {
+    id: number;
     name: string;
     domains: string[];
   };
@@ -141,13 +141,12 @@ export interface UserTenantRef {
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
+  token?: string;
   roles?: string[];
   permissions?: string[];
   profile?: Profile;
   tenant?: UserTenantRef;
-  avatar?: string;
-  company_id?: string;
 }

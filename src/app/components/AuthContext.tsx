@@ -8,20 +8,9 @@ import {
   ReactNode,
 } from "react";
 import { apiClient } from "../services/api";
+import type { User } from "../services/types";
 
 export type UserRole = "admin" | "tenant";
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  roles: string[];
-  permissions: string[];
-  avatar?: string;
-  company_id?: string;
-  tenant?: Record<string, unknown>;
-  profile?: Record<string, unknown>;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -99,26 +88,12 @@ const transformUserData = (apiUser: Record<string, unknown>): User => {
     });
   }
 
-  console.log("🔧 Transformed User Data:", {
-    id: userData.id?.toString() || "1",
-    email: userData.email || "",
-    name: userData.name || "",
-    roles,
-    permissions,
-  });
-
   return {
-    id: (userData.id as string)?.toString() || "1",
+    id: Number(userData.id) || 1,
     email: (userData.email as string) || "",
     name: (userData.name as string) || "",
     roles,
     permissions,
-    avatar:
-      (userData.avatar as string) ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        (userData.name as string) || "User"
-      )}&background=0D9488&color=fff`,
-    company_id: (userData.company_id as string)?.toString() || "1",
   };
 };
 
@@ -183,26 +158,12 @@ const transformProfileData = (profileData: Record<string, unknown>): User => {
     });
   }
 
-  console.log("🔧 Transformed Profile Data:", {
-    id: profileData.id?.toString() || "1",
-    email: profileData.email,
-    name: profileData.name,
-    roles,
-    permissions,
-  });
-
   return {
-    id: (profileData.id as string)?.toString() || "1",
+    id: Number(profileData.id) || 1,
     email: (profileData.email as string) || "",
     name: (profileData.name as string) || "",
     roles,
     permissions,
-    avatar:
-      (profileData.avatar as string) ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        (profileData.name as string) || "User"
-      )}&background=0D9488&color=fff`,
-    company_id: (profileData.company_id as string)?.toString() || "1",
   };
 };
 
@@ -211,23 +172,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in and validate token with backend
     const checkAuthStatus = async () => {
       try {
         if (apiClient.isAuthenticated()) {
-          // Validate token by calling profile endpoint
-          const profileResponse = await apiClient.getProfile();
+          const meResponse = await apiClient.me();
 
-          if (profileResponse.success && profileResponse.data) {
-            // Transform the user data from profile response
-            const transformedUser = transformProfileData(
-              profileResponse.data as unknown as Record<string, unknown>
-            );
+          if (meResponse.success && meResponse.data) {
+            const userData = meResponse.data as unknown as Record<
+              string,
+              unknown
+            >;
+            const transformedUser = transformUserData(userData);
             setUser(transformedUser);
-            console.log("Token validated successfully, user authenticated");
           } else {
-            // Token is invalid or expired
-            console.warn("Token validation failed:", profileResponse.message);
             await apiClient.logout();
             setUser(null);
           }
@@ -261,12 +218,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             userData as unknown as Record<string, unknown>
           );
           setUser(transformedUser);
-          
+
           // Store user data in localStorage for menu access
           if (typeof window !== "undefined") {
             localStorage.setItem("user_data", JSON.stringify(transformedUser));
           }
-          
+
           setIsLoading(false);
           return {
             success: true,
@@ -298,14 +255,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    console.log("Logout called"); // Debug log
-
     try {
       // Send logout request to backend with bearer token
       const response = await apiClient.logout();
 
       if (response.success) {
-        console.log("Logout successful:", response.message);
       } else {
         console.warn("Logout warning:", response.message);
       }
@@ -315,13 +269,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Clear user state
     setUser(null);
-    
+
     // Clear user data from localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem("user_data");
     }
-
-    console.log("User state cleared, redirecting..."); // Debug log
 
     // Redirect to login page
     if (typeof window !== "undefined") {

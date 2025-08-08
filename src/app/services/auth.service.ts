@@ -4,8 +4,7 @@ import { httpClient } from "./httpClient";
 export interface AuthService {
   login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>>;
   logout(): Promise<ApiResponse>;
-  getProfile(): Promise<ApiResponse<User>>;
-  getMyProfile(): Promise<ApiResponse<User>>;
+  me(): Promise<ApiResponse<User>>;
 }
 
 export class HttpAuthService implements AuthService {
@@ -28,12 +27,8 @@ export class HttpAuthService implements AuthService {
     return response;
   }
 
-  async getProfile(): Promise<ApiResponse<User>> {
-    return httpClient.request<User>("/profiles/me");
-  }
-
-  async getMyProfile(): Promise<ApiResponse<User>> {
-    return httpClient.request<User>("/profiles/me");
+  async me(): Promise<ApiResponse<User>> {
+    return httpClient.request<User>("/me");
   }
 }
 

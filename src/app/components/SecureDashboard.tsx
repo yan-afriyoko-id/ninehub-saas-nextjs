@@ -82,15 +82,6 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
       return;
     }
 
-    // Debug: Log user data
-    console.log("🔍 User Data:", {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      roles: user.roles,
-      permissions: user.permissions,
-    });
-
     setIsLoading(false);
   }, [user, router]);
 
@@ -126,23 +117,14 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
 
   const isUserAdmin = isAdmin(user.roles);
 
-  // Debug: Log admin check
-  console.log("🔍 Admin Check:", {
-    isUserAdmin,
-    userRoles: user.roles,
-    adminRoles: ["admin", "super-admin"],
-  });
-
   // Get appropriate menu items based on user role
   let menuItems;
   if (isUserAdmin) {
     // Admin gets all admin menus + general menus
     menuItems = getFilteredMenuItems(user.roles, user.permissions);
-    console.log("🔍 Admin Menu Items:", menuItems);
   } else {
     // Regular user gets only user menus (non-admin)
     menuItems = getUserMenuItems(user.roles, user.permissions);
-    console.log("🔍 User Menu Items:", menuItems);
   }
 
   const renderMenuItem = (item: MenuItem, level: number = 0) => {
