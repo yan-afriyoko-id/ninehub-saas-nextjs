@@ -8,3 +8,5 @@ export interface AuthService {
   forgotPassword(email: string): Promise<ApiResponse>;
   resetPassword(token: string, password: string): Promise<ApiResponse>;
 }
+
+

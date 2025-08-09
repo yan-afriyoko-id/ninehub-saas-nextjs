@@ -73,7 +73,10 @@ export default function DashboardLayout({
 
           <nav className="space-y-2">
             {user &&
-              getFilteredMenuItems(user.roles, user.permissions).map((item) => {
+              getFilteredMenuItems(
+                user.roles ?? [],
+                user.permissions ?? []
+              ).map((item) => {
                 const IconComponent = iconMap[item.icon];
                 const isExternal = item.external;
 

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { Permission as PermissionResource } from "../../services/types";
 
-type Permission = PermissionResource & { module: string }; // ensure module exists for UI filter/tag
+type Permission = PermissionResource & { module: string };
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -31,7 +31,6 @@ export default function PermissionsPage() {
   );
 
   useEffect(() => {
-    // Simulate API call
     setTimeout(() => {
       const dummyPermissions: Permission[] = [
         {
@@ -124,7 +123,6 @@ export default function PermissionsPage() {
   useEffect(() => {
     let filtered = permissions;
 
-    // Filter by search term (name/module only per backend fields)
     if (searchTerm) {
       filtered = filtered.filter(
         (permission) =>
@@ -133,14 +131,12 @@ export default function PermissionsPage() {
       );
     }
 
-    // Filter by guard
     if (filterGuard !== "all") {
       filtered = filtered.filter(
         (permission) => permission.guard_name === filterGuard
       );
     }
 
-    // Filter by module
     if (filterModule !== "all") {
       filtered = filtered.filter(
         (permission) => permission.module === filterModule
@@ -313,7 +309,6 @@ export default function PermissionsPage() {
                           >
                             <Edit size={16} />
                           </button>
-                          {/* No enable/disable in backend; remove status toggle */}
                           <button
                             onClick={() =>
                               handleDeletePermission(permission.id)
@@ -360,7 +355,6 @@ export default function PermissionsPage() {
                 <Key className="text-blue-500" size={24} />
               </div>
             </div>
-            {/* Active/Inactive is not part of PermissionResource; remove this card */}
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
               <div className="flex items-center justify-between">
                 <div>

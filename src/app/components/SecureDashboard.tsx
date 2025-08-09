@@ -115,16 +115,16 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
     return null;
   }
 
-  const isUserAdmin = isAdmin(user.roles);
+  const isUserAdmin = isAdmin(user.roles ?? []);
 
   // Get appropriate menu items based on user role
   let menuItems;
   if (isUserAdmin) {
     // Admin gets all admin menus + general menus
-    menuItems = getFilteredMenuItems(user.roles, user.permissions);
+    menuItems = getFilteredMenuItems(user.roles ?? [], user.permissions ?? []);
   } else {
     // Regular user gets only user menus (non-admin)
-    menuItems = getUserMenuItems(user.roles, user.permissions);
+    menuItems = getUserMenuItems(user.roles ?? [], user.permissions ?? []);
   }
 
   const renderMenuItem = (item: MenuItem, level: number = 0) => {

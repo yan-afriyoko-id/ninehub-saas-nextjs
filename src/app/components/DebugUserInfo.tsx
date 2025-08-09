@@ -21,10 +21,19 @@ export default function DebugUserInfo() {
     );
   }
 
-  const isUserAdmin = isAdmin(user.roles);
-  const adminMenuItems = getAdminMenuItems(user.roles, user.permissions);
-  const userMenuItems = getUserMenuItems(user.roles, user.permissions);
-  const allMenuItems = getFilteredMenuItems(user.roles, user.permissions);
+  const isUserAdmin = isAdmin(user.roles ?? []);
+  const adminMenuItems = getAdminMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
+  const userMenuItems = getUserMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
+  const allMenuItems = getFilteredMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
@@ -50,11 +59,13 @@ export default function DebugUserInfo() {
           </p>
           <p>
             <span className="text-gray-400">Roles:</span>{" "}
-            <span className="text-white">{user.roles.join(", ")}</span>
+            <span className="text-white">{(user.roles ?? []).join(", ")}</span>
           </p>
           <p>
             <span className="text-gray-400">Permissions:</span>{" "}
-            <span className="text-white">{user.permissions.join(", ")}</span>
+            <span className="text-white">
+              {(user.permissions ?? []).join(", ")}
+            </span>
           </p>
         </div>
       </div>

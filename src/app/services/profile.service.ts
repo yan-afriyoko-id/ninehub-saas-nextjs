@@ -1,4 +1,4 @@
-import type { ApiResponse, User } from "./types";
+import type { ApiResponse, User, Profile } from "./types";
 import { httpClient } from "./httpClient";
 
 export interface ProfileService {
@@ -15,17 +15,29 @@ export class HttpProfileService implements ProfileService {
   async updateMyProfile(
     profileData: Record<string, unknown>
   ): Promise<ApiResponse<User>> {
-    // Sesuai backend: GET /profiles/me -> ambil id -> PUT /profiles/{id}
-    const me = await httpClient.request<User>("/profiles/me");
-    if (!me.success || !me.data?.id) {
+    const me = await httpClient.request<User>("/me");
+
+    let profileId: string | null = null;
+    if (me.success && me.data && (me.data as User).profile?.id) {
+      profileId = String((me.data as User).profile!.id);
+    }
+
+    if (!profileId) {
+      const myProfile = await httpClient.request<Profile>("/profile");
+      if (myProfile.success && myProfile.data?.id) {
+        profileId = String(myProfile.data.id);
+      }
+    }
+
+    if (!profileId) {
       return {
         success: false,
-        message: me.message || "Failed to fetch profile id",
+        message: me.message || "Failed to resolve profile id",
         errors: {},
       };
     }
-    const id = me.data.id as unknown as string;
-    return httpClient.request<User>(`/profiles/${id}`, {
+
+    return httpClient.request<User>(`/profiles/${profileId}`, {
       method: "PUT",
       body: JSON.stringify(profileData),
     });
