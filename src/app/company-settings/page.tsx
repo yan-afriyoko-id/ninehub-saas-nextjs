@@ -62,12 +62,12 @@ export default function CompanySettingsPage() {
         setError(null);
 
         // Try to get company data from API
-        const response = await apiClient.getProfile();
+        const response = await apiClient.me();
 
         if (response.success && response.data) {
           // Transform API data to Company format - only use real data
           const companyData: Company = {
-            id: response.data.id || user?.id || "",
+            id: String(response.data.id ?? user?.id ?? ""),
             name: response.data.name || "Company Name",
             email: response.data.email || user?.email || "",
             phone: undefined,
@@ -109,7 +109,7 @@ export default function CompanySettingsPage() {
 
         // Fallback to minimal company data
         const fallbackCompany: Company = {
-          id: user?.id || "",
+          id: String(user?.id ?? ""),
           name: "Company Name",
           email: user?.email || "",
           status: "active",

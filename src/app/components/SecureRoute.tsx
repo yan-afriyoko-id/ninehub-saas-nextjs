@@ -35,7 +35,7 @@ export default function SecureRoute({
     }
 
     // Check if user is admin when adminOnly is true
-    if (adminOnly && !isAdmin(user.roles)) {
+    if (adminOnly && !isAdmin(user.roles ?? [])) {
       setIsAuthorized(false);
       setIsChecking(false);
       return;
@@ -44,7 +44,7 @@ export default function SecureRoute({
     // Check required roles
     if (requiredRoles.length > 0) {
       const hasRequiredRole = requiredRoles.some((role) =>
-        hasRole(user.roles, role)
+        hasRole(user.roles ?? [], role)
       );
       if (!hasRequiredRole) {
         setIsAuthorized(false);
@@ -56,7 +56,7 @@ export default function SecureRoute({
     // Check required permissions
     if (requiredPermissions.length > 0) {
       const hasRequiredPermission = requiredPermissions.some((permission) =>
-        hasPermission(user.permissions, permission)
+        hasPermission(user.permissions ?? [], permission)
       );
       if (!hasRequiredPermission) {
         setIsAuthorized(false);

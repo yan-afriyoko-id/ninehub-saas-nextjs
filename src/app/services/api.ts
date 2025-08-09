@@ -1,4 +1,3 @@
-// Facade untuk kompatibilitas sambil menerapkan SOLID services per domain
 import type {
   ApiResponse,
   LoginRequest,
@@ -29,7 +28,7 @@ class ApiFacade {
   logout = authService.logout.bind(authService);
   me = authService.me.bind(authService);
 
-  // Profile edits (ke depan bisa dipindah ke profile.service.ts)
+  // Profile
   async updateProfile(
     profileData: Record<string, unknown>
   ): Promise<ApiResponse<User>> {
@@ -83,7 +82,7 @@ class ApiFacade {
   getConversation = chatService.getConversation.bind(chatService);
   deleteConversation = chatService.deleteConversation.bind(chatService);
 
-  // Utility (kompatibilitas)
+  // Utils
   isAuthenticated(): boolean {
     return httpClient.isAuthenticated();
   }

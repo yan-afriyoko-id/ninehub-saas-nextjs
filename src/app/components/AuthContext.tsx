@@ -24,23 +24,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to transform API user data to frontend format
 const transformUserData = (apiUser: Record<string, unknown>): User => {
-  // Add null check to prevent errors
   if (!apiUser) {
     throw new Error("User data is undefined or null");
   }
 
-  // Handle different possible response structures
   const userData = (apiUser.user as Record<string, unknown>) || apiUser;
 
-  // Ensure roles array exists and contains at least one role
   let roles = (userData.roles as string[]) || [];
   if (!Array.isArray(roles)) {
     roles = [roles as string].filter(Boolean);
   }
 
-  // If no roles provided, check if user has admin-like properties
   if (roles.length === 0) {
     if (
       (userData.is_admin as boolean) ||
@@ -53,13 +48,11 @@ const transformUserData = (apiUser: Record<string, unknown>): User => {
     }
   }
 
-  // Ensure permissions array exists
   let permissions = (userData.permissions as string[]) || [];
   if (!Array.isArray(permissions)) {
     permissions = [permissions as string].filter(Boolean);
   }
 
-  // Add default permissions based on roles
   if (roles.includes("admin") || roles.includes("super-admin")) {
     const adminPermissions = [
       "dashboard.view",
@@ -80,7 +73,6 @@ const transformUserData = (apiUser: Record<string, unknown>): User => {
       "system-settings.view",
     ];
 
-    // Add admin permissions if not already present
     adminPermissions.forEach((permission) => {
       if (!permissions.includes(permission)) {
         permissions.push(permission);
@@ -189,12 +181,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
           }
         } else {
-          // No token found
           setUser(null);
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        // Clear invalid token
         await apiClient.logout();
         setUser(null);
       } finally {
@@ -212,14 +202,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiClient.login({ email, password });
       if (response.success && response.data) {
         try {
-          // Handle different possible response structures
           const userData = response.data;
           const transformedUser = transformUserData(
             userData as unknown as Record<string, unknown>
           );
           setUser(transformedUser);
 
-          // Store user data in localStorage for menu access
           if (typeof window !== "undefined") {
             localStorage.setItem("user_data", JSON.stringify(transformedUser));
           }
@@ -256,26 +244,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      // Send logout request to backend with bearer token
       const response = await apiClient.logout();
 
-      if (response.success) {
-      } else {
+      if (!response.success) {
         console.warn("Logout warning:", response.message);
       }
     } catch (error) {
       console.error("Logout error:", error);
     }
 
-    // Clear user state
     setUser(null);
 
-    // Clear user data from localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem("user_data");
     }
 
-    // Redirect to login page
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }

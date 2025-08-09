@@ -49,9 +49,18 @@ export default function TestUserPage() {
     );
   }
 
-  const adminMenuItems = getAdminMenuItems(user.roles, user.permissions);
-  const userMenuItems = getUserMenuItems(user.roles, user.permissions);
-  const allMenuItems = getFilteredMenuItems(user.roles, user.permissions);
+  const adminMenuItems = getAdminMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
+  const userMenuItems = getUserMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
+  const allMenuItems = getFilteredMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">

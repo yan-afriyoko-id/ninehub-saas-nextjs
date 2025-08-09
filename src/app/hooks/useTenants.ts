@@ -10,60 +10,49 @@ export function useTenants() {
     error,
     execute: fetchTenants,
     reset,
-  } = useApi<Tenant[]>(apiClient.getTenants);
+  } = useApi<Tenant[], []>(apiClient.getTenants);
 
   const {
-    data: createResult,
     loading: creating,
     error: createError,
     execute: createTenant,
     reset: resetCreate,
-  } = useApi<Tenant>(apiClient.createTenant);
+  } = useApi<Tenant, [Partial<Tenant>]>(apiClient.createTenant);
 
   const {
-    data: updateResult,
     loading: updating,
     error: updateError,
     execute: updateTenant,
     reset: resetUpdate,
-  } = useApi<Tenant>(apiClient.updateTenant);
+  } = useApi<Tenant, [number | string, Partial<Tenant>]>(
+    apiClient.updateTenant
+  );
 
   const {
-    data: deleteResult,
     loading: deleting,
     error: deleteError,
     execute: deleteTenant,
     reset: resetDelete,
-  } = useApi(apiClient.deleteTenant);
+  } = useApi<unknown, [number | string]>(apiClient.deleteTenant);
 
-  // Auto-fetch on mount
   useEffect(() => {
     fetchTenants();
   }, [fetchTenants]);
 
   return {
-    // Data
     tenants,
-
-    // Loading states
     loading,
     creating,
     updating,
     deleting,
-
-    // Error states
     error,
     createError,
     updateError,
     deleteError,
-
-    // Actions
     fetchTenants,
     createTenant,
     updateTenant,
     deleteTenant,
-
-    // Reset functions
     reset,
     resetCreate,
     resetUpdate,

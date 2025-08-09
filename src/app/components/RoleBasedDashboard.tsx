@@ -44,7 +44,6 @@ export default function RoleBasedDashboard({
     return null;
   }
 
-  // Define menu items based on role
   const menuItems: DashboardMenuItem[] = [
     {
       id: "overview",
@@ -95,23 +94,21 @@ export default function RoleBasedDashboard({
       label: "Menu ke CRM",
       icon: <MessageSquare size={20} />,
       permission: ["admin", "tenant"],
-      href: "https://your-crm-url.com", // Ganti dengan URL CRM Anda
+      href: "https://your-crm-url.com",
     },
-    // AI Chat - Admin version (internal)
     {
       id: "ai-chat-admin",
       label: "Menu ke AI Chat",
       icon: <Bot size={20} />,
       permission: ["admin"],
-      href: "/ai-chat", // Internal path for admin
+      href: "/ai-chat",
     },
-    // AI Chat - User/Tenant version (external)
     {
       id: "ai-chat-user",
       label: "Menu ke AI Chat",
       icon: <Bot size={20} />,
       permission: ["tenant"],
-      href: "http://localhost:3001/", // External URL for user/tenant
+      href: "http://localhost:3001/",
     },
     {
       id: "settings",
@@ -121,12 +118,10 @@ export default function RoleBasedDashboard({
     },
   ];
 
-  // Filter menu items based on user role
   const filteredMenuItems = menuItems.filter((item) =>
     item.permission.some((role) => user.roles?.includes(role))
   );
 
-  // Check if user has admin role
   const isAdmin = user.roles?.includes("admin") || false;
   const isTenant = user.roles?.includes("tenant") || false;
 
@@ -162,7 +157,6 @@ export default function RoleBasedDashboard({
     return (
       <div key={item.id}>
         {isExternal ? (
-          // External link - use anchor tag
           <a
             href={item.href}
             target="_blank"
@@ -177,7 +171,6 @@ export default function RoleBasedDashboard({
             {menuButton}
           </a>
         ) : item.href ? (
-          // Internal link - use Next.js Link
           <Link
             href={item.href}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
@@ -190,7 +183,6 @@ export default function RoleBasedDashboard({
             {menuButton}
           </Link>
         ) : (
-          // Button without link
           <button
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
@@ -231,7 +223,6 @@ export default function RoleBasedDashboard({
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 border-r border-gray-700">
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-8">
@@ -258,7 +249,6 @@ export default function RoleBasedDashboard({
             {filteredMenuItems.map(renderMenuItem)}
           </nav>
 
-          {/* Bottom section */}
           <div className="mt-8 pt-6 border-t border-gray-700">
             <Link
               href="/"
@@ -279,9 +269,7 @@ export default function RoleBasedDashboard({
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Top Navigation */}
         <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -352,7 +340,6 @@ export default function RoleBasedDashboard({
           </div>
         </header>
 
-        {/* Dashboard Content */}
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>

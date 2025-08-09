@@ -5,9 +5,9 @@ import { useAuth } from "../components/AuthContext";
 import { apiClient } from "../services/api";
 import SecureRoute from "../components/SecureRoute";
 import SecureDashboard from "../components/SecureDashboard";
-import type { Profile } from "../services/types";
+import type { Profile as ProfileType, User } from "../services/types";
 import {
-  User,
+  User as UserIcon,
   Mail,
   Phone,
   MapPin,
@@ -29,7 +29,7 @@ interface ProfileFormData {
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
   const [editForm, setEditForm] = useState<ProfileFormData>({
     name: "",
   });
@@ -47,10 +47,10 @@ export default function ProfilePage() {
         const response = await apiClient.me();
 
         if (response.success && response.data) {
-          const userData = response.data as any;
+          const userData = response.data as User;
 
           // Create profile from user data
-          const userProfile: Profile = {
+          const userProfile: ProfileType = {
             id: userData.id,
             name: userData.name,
             age: userData.profile?.age || 0,
@@ -73,7 +73,7 @@ export default function ProfilePage() {
         } else {
           // Fallback to user data from AuthContext
           if (user) {
-            const fallbackProfile: Profile = {
+            const fallbackProfile: ProfileType = {
               id: user.id,
               name: user.name,
               age: 0,
@@ -101,7 +101,7 @@ export default function ProfilePage() {
 
         // Fallback to user data from AuthContext - minimal data only
         if (user) {
-          const fallbackProfile: Profile = {
+          const fallbackProfile: ProfileType = {
             id: user.id,
             name: user.name,
             age: 0,
@@ -151,7 +151,7 @@ export default function ProfilePage() {
 
         if (response.success && response.data) {
           // Update profile with new data
-          const updatedProfile: Profile = {
+          const updatedProfile: ProfileType = {
             ...profile,
             name: editForm.name,
             age: editForm.age ? parseInt(editForm.age) : profile.age,
@@ -259,7 +259,7 @@ export default function ProfilePage() {
               <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
                 <div className="text-center mb-6">
                   <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <User size={32} className="text-white" />
+                    <UserIcon size={32} className="text-white" />
                   </div>
                   <h3 className="text-xl font-semibold text-white">
                     {profile.name}
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                   </div>
                   {profile.age && profile.age > 0 && (
                     <div className="flex items-center space-x-3">
-                      <User className="text-gray-400" size={16} />
+                      <UserIcon className="text-gray-400" size={16} />
                       <span className="text-gray-300">
                         {profile.age} years old
                       </span>
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                   )}
                   {profile.gender && (
                     <div className="flex items-center space-x-3">
-                      <User className="text-gray-400" size={16} />
+                      <UserIcon className="text-gray-400" size={16} />
                       <span className="text-gray-300">{profile.gender}</span>
                     </div>
                   )}
