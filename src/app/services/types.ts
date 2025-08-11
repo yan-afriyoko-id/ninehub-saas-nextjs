@@ -38,7 +38,7 @@ export interface LoginResponse {
 export interface Profile {
   id: number;
   name: string;
-  age: number;
+  age: number | null;
   gender: string | null;
   phone_number: string | null;
   address: string | null;

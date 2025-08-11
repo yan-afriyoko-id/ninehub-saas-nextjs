@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  BASE_URL: "http://localhost:8000/api",
+  BASE_URL: "http://api.ninehub.test/api",
   ENDPOINTS: {
     LOGIN: "/login",
     REGISTER: "/register",

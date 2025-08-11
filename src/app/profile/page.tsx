@@ -53,7 +53,7 @@ export default function ProfilePage() {
           const userProfile: ProfileType = {
             id: userData.id,
             name: userData.name,
-            age: userData.profile?.age || 0,
+            age: userData.profile?.age || null,
             gender: userData.profile?.gender || null,
             phone_number: userData.profile?.phone_number || null,
             address: userData.profile?.address || null,
@@ -64,7 +64,7 @@ export default function ProfilePage() {
           setProfile(userProfile);
           setEditForm({
             name: userProfile.name,
-            age: userProfile.age?.toString() || "",
+            age: userProfile.age ? userProfile.age.toString() : "",
             gender: userProfile.gender || "",
             phone_number: userProfile.phone_number || "",
             address: userProfile.address || "",
@@ -76,7 +76,7 @@ export default function ProfilePage() {
             const fallbackProfile: ProfileType = {
               id: user.id,
               name: user.name,
-              age: 0,
+              age: null,
               gender: null,
               phone_number: null,
               address: null,
@@ -104,7 +104,7 @@ export default function ProfilePage() {
           const fallbackProfile: ProfileType = {
             id: user.id,
             name: user.name,
-            age: 0,
+            age: null,
             gender: null,
             phone_number: null,
             address: null,
@@ -138,7 +138,8 @@ export default function ProfilePage() {
         // Prepare data for API update - only send fields that have values
         const updateData: Record<string, string> = {};
         if (editForm.name) updateData.name = editForm.name;
-        if (editForm.age) updateData.age = editForm.age;
+        if (editForm.age && editForm.age.trim() !== "")
+          updateData.age = editForm.age;
         if (editForm.gender) updateData.gender = editForm.gender;
         if (editForm.phone_number)
           updateData.phone_number = editForm.phone_number;
@@ -154,7 +155,10 @@ export default function ProfilePage() {
           const updatedProfile: ProfileType = {
             ...profile,
             name: editForm.name,
-            age: editForm.age ? parseInt(editForm.age) : profile.age,
+            age:
+              editForm.age && editForm.age.trim() !== ""
+                ? parseInt(editForm.age)
+                : null,
             gender: editForm.gender || null,
             phone_number: editForm.phone_number || null,
             address: editForm.address || null,
@@ -179,7 +183,7 @@ export default function ProfilePage() {
     if (profile) {
       setEditForm({
         name: profile.name,
-        age: profile.age?.toString() || "",
+        age: profile.age ? profile.age.toString() : "",
         gender: profile.gender || "",
         phone_number: profile.phone_number || "",
         address: profile.address || "",
@@ -427,7 +431,7 @@ export default function ProfilePage() {
                       </label>
                       <input
                         type="number"
-                        value={editForm.age || ""}
+                        value={editForm.age}
                         onChange={(e) =>
                           setEditForm({ ...editForm, age: e.target.value })
                         }
