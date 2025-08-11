@@ -10,6 +10,7 @@ export const API_CONFIG = {
     PERMISSIONS: "/permissions",
     ROLES: "/roles",
     PLANS: "/plans",
+    SUBDOMAINS: "/subdomains",
   },
 };
 
