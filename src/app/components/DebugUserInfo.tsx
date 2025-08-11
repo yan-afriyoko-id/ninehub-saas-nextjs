@@ -4,7 +4,6 @@ import { useAuth } from "./AuthContext";
 import {
   getFilteredMenuItems,
   getAdminMenuItems,
-  getUserMenuItems,
   isAdmin,
   getMenuItemPath,
 } from "../config/menu";
@@ -26,7 +25,7 @@ export default function DebugUserInfo() {
     user.roles ?? [],
     user.permissions ?? []
   );
-  const userMenuItems = getUserMenuItems(
+  const userMenuItems = getFilteredMenuItems(
     user.roles ?? [],
     user.permissions ?? []
   );

@@ -1,3 +1,5 @@
+import { APP_URLS } from "./api";
+
 export interface MenuItem {
   id: string;
   label: string;
@@ -35,10 +37,10 @@ const generateAiChatUrl = (): string => {
   const { token, email } = getCurrentUserData();
 
   if (!token || !email) {
-    return "http://localhost:3001/";
+    return APP_URLS.AI_CHAT;
   }
 
-  return `http://localhost:3001/?token=${token}&email=${encodeURIComponent(
+  return `${APP_URLS.AI_CHAT}?token=${token}&email=${encodeURIComponent(
     email
   )}`;
 };
@@ -109,7 +111,7 @@ export const MENU_ITEMS: MenuItem[] = [
     id: "crm",
     label: "Go to CRM",
     icon: "briefcase",
-    path: "https://your-crm-url.com",
+    path: APP_URLS.CRM,
     permission: "crm.view",
     external: true,
   },
@@ -130,6 +132,13 @@ export const MENU_ITEMS: MenuItem[] = [
     permission: "chat.send",
     external: true,
     roles: ["tenant", "user"],
+  },
+  {
+    id: "subdomains",
+    label: "Subdomain Apps",
+    icon: "globe",
+    path: "/subdomains",
+    permission: "dashboard.view",
   },
   {
     id: "settings",
@@ -325,61 +334,6 @@ export const getAdminMenuItems = (
 
   return MENU_ITEMS.filter((item) => {
     if (!item.isAdmin) return false;
-
-    if (item.permission && !effectivePermissions.includes(item.permission)) {
-      return false;
-    }
-
-    if (
-      item.roles &&
-      !item.roles.some((role) => effectiveRoles.includes(role))
-    ) {
-      return false;
-    }
-
-    if (item.children) {
-      item.children = item.children.filter((child) => {
-        if (
-          child.permission &&
-          !effectivePermissions.includes(child.permission)
-        ) {
-          return false;
-        }
-        if (
-          child.roles &&
-          !child.roles.some((role) => effectiveRoles.includes(role))
-        ) {
-          return false;
-        }
-        return true;
-      });
-    }
-
-    return true;
-  });
-};
-
-export const getUserMenuItems = (
-  userRoles: string[],
-  userPermissions: string[]
-): MenuItem[] => {
-  let effectivePermissions = [...userPermissions];
-  const effectiveRoles = [...userRoles];
-
-  if (userPermissions.length === 0) {
-    const defaultUserPermissions = [
-      "dashboard.view",
-      "crm.view",
-      "chat.send",
-      "settings.view",
-      "profile.view",
-      "security.view",
-    ];
-    effectivePermissions = defaultUserPermissions;
-  }
-
-  return MENU_ITEMS.filter((item) => {
-    if (item.isAdmin) return false;
 
     if (item.permission && !effectivePermissions.includes(item.permission)) {
       return false;

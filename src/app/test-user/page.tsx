@@ -7,7 +7,6 @@ import DebugUserInfo from "../components/DebugUserInfo";
 import {
   getFilteredMenuItems,
   getAdminMenuItems,
-  getUserMenuItems,
   getMenuItemPath,
 } from "../config/menu";
 
@@ -53,7 +52,7 @@ export default function TestUserPage() {
     user.roles ?? [],
     user.permissions ?? []
   );
-  const userMenuItems = getUserMenuItems(
+  const userMenuItems = getFilteredMenuItems(
     user.roles ?? [],
     user.permissions ?? []
   );

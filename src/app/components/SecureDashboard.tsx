@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "./AuthContext";
 import {
   getFilteredMenuItems,
-  getUserMenuItems,
   isAdmin,
   getMenuItemPath,
   MenuItem,
@@ -38,6 +37,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 
 // Icon mapping
@@ -60,6 +60,7 @@ const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
   "message-square": MessageSquare,
   "user-check": UserCheck,
   "book-open": BookOpen,
+  globe: Globe,
 };
 
 interface SecureDashboardProps {
@@ -117,15 +118,11 @@ export default function SecureDashboard({ children }: SecureDashboardProps) {
 
   const isUserAdmin = isAdmin(user.roles ?? []);
 
-  // Get appropriate menu items based on user role
-  let menuItems;
-  if (isUserAdmin) {
-    // Admin gets all admin menus + general menus
-    menuItems = getFilteredMenuItems(user.roles ?? [], user.permissions ?? []);
-  } else {
-    // Regular user gets only user menus (non-admin)
-    menuItems = getUserMenuItems(user.roles ?? [], user.permissions ?? []);
-  }
+  // All users get filtered menu items based on their roles and permissions
+  const menuItems = getFilteredMenuItems(
+    user.roles ?? [],
+    user.permissions ?? []
+  );
 
   const renderMenuItem = (item: MenuItem, level: number = 0) => {
     const IconComponent = iconMap[item.icon];
