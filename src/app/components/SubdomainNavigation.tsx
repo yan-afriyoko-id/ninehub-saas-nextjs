@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { APP_URLS } from "../config/api";
 import { useAuth } from "./AuthContext";
+import { SubdomainService } from "../services/subdomainService";
 import { MessageCircle, Briefcase, ExternalLink } from "lucide-react";
 
 interface SubdomainApp {
@@ -16,13 +18,43 @@ interface SubdomainApp {
 
 export default function SubdomainNavigation() {
   const { user } = useAuth();
+  const [subdomainUrls, setSubdomainUrls] = useState<{
+    ai_chat: string;
+    crm: string;
+  }>({
+    ai_chat: APP_URLS.AI_CHAT,
+    crm: APP_URLS.CRM,
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch subdomain URLs from API
+  useEffect(() => {
+    const fetchSubdomainUrls = async () => {
+      if (!user?.token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const urls = await SubdomainService.getSubdomainUrls();
+        setSubdomainUrls(urls);
+      } catch (error) {
+        console.error("Failed to fetch subdomain URLs:", error);
+        // Fallback to default URLs
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubdomainUrls();
+  }, [user?.token]);
 
   const subdomainApps: SubdomainApp[] = [
     {
       id: "ai-chat",
       name: "AI Chat",
       description: "Intelligent chatbot with advanced AI capabilities",
-      url: APP_URLS.AI_CHAT,
+      url: subdomainUrls.ai_chat,
       icon: MessageCircle,
       color: "text-green-400",
       bgColor: "bg-green-500/10",
@@ -31,7 +63,7 @@ export default function SubdomainNavigation() {
       id: "crm",
       name: "CRM System",
       description: "Customer relationship management platform",
-      url: APP_URLS.CRM,
+      url: subdomainUrls.crm,
       icon: Briefcase,
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
@@ -43,14 +75,11 @@ export default function SubdomainNavigation() {
       return baseUrl;
     }
 
-    // Add authentication parameters for seamless login
-    const params = new URLSearchParams({
-      token: user.token,
-      email: user.email,
-      source: "ninehub-main",
-    });
-
-    return `${baseUrl}?${params.toString()}`;
+    return SubdomainService.generateAuthenticatedUrl(
+      baseUrl,
+      user.token,
+      user.email
+    );
   };
 
   return (
